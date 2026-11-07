@@ -525,6 +525,7 @@
     currentPage = page;
     $$('.page').forEach((p) => p.classList.remove('active'));
     const el = $('#page-' + page); el.classList.add('active');
+    const qrCard = $('.website-qr-card'); if (qrCard) qrCard.hidden = page !== 'home';
     document.title = (el.dataset.title || 'Bloom & Bliss') + ' — Bloom & Bliss';
     $$('.nav a').forEach((a) => a.classList.toggle('active', NAV_MAP[page] === a.dataset.nav));
     closeMenus();
@@ -1102,6 +1103,15 @@ function renderHome() {
     const el = e.target.closest('[data-action]'); if (!el) return;
     const act = el.dataset.action; const id = el.dataset.id; const key = el.dataset.key;
     switch (act) {
+      case 'toggle-password': {
+        const input = document.getElementById(el.dataset.target);
+        if (!input || !['password', 'text'].includes(input.type)) break;
+        const showPassword = input.type === 'password';
+        input.type = showPassword ? 'text' : 'password';
+        el.setAttribute('aria-pressed', String(showPassword));
+        el.setAttribute('aria-label', showPassword ? 'Hide password' : 'Show password');
+        break;
+      }
       case 'copy-promo': copyPromoCode(); break;
       case 'dismiss-promo': {
         $('#topPromo').hidden = true;

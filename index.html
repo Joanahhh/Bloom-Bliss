@@ -18,15 +18,21 @@
 <div id="loader" aria-hidden="true">
   <svg class="loader-flower-shapes" aria-hidden="true" focusable="false">
     <symbol id="loader-flower-shape" viewBox="0 0 64 64">
-      <g fill="#A64D69">
+      <g class="loader-mini-petals">
         <ellipse cx="32" cy="16" rx="8" ry="15" transform="rotate(240 32 32)"/>
-        <ellipse cx="32" cy="16" rx="8" ry="15" transform="rotate(60 32 32)" fill="#C7798F"/>
+        <ellipse cx="32" cy="16" rx="8" ry="15" transform="rotate(60 32 32)"/>
         <ellipse cx="32" cy="16" rx="8" ry="15" transform="rotate(120 32 32)"/>
-        <ellipse cx="32" cy="16" rx="8" ry="15" transform="rotate(180 32 32)" fill="#C7798F"/>
+        <ellipse cx="32" cy="16" rx="8" ry="15" transform="rotate(180 32 32)"/>
         <ellipse cx="32" cy="16" rx="8" ry="15"/>
-        <ellipse cx="32" cy="16" rx="8" ry="15" transform="rotate(300 32 32)" fill="#C7798F"/>
+        <ellipse cx="32" cy="16" rx="8" ry="15" transform="rotate(300 32 32)"/>
       </g>
-      <circle cx="32" cy="32" r="7" fill="#D4B483"/>
+      <circle class="loader-mini-center" cx="32" cy="32" r="7"/>
+    </symbol>
+    <symbol id="loader-butterfly-shape" viewBox="0 0 40 32">
+      <path class="butterfly-wing butterfly-wing-left" d="M19 15C13 4 3 3 3 10c0 5 7 9 15 8-7 1-12 7-8 10 5 3 10-4 11-11Z"/>
+      <path class="butterfly-wing butterfly-wing-right" d="M21 15C27 4 37 3 37 10c0 5-7 9-15 8 7 1 12 7 8 10-5 3-10-4-11-11Z"/>
+      <path class="butterfly-body" d="M20 11c-2 4-2 10 0 14 2-4 2-10 0-14Z"/>
+      <path class="butterfly-antenna" d="M19 12 16 8m5 4 3-4"/>
     </symbol>
   </svg>
   <div class="loader-flower-field">
@@ -47,11 +53,19 @@
     <span class="loader-mini-flower flower-o"><svg viewBox="0 0 64 64"><use href="#loader-flower-shape"/></svg></span>
     <span class="loader-mini-flower flower-p"><svg viewBox="0 0 64 64"><use href="#loader-flower-shape"/></svg></span>
   </div>
+  <span class="loader-butterfly butterfly-three" aria-hidden="true"><svg viewBox="0 0 40 32" focusable="false"><use href="#loader-butterfly-shape"/></svg></span>
+  <span class="loader-butterfly butterfly-four" aria-hidden="true"><svg viewBox="0 0 40 32" focusable="false"><use href="#loader-butterfly-shape"/></svg></span>
+  <span class="loader-butterfly butterfly-five" aria-hidden="true"><svg viewBox="0 0 40 32" focusable="false"><use href="#loader-butterfly-shape"/></svg></span>
   <div class="loader-petals" aria-hidden="true">
     <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
   </div>
   <div class="loader-bloom">
-    <div class="flower"><i></i><i></i><i></i><i></i><i></i><i></i><span class="flower-center"></span></div>
+    <p class="loader-welcome">Welcome to</p>
+    <div class="loader-flower-wrap">
+      <span class="loader-butterfly butterfly-one" aria-hidden="true"><svg viewBox="0 0 40 32" focusable="false"><use href="#loader-butterfly-shape"/></svg></span>
+      <span class="loader-butterfly butterfly-two" aria-hidden="true"><svg viewBox="0 0 40 32" focusable="false"><use href="#loader-butterfly-shape"/></svg></span>
+      <div class="flower"><i></i><i></i><i></i><i></i><i></i><i></i><span class="flower-center"></span></div>
+    </div>
     <h2>Bloom &amp; Bliss</h2>
     <p class="loader-tagline">Where every flower tells a story</p>
   </div>
@@ -1524,7 +1538,7 @@
 
           <form id="loginForm" novalidate aria-labelledby="tabLogin">
             <div class="field"><label for="loginEmail">Email</label><input type="email" id="loginEmail" name="email" autocomplete="email" placeholder="you@example.com"><span class="error" data-error-for="email" role="alert"></span></div>
-            <div class="field"><label for="loginPass">Password</label><input type="password" id="loginPass" name="password" autocomplete="current-password" placeholder="Your password"><span class="error" data-error-for="password" role="alert"></span></div>
+            <div class="field"><label for="loginPass">Password</label><div class="password-input"><input type="password" id="loginPass" name="password" autocomplete="current-password" placeholder="Your password"><button class="password-toggle" type="button" data-action="toggle-password" data-target="loginPass" aria-label="Show password" aria-pressed="false"><svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 5.2A10.7 10.7 0 0 1 12 5c6.4 0 10 7 10 7a16 16 0 0 1-3.1 3.8M6.2 6.2C3.5 8 2 12 2 12s3.6 7 10 7a10.5 10.5 0 0 0 4-.8"/></svg></button></div><span class="error" data-error-for="password" role="alert"></span></div>
             <div class="form-alert" id="loginAlert" hidden></div>
             <button class="btn btn-primary btn-block" type="submit">Login</button>
           </form>
@@ -1532,8 +1546,8 @@
           <form id="registerForm" novalidate hidden aria-labelledby="tabRegister">
             <div class="field"><label for="regName">Full name</label><input type="text" id="regName" name="name" autocomplete="name" placeholder="Maria Santos"><span class="error" data-error-for="name" role="alert"></span></div>
             <div class="field"><label for="regEmail">Email</label><input type="email" id="regEmail" name="email" autocomplete="email" placeholder="you@example.com"><span class="error" data-error-for="email" role="alert"></span></div>
-            <div class="field"><label for="regPass">Password</label><input type="password" id="regPass" name="password" autocomplete="new-password" placeholder="At least 8 characters"><span class="hint">Use 8+ characters with letters and numbers.</span><span class="error" data-error-for="password" role="alert"></span></div>
-            <div class="field"><label for="regConfirm">Confirm password</label><input type="password" id="regConfirm" name="confirm" autocomplete="new-password"><span class="error" data-error-for="confirm" role="alert"></span></div>
+            <div class="field"><label for="regPass">Password</label><div class="password-input"><input type="password" id="regPass" name="password" autocomplete="new-password" placeholder="At least 8 characters"><button class="password-toggle" type="button" data-action="toggle-password" data-target="regPass" aria-label="Show password" aria-pressed="false"><svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 5.2A10.7 10.7 0 0 1 12 5c6.4 0 10 7 10 7a16 16 0 0 1-3.1 3.8M6.2 6.2C3.5 8 2 12 2 12s3.6 7 10 7a10.5 10.5 0 0 0 4-.8"/></svg></button></div><span class="hint">Use 8+ characters with letters and numbers.</span><span class="error" data-error-for="password" role="alert"></span></div>
+            <div class="field"><label for="regConfirm">Confirm password</label><div class="password-input"><input type="password" id="regConfirm" name="confirm" autocomplete="new-password"><button class="password-toggle" type="button" data-action="toggle-password" data-target="regConfirm" aria-label="Show password" aria-pressed="false"><svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 5.2A10.7 10.7 0 0 1 12 5c6.4 0 10 7 10 7a16 16 0 0 1-3.1 3.8M6.2 6.2C3.5 8 2 12 2 12s3.6 7 10 7a10.5 10.5 0 0 0 4-.8"/></svg></button></div><span class="error" data-error-for="confirm" role="alert"></span></div>
             <button class="btn btn-primary btn-block" type="submit">Create Account</button>
           </form>
         </div>
@@ -1673,6 +1687,11 @@
 <div id="modal" hidden></div>
 <div id="toasts" role="status" aria-live="polite"></div>
 
+<a class="website-qr-card" href="https://bloom-bliss-seven.vercel.app/" target="_blank" rel="noopener noreferrer" aria-label="Bloom &amp; Bliss" hidden>
+  <span class="website-qr-label">Scan to visit</span>
+  <img src="PICTURES/Website%20QR.png" alt="QR code for https://bloom-bliss-seven.vercel.app/">
+  <span class="website-qr-url">bloom-bliss-seven.vercel.app</span>
+</a>
 
 
 <!-- Bloom & Bliss: Floating Cursor Petals -->

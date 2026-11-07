@@ -79,22 +79,25 @@ main:focus { outline: none; }
   animation: loaderFlowerSpin var(--spin-time, 24s) linear var(--spin-delay, 0s) infinite;
 }
 .loader-mini-flower svg { display: block; width: 100%; height: 100%; scale: .05; opacity: 0; animation: loaderMiniBloom .8s var(--bloom-delay, 0s) cubic-bezier(.2,.8,.25,1.25) forwards; }
-.flower-a { left: 4%; top: 9%; --spin-time: 25s; --spin-delay: -8s; --bloom-delay: .05s; }
-.flower-b { left: 18%; top: 24%; width: clamp(16px, 2vw, 28px); opacity: .5; --spin-time: 32s; --spin-delay: -21s; --bloom-delay: .2s; }
-.flower-c { left: 29%; top: 7%; width: clamp(18px, 2.5vw, 34px); opacity: .62; --spin-time: 28s; --spin-delay: -13s; --bloom-delay: .35s; }
-.flower-d { left: 41%; top: 19%; width: clamp(22px, 3.2vw, 44px); opacity: .42; --spin-time: 35s; --spin-delay: -5s; --bloom-delay: .1s; }
-.flower-e { left: 55%; top: 6%; width: clamp(16px, 2.2vw, 30px); opacity: .55; --spin-time: 27s; --spin-delay: -18s; --bloom-delay: .45s; }
-.flower-f { left: 68%; top: 23%; width: clamp(21px, 2.7vw, 38px); opacity: .66; --spin-time: 31s; --spin-delay: -11s; --bloom-delay: .25s; }
-.flower-g { right: 17%; top: 8%; width: clamp(24px, 3.5vw, 48px); opacity: .48; --spin-time: 38s; --spin-delay: -29s; --bloom-delay: .5s; }
-.flower-h { right: 4%; top: 31%; width: clamp(18px, 2.4vw, 34px); opacity: .7; --spin-time: 26s; --spin-delay: -17s; --bloom-delay: .15s; }
-.flower-i { left: 6%; top: 53%; width: clamp(22px, 3.2vw, 44px); opacity: .52; --spin-time: 34s; --spin-delay: -23s; --bloom-delay: .4s; }
-.flower-j { left: 23%; top: 71%; width: clamp(16px, 2.3vw, 32px); opacity: .68; --spin-time: 29s; --spin-delay: -9s; --bloom-delay: .3s; }
-.flower-k { left: 39%; top: 86%; width: clamp(21px, 2.8vw, 38px); opacity: .46; --spin-time: 37s; --spin-delay: -31s; --bloom-delay: .55s; }
-.flower-l { left: 55%; top: 69%; width: clamp(18px, 2.5vw, 35px); opacity: .64; --spin-time: 30s; --spin-delay: -14s; --bloom-delay: .2s; }
-.flower-m { right: 27%; top: 88%; width: clamp(17px, 2.2vw, 31px); opacity: .5; --spin-time: 33s; --spin-delay: -26s; --bloom-delay: .35s; }
-.flower-n { right: 12%; top: 66%; width: clamp(23px, 3vw, 42px); opacity: .62; --spin-time: 28s; --spin-delay: -7s; --bloom-delay: .1s; }
-.flower-o { right: 3%; top: 86%; width: clamp(16px, 2.4vw, 33px); opacity: .48; --spin-time: 36s; --spin-delay: -19s; --bloom-delay: .5s; }
-.flower-p { left: 82%; top: 43%; width: clamp(20px, 2.8vw, 39px); opacity: .44; --spin-time: 31s; --spin-delay: -3s; --bloom-delay: .25s; }
+.loader-mini-petals ellipse { fill: var(--mini-petal, #F2B8C6); }
+.loader-mini-petals ellipse:nth-child(even) { fill: var(--mini-petal-light, #F9D7DE); }
+.loader-mini-center { fill: var(--mini-center, #EBCB8B); }
+.flower-a { left: 4%; top: 9%; --mini-petal: #F2B8C6; --mini-petal-light: #F9D7DE; --mini-center: #EBCB8B; --spin-time: 25s; --spin-delay: -8s; --bloom-delay: .05s; }
+.flower-b { left: 18%; top: 24%; width: clamp(16px, 2vw, 28px); opacity: .5; --mini-petal: #70263D; --mini-petal-light: #A64D69; --mini-center: #F0D8A5; --spin-time: 32s; --spin-delay: -21s; --bloom-delay: .2s; }
+.flower-c { left: 29%; top: 7%; width: clamp(18px, 2.5vw, 34px); opacity: .62; --mini-petal: #F2D49C; --mini-petal-light: #F8E8C9; --mini-center: #D99AA8; --spin-time: 28s; --spin-delay: -13s; --bloom-delay: .35s; }
+.flower-d { left: 41%; top: 19%; width: clamp(22px, 3.2vw, 44px); opacity: .42; --mini-petal: #AFCFC0; --mini-petal-light: #D5E7DC; --mini-center: #F1D99F; --spin-time: 35s; --spin-delay: -5s; --bloom-delay: .1s; }
+.flower-e { left: 55%; top: 6%; width: clamp(16px, 2.2vw, 30px); opacity: .55; --mini-petal: #5A1D32; --mini-petal-light: #8C3550; --mini-center: #EBCB8B; --spin-time: 27s; --spin-delay: -18s; --bloom-delay: .45s; }
+.flower-f { left: 68%; top: 23%; width: clamp(21px, 2.7vw, 38px); opacity: .66; --mini-petal: #AEC9E8; --mini-petal-light: #D9E7F5; --mini-center: #F0D8A5; --spin-time: 31s; --spin-delay: -11s; --bloom-delay: .25s; }
+.flower-g { right: 17%; top: 8%; width: clamp(24px, 3.5vw, 48px); opacity: .48; --mini-petal: #C6B4E2; --mini-petal-light: #E2D8F1; --mini-center: #F0D8A5; --spin-time: 38s; --spin-delay: -29s; --bloom-delay: .5s; }
+.flower-h { right: 4%; top: 31%; width: clamp(18px, 2.4vw, 34px); opacity: .7; --mini-petal: #F2D49C; --mini-petal-light: #F8E8C9; --mini-center: #D99AA8; --spin-time: 26s; --spin-delay: -17s; --bloom-delay: .15s; }
+.flower-i { left: 6%; top: 53%; width: clamp(22px, 3.2vw, 44px); opacity: .52; --mini-petal: #AEC9E8; --mini-petal-light: #D9E7F5; --mini-center: #F0D8A5; --spin-time: 34s; --spin-delay: -23s; --bloom-delay: .4s; }
+.flower-j { left: 23%; top: 71%; width: clamp(16px, 2.3vw, 32px); opacity: .68; --mini-petal: #70263D; --mini-petal-light: #B65370; --mini-center: #EBCB8B; --spin-time: 29s; --spin-delay: -9s; --bloom-delay: .3s; }
+.flower-k { left: 39%; top: 86%; width: clamp(21px, 2.8vw, 38px); opacity: .46; --mini-petal: #AFCFC0; --mini-petal-light: #D5E7DC; --mini-center: #F1D99F; --spin-time: 37s; --spin-delay: -31s; --bloom-delay: .55s; }
+.flower-l { left: 55%; top: 69%; width: clamp(18px, 2.5vw, 35px); opacity: .64; --mini-petal: #C6B4E2; --mini-petal-light: #E2D8F1; --mini-center: #F0D8A5; --spin-time: 30s; --spin-delay: -14s; --bloom-delay: .2s; }
+.flower-m { right: 27%; top: 88%; width: clamp(17px, 2.2vw, 31px); opacity: .5; --mini-petal: #F2D49C; --mini-petal-light: #F8E8C9; --mini-center: #D99AA8; --spin-time: 33s; --spin-delay: -26s; --bloom-delay: .35s; }
+.flower-n { right: 12%; top: 66%; width: clamp(23px, 3vw, 42px); opacity: .62; --mini-petal: #5A1D32; --mini-petal-light: #A64D69; --mini-center: #EBCB8B; --spin-time: 28s; --spin-delay: -7s; --bloom-delay: .1s; }
+.flower-o { right: 3%; top: 86%; width: clamp(16px, 2.4vw, 33px); opacity: .48; --mini-petal: #AEC9E8; --mini-petal-light: #D9E7F5; --mini-center: #F0D8A5; --spin-time: 36s; --spin-delay: -19s; --bloom-delay: .5s; }
+.flower-p { left: 82%; top: 43%; width: clamp(20px, 2.8vw, 39px); opacity: .44; --mini-petal: #AFCFC0; --mini-petal-light: #D5E7DC; --mini-center: #F1D99F; --spin-time: 31s; --spin-delay: -3s; --bloom-delay: .25s; }
 @keyframes loaderFlowerSpin { to { rotate: 360deg; } }
 @keyframes loaderMiniBloom {
   0% { scale: .05; opacity: 0; }
@@ -122,11 +125,27 @@ main:focus { outline: none; }
   100% { transform: translate3d(-18px, 110vh, 0) rotate(440deg); opacity: 0; }
 }
 .loader-bloom { position: relative; z-index: 1; text-align: center; font-family: var(--font-head); color: var(--burgundy); font-size: 1.5rem; }
-.loader-bloom .flower { width: 76px; height: 76px; margin: 0 auto 1rem; position: relative; filter: drop-shadow(0 5px 8px rgba(112,38,61,.16)); }
+.loader-butterfly { position: absolute; z-index: 2; width: 30px; height: 24px; color: #A64D69; pointer-events: none; }
+.loader-butterfly svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.butterfly-three { top: 67%; left: 20%; color: #9874A8; animation: butterflyFlightThree 8.8s ease-in-out -1.3s infinite; }
+.butterfly-four { top: 48%; right: 20%; color: #D98C70; animation: butterflyFlightFour 9.2s ease-in-out -3.1s infinite; }
+.butterfly-five { top: 82%; left: 52%; color: #D4A64C; animation: butterflyFlightFive 8.1s ease-in-out -4.2s infinite; }
+.butterfly-wing { stroke: rgba(112,38,61,.38); stroke-width: .8; transform-box: fill-box; }
+.butterfly-wing-left { fill: currentColor; }
+.butterfly-wing-right { fill: #E8A2B3; }
+.butterfly-wing-left { transform-origin: right center; animation: butterflyFlapLeft .32s ease-in-out infinite alternate; }
+.butterfly-wing-right { transform-origin: left center; animation: butterflyFlapRight .32s ease-in-out infinite alternate; }
+.butterfly-body { fill: var(--burgundy); }
+.butterfly-antenna { fill: none; stroke: var(--burgundy); stroke-linecap: round; stroke-width: 1; }
+.loader-butterfly .butterfly-body { fill: #D4B483; }
+.loader-flower-wrap { position: relative; width: 180px; height: 180px; margin: 0 auto .75rem; }
+.butterfly-one { top: -12px; left: -18px; animation: butterflyFlowerFlightOne 5.5s ease-in-out infinite; }
+.butterfly-two { top: 90px; right: -18px; color: #C7798F; animation: butterflyFlowerFlightTwo 6.5s ease-in-out -2.5s infinite; }
+.loader-bloom .flower { width: 180px; height: 180px; margin: 0; position: relative; filter: drop-shadow(0 5px 8px rgba(112,38,61,.16)); animation: loaderMainFlowerSpin 14s linear infinite; }
 .loader-bloom .flower i {
-  position: absolute; left: 50%; top: 50%; width: 20px; height: 32px; margin: -32px 0 0 -10px;
+  position: absolute; left: 50%; top: 50%; width: 44px; height: 70px; margin: -70px 0 0 -22px;
   border-radius: 50% 50% 48% 48% / 68% 68% 38% 38%; background: var(--burgundy);
-  transform-origin: 50% 32px; scale: .08; opacity: 0;
+  transform-origin: 50% 70px; scale: .08; opacity: 0;
   animation: petalBloom .9s cubic-bezier(.2,.8,.25,1.25) forwards;
 }
 .loader-bloom .flower i:nth-child(1) { transform: rotate(0deg); animation-delay: .08s; }
@@ -136,9 +155,41 @@ main:focus { outline: none; }
 .loader-bloom .flower i:nth-child(5) { transform: rotate(240deg); animation-delay: .4s; }
 .loader-bloom .flower i:nth-child(6) { transform: rotate(300deg); background: #8C3550; animation-delay: .48s; }
 .loader-bloom .flower-center {
-  position: absolute; left: 50%; top: 50%; width: 15px; height: 15px; border-radius: 50%;
+  position: absolute; left: 50%; top: 50%; width: 24px; height: 24px; border-radius: 50%;
   background: var(--gold); border: 3px solid var(--ivory); transform: translate(-50%,-50%) scale(0);
   animation: flowerCenterBloom .45s .58s cubic-bezier(.2,.8,.25,1.3) forwards;
+}
+.loader-bloom h2 { margin-bottom: .35em; }
+.loader-welcome { margin: 0 0 .5rem; font-family: var(--font-body); font-size: .9rem; color: var(--muted); }
+@keyframes loaderMainFlowerSpin { to { rotate: 360deg; } }
+@keyframes butterflyFlapLeft { to { transform: rotateY(62deg); } }
+@keyframes butterflyFlapRight { to { transform: rotateY(-62deg); } }
+@keyframes butterflyFlowerFlightOne {
+  0%, 100% { transform: translate(0, 0) rotate(-12deg); }
+  25% { transform: translate(48px, -20px) rotate(10deg); }
+  55% { transform: translate(168px, 18px) rotate(-8deg); }
+  80% { transform: translate(96px, 148px) rotate(12deg); }
+}
+@keyframes butterflyFlowerFlightTwo {
+  0%, 100% { transform: translate(0, 0) rotate(12deg); }
+  30% { transform: translate(-70px, -74px) rotate(-10deg); }
+  60% { transform: translate(-168px, 22px) rotate(8deg); }
+  82% { transform: translate(-84px, 80px) rotate(-12deg); }
+}
+@keyframes butterflyFlightThree {
+  0%, 100% { transform: translate(0, 0) rotate(8deg); }
+  30% { transform: translate(28vw, -42vh) rotate(-12deg); }
+  65% { transform: translate(62vw, -12vh) rotate(10deg); }
+}
+@keyframes butterflyFlightFour {
+  0%, 100% { transform: translate(0, 0) rotate(-10deg); }
+  35% { transform: translate(-28vw, -36vh) rotate(12deg); }
+  70% { transform: translate(-58vw, 24vh) rotate(-8deg); }
+}
+@keyframes butterflyFlightFive {
+  0%, 100% { transform: translate(0, 0) rotate(10deg); }
+  30% { transform: translate(-24vw, -48vh) rotate(-8deg); }
+  65% { transform: translate(28vw, -24vh) rotate(12deg); }
 }
 @keyframes petalBloom {
   0% { scale: .08; opacity: 0; }
@@ -398,6 +449,17 @@ input[type="text"], input[type="email"], input[type="password"], input[type="tel
 }
 textarea { min-height: 110px; resize: vertical; }
 input:focus, select:focus, textarea:focus { outline: none; border-color: var(--burgundy); box-shadow: 0 0 0 4px rgba(112, 38, 61, .12); }
+.password-input { position: relative; }
+.password-input input { padding-right: 3.2rem; }
+.password-toggle {
+  position: absolute; top: 50%; right: .65rem; display: grid; place-items: center; width: 34px; height: 34px;
+  padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--muted);
+  transform: translateY(-50%);
+}
+.password-toggle:hover { background: var(--blush); color: var(--maroon); }
+.password-toggle svg { width: 19px; height: 19px; }
+.password-toggle .eye-closed, .password-toggle[aria-pressed="true"] .eye-open { display: none; }
+.password-toggle[aria-pressed="true"] .eye-closed { display: block; }
 [aria-invalid="true"] { border-color: var(--danger) !important; }
 .error { color: var(--danger); font-size: .78rem; min-height: 0; }
 .error:empty { display: none; }
@@ -528,6 +590,15 @@ td select { min-height: 36px; padding: .3rem .6rem; }
 .modal-card { position: relative; width: min(100%, 860px); max-height: 92vh; overflow: auto; background: var(--ivory); border-radius: 24px; padding: 1.8rem; box-shadow: var(--shadow-lg); animation: modalIn .4s var(--ease); }
 .modal-card.small { width: min(100%, 440px); }
 .modal-card.medium { width: min(100%, 640px); }
+.website-qr-card {
+  position: fixed; right: 1rem; bottom: 1rem; z-index: 90; display: grid; justify-items: center; gap: .3rem;
+  width: 116px; padding: .55rem; background: rgba(255,255,255,.97); border: 1px solid var(--line);
+  box-shadow: var(--shadow); color: var(--maroon); text-align: center;
+}
+.website-qr-card:hover { text-decoration: none; transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+.website-qr-label { font-size: .7rem; font-weight: 600; }
+.website-qr-card img { width: 84px; height: 84px; image-rendering: pixelated; }
+.website-qr-url { max-width: 100%; font-size: .48rem; line-height: 1.25; overflow-wrap: anywhere; color: var(--muted); }
 .modal-close { position: absolute; top: 12px; right: 12px; width: 38px; height: 38px; border-radius: 50%; border: 0; background: #fff; font-size: 1.3rem; line-height: 1; box-shadow: var(--shadow-sm); }
 .modal-actions { display: flex; gap: .7rem; justify-content: flex-end; margin-top: 1.2rem; }
 .quick { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6rem; align-items: center; }
@@ -607,6 +678,10 @@ td select { min-height: 36px; padding: .3rem .6rem; }
   .tile-five, .tile-eight, .tile-fifteen { display: none; }
   .auth-main { padding: 1.5rem 1.2rem; }
   #toasts { left: 1rem; right: 1rem; max-width: none; }
+  .website-qr-card { right: .6rem; bottom: .6rem; width: 96px; padding: .45rem; gap: .25rem; }
+  .website-qr-card img { width: 68px; height: 68px; }
+  .website-qr-label { font-size: .64rem; }
+  .website-qr-url { font-size: .43rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -615,10 +690,11 @@ td select { min-height: 36px; padding: .3rem .6rem; }
   .petals { display: none; }
   .loader-mini-flower { animation: none !important; }
   .loader-mini-flower svg { animation: none !important; scale: 1; opacity: 1; }
+  .loader-butterfly, .butterfly-wing-left, .butterfly-wing-right { animation: none !important; }
   .hero-orbit-tile { animation: none !important; }
 }
 @media print {
-  .site-header, .top-promo, .site-footer, .petals, #toasts { display: none !important; }
+  .site-header, .top-promo, .site-footer, .petals, #toasts, .website-qr-card { display: none !important; }
 }
 
 /* ---- Product photos (<img class="prod-img">) ---- */
