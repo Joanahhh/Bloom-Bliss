@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bloom &amp; Bliss — Every Bloom Tells a Story</title>
+  <meta name="description" content="Bloom &amp; Bliss is an elegant online flower shop. Shop bouquets, add-ons and gifts, and send flowers for every occasion.">
+  <meta name="theme-color" content="#70263D">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%2370263D'/%3E%3Ccircle cx='50' cy='50' r='14' fill='%23D4B483'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&amp;family=Poppins:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Loading animation -->
+<div id="loader" aria-hidden="true">
+  <div class="loader-bloom">
+    <div class="flower"><i></i><i></i><i></i><i></i><i></i></div>
+    <h2>Bloom &amp; Bliss</h2> 
+    <p class="loader-tagline">Where every flower tells a story</p>
+  </div>
+</div>
+
+<!-- Floating petals -->
+<div class="petals" id="petals" aria-hidden="true"></div>
+
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="promo-bar">Free delivery on orders over <strong>₱3,000</strong> · Use code <strong>BLOOM10</strong> for 10% off</div>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="#/home" aria-label="Bloom &amp; Bliss home">
+      <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><circle cx="16" cy="16" r="4" fill="#D4B483"/><circle cx="16" cy="7" r="5"/><circle cx="24.6" cy="13.3" r="5"/><circle cx="21.3" cy="23.5" r="5"/><circle cx="10.7" cy="23.5" r="5"/><circle cx="7.4" cy="13.3" r="5"/><circle cx="16" cy="16" r="4" fill="#D4B483"/></svg>
+      Bloom <span>&amp;</span> Bliss
+    </a>
+
+    <nav id="nav" class="nav" aria-label="Main navigation">
+      <a href="#/home" data-nav="home">Home</a>
+      <a href="#/shop" data-nav="shop">Shop</a>
+      <a href="#/categories" data-nav="categories">Categories</a>
+      <a href="#/occasions" data-nav="occasions">Occasions</a>
+      <a href="#/addons" data-nav="addons">Add-ons</a>
+      <a href="#/about" data-nav="about">About</a>
+      <a href="#/contact" data-nav="contact">Contact</a>
+    </nav>
+
+    <div class="header-actions">
+      <a href="#/wishlist" class="icon-btn" aria-label="Wishlist">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"/></svg>
+        <span class="badge" id="wishCount" data-count="0">0</span>
+      </a>
+      <a href="#/cart" class="icon-btn" aria-label="Shopping cart">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 8h13l-1 12.5h-11z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
+        <span class="badge" id="cartCount" data-count="0">0</span>
+      </a>
+      <div id="authArea"></div>
+      <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="nav" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+  
+
+  <!-- ============ HOME ============ -->
+  <section class="page" id="page-home" data-title="Home">
+    <div class="hero">
+      <div class="petals" aria-hidden="true"></div>
+      <div class="container hero-inner">
+        <div>
+          <p class="eyebrow">Fresh flowers · Hand-tied with love</p>
+          <h1>Bloom <em>&amp;</em> Bliss</h1>
+          <p class="tagline">“Every Bloom Tells a Story.”</p>
+          <p class="lead">Romantic, luxurious bouquets for birthdays, anniversaries, graduations, weddings and every little moment worth celebrating.</p>
+          <div class="hero-cta">
+            <a class="btn btn-primary" href="#/shop">Shop Flowers</a>
+            <a class="btn btn-ghost" href="#/addons">Browse Add-ons</a>
+          </div>
+        </div>
+        
+
+
+<div class="hero-art">
+    <div class="frame" id="heroArt">
+        <img src="https://i.pinimg.com/736x/20/1c/f4/201cf463c551840bcd8b379f69d312bb.jpg" alt="Beautiful flower bouquet" class="hero-image">
+    </div>
+
+    <span class="chip a">🌷 Fresh daily</span>
+    <span class="chip b">🚚 Same-day delivery</span>
+</div>
+      </div>
+    </div>
+
+
+    <div class="section">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">Featured Collections</p>
+          <h2>Find your perfect bloom</h2>
+          <p>From timeless roses to cheerful sunflowers — explore our most-loved collections.</p>
+        </div>
+        <!-- TO CHANGE A PICTURE: edit only the src="..." of the <img> in each card
+           (file path like images/featured-roses.jpg, or a web link). -->
+        <div class="grid grid-4" id="featuredCollections">
+      <article class="category-card">
+        <img src="https://i.pinimg.com/736x/33/8a/46/338a467ad2caa89d0541794c2a507e02.jpg" alt="Roses collection">
+        <div class="category-info">
+          <h3>Roses</h3>
+          <p class="muted" style="font-size:.85rem;margin:0 0 .8rem">Timeless symbols of love</p>
+          <button class="btn btn-primary btn-sm" data-category="roses">Shop Roses</button>
+        </div>
+      </article>
+
+      <article class="category-card">
+        <img src="https://i.pinimg.com/736x/ff/24/bf/ff24bfb1cf55905bdbb9270a56686951.jpg" alt="Tulips collection">
+        <div class="category-info">
+          <h3>Tulips</h3>
+          <p class="muted" style="font-size:.85rem;margin:0 0 .8rem">Fresh, soft & springtime</p>
+          <button class="btn btn-primary btn-sm" data-category="tulips">Shop Tulips</button>
+        </div>
+      </article>
+
+      <article class="category-card">
+        <img src="https://i.pinimg.com/736x/29/0e/90/290e90f0857d66472a599343b0dfaca7.jpg" alt="Mixed Bouquets collection">
+        <div class="category-info">
+          <h3>Mixed Bouquets</h3>
+          <p class="muted" style="font-size:.85rem;margin:0 0 .8rem">A little of everything lovely</p>
+          <button class="btn btn-primary btn-sm" data-category="mixed">Shop Mixed</button>
+        </div>
+      </article>
+
+      <article class="category-card">
+        <img src="https://i.pinimg.com/736x/79/ac/a7/79aca7729ed8356370de24f2ffbb6436.jpg" alt="Premium Bouquets collection">
+        <div class="category-info">
+          <h3>Premium Bouquets</h3>
+          <p class="muted" style="font-size:.85rem;margin:0 0 .8rem">Luxurious statement pieces</p>
+          <button class="btn btn-primary btn-sm" data-category="premium">Shop Premium</button>
+        </div>
+      </article>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="section alt">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">Bestsellers</p>
+          <h2>Loved by our customers</h2>
+          <p>The bouquets everyone keeps coming back for.</p>
+        </div>
+        <div class="grid product-grid" id="bestsellerGrid">
+        <!-- Bestsellers are filled in automatically from the products in the Shop section below
+             (every product that has data-best="true"). Nothing to edit here. -->
+        </div>
+        <p class="center reveal" style="margin-top:2rem"><a class="btn btn-ghost" href="#/shop">View All Flowers</a></p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="container">
+        <div class="promo-banner reveal">
+          <div style="position:relative">
+            <p class="eyebrow" style="color:var(--gold)">Limited-time promotions</p>
+            <h2>Celebrate more, pay less</h2>
+            <p>Treat someone special — or yourself. Apply a code in your cart to enjoy these offers.</p>
+            <a class="btn btn-gold" href="#/shop">Start Shopping</a>
+          </div>
+          <div class="promo-codes">
+            <div class="code"><strong>BLOOM10</strong><span>10% off your entire order</span></div>
+            <div class="code"><strong>FREESHIP</strong><span>Free delivery on any order</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section alt">
+      <div class="container">
+        <div class="perks reveal">
+          <div class="perk"><div class="ico">🌸</div><h3>Farm-fresh blooms</h3><p>Sourced and arranged daily by our florists.</p></div>
+          <div class="perk"><div class="ico">🎀</div><h3>Made your way</h3><p>Add cards, ribbons, wrapping &amp; little gifts.</p></div>
+          <div class="perk"><div class="ico">🚚</div><h3>Scheduled delivery</h3><p>Pick the date and time slot you prefer.</p></div>
+          <div class="perk"><div class="ico">💌</div><h3>Heartfelt messages</h3><p>Add a personal note to every bouquet.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="container testimonials">
+        <div class="section-head reveal">
+          <p class="eyebrow">Testimonials</p>
+          <h2>Words from happy hearts</h2>
+        </div>
+        <div class="grid grid-3">
+          <div class="card reveal"><blockquote>The Burgundy Romance bouquet made our anniversary unforgettable. It arrived fresh and absolutely stunning.</blockquote><cite>Maria L.<small>Anniversary order</small></cite></div>
+          <div class="card reveal"><blockquote>I added a gold ribbon and a handwritten card to my sister’s graduation bouquet and she cried happy tears.</blockquote><cite>Jonas P.<small>Bouquet with add-ons</small></cite></div>
+          <div class="card reveal"><blockquote>On-time delivery, beautiful packaging, and flowers that lasted over a week. Bloom &amp; Bliss is my go-to now.</blockquote><cite>Andrea C.<small>Birthday order</small></cite></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SHOP ============ -->
+  <section class="page" id="page-shop" data-title="Shop Flowers">
+    <div class="page-hero"><div class="container">
+      <p class="eyebrow">Shop Flowers</p>
+      <h1>Our Bouquets</h1>
+      <p>Browse by name, category or occasion. Every bouquet is hand-tied to order.</p>
+    </div></div>
+    <div class="container" style="padding-bottom:4rem">
+      <form class="toolbar" id="shopToolbar" role="search" onsubmit="return false">
+        <div><label class="sr-only" for="searchInput">Search bouquets by name</label>
+          <input type="search" id="searchInput" placeholder="Search bouquets by name…" autocomplete="off"></div>
+        <div><label class="sr-only" for="occasionFilter">Filter by occasion</label>
+          <select id="occasionFilter"></select></div>
+        <div><label class="sr-only" for="sortSelect">Sort bouquets</label>
+          <select id="sortSelect">
+            <option value="featured">Sort: Featured</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="rating">Top Rated</option>
+            <option value="name">Name: A–Z</option>
+          </select></div>
+        <button type="button" class="btn btn-ghost btn-sm" data-action="reset-filters">Reset</button>
+      </form>
+      <div class="chips" id="catChips" role="group" aria-label="Filter by category"></div>
+      <p class="result-count" id="resultCount" aria-live="polite"></p>
+      <div class="grid product-grid" id="shopGrid">
+      <!-- ======================================================================
+           PRODUCT CATALOG  (this is the ONE place all products live)
+           Each product is one <article>. To change a product, edit it here:
+             - IMAGE ........ the src="" of the <img class="prod-img"> inside it.
+                              Use a folder path  ->  src="images/my-photo.jpg"
+                              or a web address   ->  src="https://example.com/photo.jpg"
+             - name ......... the <h3>          - description ... the <p class="desc">
+             - price ........ data-price="1899" (and the text in <span class="price">)
+             - stock ........ data-stock="24"   - category ..... data-category="roses"
+             - best seller .. data-best="true"  - occasions .... data-occasions="birthday,wedding"
+           If an image is missing or fails to load, a built-in illustration is shown instead.
+           To add a product, copy a whole <article> block and give it a new data-id.
+           ====================================================================== -->
+      <article class="card product-card reveal" data-id="BB-001" data-category="roses" data-price="1899" data-stock="24" data-rating="4.9" data-reviews="128" data-best="true" data-occasions="anniversary,valentines,birthday" data-art="{&quot;kinds&quot;:[&quot;rose&quot;],&quot;pals&quot;:[&quot;red&quot;],&quot;n&quot;:7,&quot;wrap&quot;:&quot;blush&quot;,&quot;ribbon&quot;:&quot;#70263D&quot;,&quot;bg&quot;:&quot;blush&quot;}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-001" aria-pressed="false" aria-label="Add to wishlist: Classic Red Rose Bouquet">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <span class="tag">Bestseller</span>
+          <button class="media-btn" data-action="quick" data-id="BB-001" aria-label="Quick view: Classic Red Rose Bouquet">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/e2/f6/b6/e2f6b6809fab48698df3578f18b01256.jpg" alt="Classic Red Rose Bouquet" loading="lazy"></button>
+       
+          </div>
+        <div class="card-body">
+          <p class="eyebrow">Roses</p>
+          <h3>Classic Red Rose Bouquet</h3>
+          <p class="desc">A dozen velvety red roses hand-tied with sage foliage and finished with a satin burgundy ribbon.</p>
+          <div class="rating"><span class="stars" style="--r:98%" role="img" aria-label="Rated 4.9 out of 5">★★★★★</span><span>4.9 (128)</span></div>
+          <div class="card-foot">
+            <span class="price">₱1,899</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-001">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 24 available</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="BB-002" data-category="tulips" data-price="1499" data-stock="18" data-rating="4.8" data-reviews="94" data-best="true" data-occasions="birthday,congratulations,just-because,graduation" data-art="{&quot;kinds&quot;:[&quot;tulip&quot;],&quot;pals&quot;:[&quot;pink&quot;],&quot;n&quot;:7,&quot;wrap&quot;:&quot;ivory&quot;,&quot;ribbon&quot;:&quot;#A8B49A&quot;,&quot;bg&quot;:&quot;ivory&quot;}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-002" aria-pressed="false" aria-label="Add to wishlist: Pink Tulip Bouquet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <button class="media-btn" data-action="quick" data-id="BB-002" aria-label="Quick view: Pink Tulip Bouquet">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/d9/e8/55/d9e85508d500b9001a1757976d32675f.jpg" alt="Pink Tulip Bouquet" loading="lazy"></button>
+
+        </div>
+
+        <div class="card-body">
+          <p class="eyebrow">Tulips</p>
+          <h3>Pink Tulip Bouquet</h3>
+          <p class="desc">Soft pink tulips with a fresh, spring-morning feel, wrapped in ivory tissue and tied with sage ribbon.</p>
+          <div class="rating"><span class="stars" style="--r:96%" role="img" aria-label="Rated 4.8 out of 5">★★★★★</span><span>4.8 (94)</span></div>
+          <div class="card-foot">
+            <span class="price">₱1,499</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-002">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 18 available</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="BB-003" data-category="lilies" data-price="1699" data-stock="12" data-rating="4.7" data-reviews="61" data-best="false" data-occasions="sympathy,wedding,anniversary" data-art="{&quot;kinds&quot;:[&quot;lily&quot;],&quot;pals&quot;:[&quot;white&quot;],&quot;n&quot;:5,&quot;wrap&quot;:&quot;sage&quot;,&quot;ribbon&quot;:&quot;#F9F5EF&quot;,&quot;bg&quot;:&quot;sage&quot;}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-003" aria-pressed="false" aria-label="Add to wishlist: White Lily Arrangement"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <button class="media-btn" data-action="quick" data-id="BB-003" aria-label="Quick view: White Lily Arrangement">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/1d/19/62/1d196207d0400df2e7c3297e64b22c11.jpg" alt="White Lily Arrangement" loading="lazy"></button>
+
+        </div>
+
+        <div class="card-body">
+          <p class="eyebrow">Lilies</p>
+          <h3>White Lily Arrangement</h3>
+          <p class="desc">Graceful, fragrant white lilies arranged with eucalyptus for a calm and elegant presence.</p>
+          <div class="rating"><span class="stars" style="--r:94%" role="img" aria-label="Rated 4.7 out of 5">★★★★★</span><span>4.7 (61)</span></div>
+          <div class="card-foot">
+            <span class="price">₱1,699</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-003">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 12 available</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="BB-004" data-category="sunflowers" data-price="1299" data-stock="20" data-rating="4.9" data-reviews="112" data-best="true" data-occasions="graduation,congratulations,birthday,just-because" data-art="{&quot;kinds&quot;:[&quot;sunflower&quot;],&quot;pals&quot;:[&quot;yellow&quot;],&quot;n&quot;:5,&quot;wrap&quot;:&quot;kraft&quot;,&quot;ribbon&quot;:&quot;#70263D&quot;,&quot;bg&quot;:&quot;gold&quot;}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-004" aria-pressed="false" aria-label="Add to wishlist: Sunflower Delight"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <button class="media-btn" data-action="quick" data-id="BB-004" aria-label="Quick view: Sunflower Delight">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/40/1a/df/401adf0d78711b77ce242518ace60857.jpg" alt="Sunflower Delight" loading="lazy"></button>
+
+        </div>
+
+        <div class="card-body">
+          <p class="eyebrow">Sunflowers</p>
+          <h3>Sunflower Delight</h3>
+          <p class="desc">Bright, cheerful sunflowers that bring instant sunshine — perfect for celebrations and happy surprises.</p>
+          <div class="rating"><span class="stars" style="--r:98%" role="img" aria-label="Rated 4.9 out of 5">★★★★★</span><span>4.9 (112)</span></div>
+          <div class="card-foot">
+            <span class="price">₱1,299</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-004">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 20 available</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="BB-005" data-category="roses" data-price="2299" data-stock="9" data-rating="5" data-reviews="87" data-best="true" data-occasions="anniversary,valentines" data-art="{&quot;kinds&quot;:[&quot;rose&quot;],&quot;pals&quot;:[&quot;burgundy&quot;],&quot;n&quot;:7,&quot;wrap&quot;:&quot;burgundy&quot;,&quot;ribbon&quot;:&quot;#D4B483&quot;,&quot;bg&quot;:&quot;maroon&quot;}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-005" aria-pressed="false" aria-label="Add to wishlist: Burgundy Romance Bouquet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <span class="tag">Bestseller</span>
+          <button class="media-btn" data-action="quick" data-id="BB-005" aria-label="Quick view: Burgundy Romance Bouquet">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/e7/95/c9/e795c9190e6f5122b86085810860fa41.jpg" alt="Burgundy Romance Bouquet" loading="lazy"></button>
+
+        </div>
+
+        <div class="card-body">
+          <p class="eyebrow">Roses</p>
+          <h3>Burgundy Romance Bouquet</h3>
+          <p class="desc">Deep burgundy roses wrapped in matte wine paper with a champagne-gold ribbon. Dark, dramatic and unforgettable.</p>
+          <div class="rating"><span class="stars" style="--r:100%" role="img" aria-label="Rated 5 out of 5">★★★★★</span><span>5.0 (87)</span></div>
+          <div class="card-foot">
+            <span class="price">₱2,299</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-005">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 9 available</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="BB-006" data-category="mixed" data-price="1999" data-stock="14" data-rating="4.8" data-reviews="76" data-best="false" data-occasions="birthday,wedding,just-because" data-art="{&quot;kinds&quot;:[&quot;rose&quot;,&quot;tulip&quot;],&quot;pals&quot;:[&quot;blush&quot;,&quot;pink&quot;],&quot;n&quot;:7,&quot;wrap&quot;:&quot;blush&quot;,&quot;ribbon&quot;:&quot;#70263D&quot;,&quot;bg&quot;:&quot;blush&quot;,&quot;filler&quot;:true}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-006" aria-pressed="false" aria-label="Add to wishlist: Blush Pink Dream Bouquet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <button class="media-btn" data-action="quick" data-id="BB-006" aria-label="Quick view: Blush Pink Dream Bouquet">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/e7/cf/e0/e7cfe02b2fad0cdb3ad59cce2e9f5bd6.jpg" alt="Blush Pink Dream Bouquet" loading="lazy"></button>
+
+        </div>
+
+        <div class="card-body">
+          <p class="eyebrow">Mixed Bouquets</p>
+          <h3>Blush Pink Dream Bouquet</h3>
+          <p class="desc">A dreamy blend of blush roses, soft tulips and baby’s breath, tied in a romantic hand-gathered style.</p>
+          <div class="rating"><span class="stars" style="--r:96%" role="img" aria-label="Rated 4.8 out of 5">★★★★★</span><span>4.8 (76)</span></div>
+          <div class="card-foot">
+            <span class="price">₱1,999</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-006">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 14 available</p>
+        </div>
+      </article>
+
+<article class="card product-card reveal" data-id="BB-007" data-category="premium" data-price="3499" data-stock="7" data-rating="4.9" data-reviews="54" data-best="false" data-occasions="wedding,anniversary,congratulations,birthday" data-art="{&quot;kinds&quot;:[&quot;rose&quot;,&quot;lily&quot;,&quot;tulip&quot;],&quot;pals&quot;:[&quot;red&quot;,&quot;blush&quot;,&quot;pink&quot;],&quot;n&quot;:7,&quot;wrap&quot;:&quot;ivory&quot;,&quot;ribbon&quot;:&quot;#D4B483&quot;,&quot;bg&quot;:&quot;ivory&quot;,&quot;filler&quot;:true}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-007" aria-pressed="false" aria-label="Add to wishlist: Premium Mixed Flower Bouquet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <button class="media-btn" data-action="quick" data-id="BB-007" aria-label="Quick view: Premium Mixed Flower Bouquet">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/4e/7f/af/4e7faf83ad44d0022900eac1f48fc0f8.jpg" alt="Premium Mixed Flower Bouquet" loading="lazy"></button>
+
+        </div>
+
+        <div class="card-body">
+          <p class="eyebrow">Premium Bouquets</p>
+          <h3>Premium Mixed Flower Bouquet</h3>
+          <p class="desc">An abundant luxury bouquet of roses, lilies and tulips in rich jewel tones, styled by our senior florist.</p>
+          <div class="rating"><span class="stars" style="--r:98%" role="img" aria-label="Rated 4.9 out of 5">★★★★★</span><span>4.9 (54)</span></div>
+          <div class="card-foot">
+            <span class="price">₱3,499</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-007">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 7 available</p>
+        </div>
+      </article>
+      
+
+      <article class="card product-card reveal" data-id="BB-008" data-category="mini" data-price="599" data-stock="40" data-rating="4.6" data-reviews="143" data-best="true" data-occasions="just-because,graduation,birthday,congratulations" data-art="{&quot;kinds&quot;:[&quot;tulip&quot;,&quot;rose&quot;,&quot;daisy&quot;],&quot;pals&quot;:[&quot;peach&quot;,&quot;pink&quot;,&quot;white&quot;],&quot;n&quot;:3,&quot;wrap&quot;:&quot;kraft&quot;,&quot;ribbon&quot;:&quot;#70263D&quot;,&quot;bg&quot;:&quot;blush&quot;}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-008" aria-pressed="false" aria-label="Add to wishlist: Mini Surprise Bouquet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <span class="tag">Bestseller</span>
+          <button class="media-btn" data-action="quick" data-id="BB-008" aria-label="Quick view: Mini Surprise Bouquet">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/d4/a3/53/d4a353019a9c16a4510f14c3fa0a2fc6.jpg" alt="Mini Surprise Bouquet" loading="lazy"></button>
+
+        </div>
+
+        <div class="card-body">
+          <p class="eyebrow">Mini Bouquets</p>
+          <h3>Mini Surprise Bouquet</h3>
+          <p class="desc">A pocket-sized bunch of seasonal blooms — a sweet little surprise that fits any budget.</p>
+          <div class="rating"><span class="stars" style="--r:92%" role="img" aria-label="Rated 4.6 out of 5">★★★★★</span><span>4.6 (143)</span></div>
+          <div class="card-foot">
+            <span class="price">₱599</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-008">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 40 available</p>
+        </div>
+      </article>
+
+<article class="card product-card reveal" data-id="BB-009" data-category="gifts" data-price="2799" data-stock="11" data-rating="4.9" data-reviews="69" data-best="false" data-occasions="valentines,anniversary,birthday" data-art="{&quot;kinds&quot;:[&quot;rose&quot;],&quot;pals&quot;:[&quot;pink&quot;,&quot;burgundy&quot;],&quot;n&quot;:5,&quot;wrap&quot;:&quot;ivory&quot;,&quot;ribbon&quot;:&quot;#D4B483&quot;,&quot;bg&quot;:&quot;ivory&quot;,&quot;box&quot;:true}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-009" aria-pressed="false" aria-label="Add to wishlist: Preserved Rose Gift Box"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <button class="media-btn" data-action="quick" data-id="BB-009" aria-label="Quick view: Preserved Rose Gift Box">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/fb/92/db/fb92db87bc310929b18e00e037c6a57c.jpg" alt="Preserved Rose Gift Box" loading="lazy"></button>
+
+        </div>
+
+        <div class="card-body">
+          <p class="eyebrow">Flower Gift Sets</p>
+          <h3>Preserved Rose Gift Box</h3>
+          <p class="desc">Everlasting preserved roses arranged in a keepsake box. Stays beautiful for a year or more — no watering needed.</p>
+          <div class="rating"><span class="stars" style="--r:98%" role="img" aria-label="Rated 4.9 out of 5">★★★★★</span><span>4.9 (69)</span></div>
+          <div class="card-foot">
+            <span class="price">₱2,799</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-009">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 11 available</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="BB-010" data-category="premium" data-price="3999" data-stock="5" data-rating="5" data-reviews="102" data-best="true" data-occasions="wedding,anniversary,valentines,birthday" data-art="{&quot;kinds&quot;:[&quot;rose&quot;,&quot;lily&quot;,&quot;rose&quot;],&quot;pals&quot;:[&quot;burgundy&quot;,&quot;white&quot;,&quot;blush&quot;],&quot;n&quot;:7,&quot;wrap&quot;:&quot;burgundy&quot;,&quot;ribbon&quot;:&quot;#D4B483&quot;,&quot;bg&quot;:&quot;maroon&quot;,&quot;filler&quot;:true}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-010" aria-pressed="false" aria-label="Add to wishlist: Bloom &amp; Bliss Signature Bouquet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <span class="tag">Bestseller</span>
+          <button class="media-btn" data-action="quick" data-id="BB-010" aria-label="Quick view: Bloom &amp; Bliss Signature Bouquet">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/32/d6/d0/32d6d02605277fa9013d373494e669e2.jpg" alt="Bloom &amp; Bliss Signature Bouquet" loading="lazy"></button>
+       
+          </div>
+
+        <div class="card-body">
+          <p class="eyebrow">Premium Bouquets</p>
+          <h3>Bloom &amp; Bliss Signature Bouquet</h3>
+          <p class="desc">Our signature creation: burgundy and blush roses, white lilies and sage greenery in luxe maroon wrapping.</p>
+          <div class="rating"><span class="stars" style="--r:100%" role="img" aria-label="Rated 5 out of 5">★★★★★</span><span>5.0 (102)</span></div>
+          <div class="card-foot">
+            <span class="price">₱3,999</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-010">Add to Cart</button>
+          </div>
+          <p class="stock low">Only 5 left</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="BB-011" data-category="mixed" data-price="1799" data-stock="15" data-rating="4.7" data-reviews="48" data-best="false" data-occasions="birthday,graduation,just-because" data-art="{&quot;kinds&quot;:[&quot;rose&quot;,&quot;tulip&quot;,&quot;daisy&quot;],&quot;pals&quot;:[&quot;peach&quot;,&quot;peach&quot;,&quot;white&quot;],&quot;n&quot;:7,&quot;wrap&quot;:&quot;kraft&quot;,&quot;ribbon&quot;:&quot;#A8B49A&quot;,&quot;bg&quot;:&quot;gold&quot;,&quot;filler&quot;:true}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-011" aria-pressed="false" aria-label="Add to wishlist: Peach Blossom Garden Bouquet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <button class="media-btn" data-action="quick" data-id="BB-011" aria-label="Quick view: Peach Blossom Garden Bouquet">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/9b/fb/e9/9bfbe935895b70d6b1b705c362f82312.jpg" alt="Peach Blossom Garden Bouquet" loading="lazy"></button>
+
+        </div>
+
+        <div class="card-body">
+          <p class="eyebrow">Mixed Bouquets</p>
+          <h3>Peach Blossom Garden Bouquet</h3>
+          <p class="desc">Warm peach roses and tulips with daisies — a garden-fresh bouquet that feels like a sunny afternoon.</p>
+          <div class="rating"><span class="stars" style="--r:94%" role="img" aria-label="Rated 4.7 out of 5">★★★★★</span><span>4.7 (48)</span></div>
+          <div class="card-foot">
+            <span class="price">₱1,799</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-011">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 15 available</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="BB-012" data-category="mixed" data-price="1999" data-stock="15" data-rating="4.7" data-reviews="48" data-best="false" data-occasions="birthday,graduation,just-because" data-art="{&quot;kinds&quot;:[&quot;rose&quot;,&quot;tulip&quot;,&quot;daisy&quot;],&quot;pals&quot;:[&quot;peach&quot;,&quot;peach&quot;,&quot;white&quot;],&quot;n&quot;:7,&quot;wrap&quot;:&quot;kraft&quot;,&quot;ribbon&quot;:&quot;#A8B49A&quot;,&quot;bg&quot;:&quot;gold&quot;,&quot;filler&quot;:true}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-012" aria-pressed="false" aria-label="Add to wishlist: Golden Romance Bouquet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <button class="media-btn" data-action="quick" data-id="BB-012" aria-label="Quick view: Golden Romance Bouquet">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/03/a7/57/03a757e91149e9928ec6dd813ee2f45f.jpg" alt="Golden Romance Bouquet" loading="lazy"></button>
+
+        </div>
+
+        <div class="card-body">
+          <p class="eyebrow">Mixed Bouquets</p>
+          <h3>Golden Romance Bouquet</h3>
+          <p class="desc">A stunning blend of vibrant sunflowers and deep red roses, accented with delicate baby's breath and fresh eucalyptus. Wrapped in elegant burgundy and champagne paper with flowing ribbons, this bouquet brings warmth, love, and unforgettable charm to every occasion.</p>
+          <div class="rating"><span class="stars" style="--r:94%" role="img" aria-label="Rated 4.7 out of 5">★★★★★</span><span>4.7 (48)</span></div>
+          <div class="card-foot">
+            <span class="price">₱1,999</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-012">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 10 available</p>
+        </div>
+      </article>
+
+<article class="card product-card reveal" data-id="BB-010" data-category="premium" data-price="1999" data-stock="5" data-rating="5" data-reviews="102" data-best="true" data-occasions="wedding,anniversary,valentines,birthday" data-art="{&quot;kinds&quot;:[&quot;rose&quot;,&quot;lily&quot;,&quot;rose&quot;],&quot;pals&quot;:[&quot;burgundy&quot;,&quot;white&quot;,&quot;blush&quot;],&quot;n&quot;:7,&quot;wrap&quot;:&quot;burgundy&quot;,&quot;ribbon&quot;:&quot;#D4B483&quot;,&quot;bg&quot;:&quot;maroon&quot;,&quot;filler&quot;:true}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-012" aria-pressed="false" aria-label="Add to wishlist:  Golden Romance Bouquet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <span class="tag">Bestseller</span>
+          <button class="media-btn" data-action="quick" data-id="BB-012" aria-label="Quick view:Golden Romance Bouquet">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/03/a7/57/03a757e91149e9928ec6dd813ee2f45f.jpg" alt=" Golden Romance Bouquet" loading="lazy"></button>
+       
+          </div>
+
+        <div class="card-body">
+          <p class="eyebrow">Premium Bouquets</p>
+          <h3> Golden Romance Bouquet</h3>
+          <p class="desc">A stunning blend of vibrant sunflowers and deep red roses, accented with delicate baby's breath and fresh eucalyptus. Wrapped in elegant burgundy and champagne paper with flowing ribbons, this bouquet brings warmth, love, and unforgettable charm to every occasion.</p>
+          <div class="rating"><span class="stars" style="--r:100%" role="img" aria-label="Rated 5 out of 5">★★★★★</span><span>5.0 (102)</span></div>
+          <div class="card-foot">
+            <span class="price">₱1,999</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-012">Add to Cart</button>
+          </div>
+         <p class="stock ">In stock · 10 available</p>
+        </div>
+      </article>
+
+
+      <article class="card product-card reveal" data-id="BB-013" data-category="lilies" data-price="1999" data-stock="0" data-rating="4.8" data-reviews="33" data-best="false" data-occasions="sympathy,wedding" data-art="{&quot;kinds&quot;:[&quot;lily&quot;,&quot;rose&quot;],&quot;pals&quot;:[&quot;white&quot;,&quot;white&quot;],&quot;n&quot;:7,&quot;wrap&quot;:&quot;ivory&quot;,&quot;ribbon&quot;:&quot;#A8B49A&quot;,&quot;bg&quot;:&quot;sage&quot;,&quot;filler&quot;:true}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-013" aria-pressed="false" aria-label="Add to wishlist: Gentle Remembrance Lilies"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <span class="tag out">Sold out</span>
+          <button class="media-btn" data-action="quick" data-id="BB-013" aria-label="Quick view: Gentle Remembrance Lilies">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/8f/03/a7/8f03a77c6bd1a85bd76c206c7daae916.jpg" alt="Gentle Remembrance Lilies" loading="lazy"></button>
+
+        </div>
+
+        <div class="card-body">
+          <p class="eyebrow">Lilies</p>
+          <h3>Gentle Remembrance Lilies</h3>
+          <p class="desc">A serene all-white lily arrangement offering comfort and respect during difficult times.</p>
+          <div class="rating"><span class="stars" style="--r:96%" role="img" aria-label="Rated 4.8 out of 5">★★★★★</span><span>4.8 (33)</span></div>
+          <div class="card-foot">
+            <span class="price">₱1,999</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-013" disabled="">Sold out</button>
+          </div>
+          <p class="stock none">Currently unavailable</p>
+        </div>
+      </article>
+  
+
+    <article class="card product-card reveal" data-id="BB-014" data-category="tulips" data-price="1599" data-stock="18" data-rating="4.8" data-reviews="94" data-best="true" data-occasions="birthday,congratulations,just-because,graduation" data-art="{&quot;kinds&quot;:[&quot;tulip&quot;],&quot;pals&quot;:[&quot;pink&quot;],&quot;n&quot;:7,&quot;wrap&quot;:&quot;ivory&quot;,&quot;ribbon&quot;:&quot;#A8B49A&quot;,&quot;bg&quot;:&quot;ivory&quot;}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-014" aria-pressed="false" aria-label="Add to wishlist: Ivory Elegance Bouquet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <span class="tag">Bestseller</span>
+          <button class="media-btn" data-action="quick" data-id="BB-014" aria-label="Quick view: Ivory Elegance Bouquet">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/02/b6/fd/02b6fdf10c10f7891c88fa76195f6682.jpg" alt="Ivory Elegance Bouquet" loading="lazy"></button>
+
+        </div>
+
+        <div class="card-body">
+          <p class="eyebrow">Tulips</p>
+          <h3>Ivory Elegance Bouquet</h3>
+          <p class="desc">A graceful arrangement of creamy white tulips, delicate baby’s breath, and lush green foliage, wrapped in soft ivory paper and finished with a champagne satin ribbon. A timeless bouquet that expresses purity, peace, and heartfelt love—perfect for anniversaries, weddings, birthdays, and meaningful moments.</p>
+          <div class="rating"><span class="stars" style="--r:96%" role="img" aria-label="Rated 4.8 out of 5">★★★★★</span><span>4.8 (94)</span></div>
+          <div class="card-foot">
+            <span class="price">₱1,599</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-014">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 5 available</p>
+        </div>
+      </article>
+
+
+      <article class="card product-card reveal" data-id="BB-015" data-category="roses" data-price="2500" data-stock="3" data-rating="4.9" data-reviews="128" data-best="true" data-occasions="anniversary,valentines,birthday" data-art="{&quot;kinds&quot;:[&quot;rose&quot;],&quot;pals&quot;:[&quot;red&quot;],&quot;n&quot;:7,&quot;wrap&quot;:&quot;blush&quot;,&quot;ribbon&quot;:&quot;#70263D&quot;,&quot;bg&quot;:&quot;blush&quot;}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-015" aria-pressed="false" aria-label="Add to wishlist: Juliet Rose Bouquet">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <span class="tag">Bestseller</span>
+          <button class="media-btn" data-action="quick" data-id="BB-015" aria-label="Quick view: Juliet Rose Bouquet">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/b9/5f/e5/b95fe5a4540ebd9f76ff740959ef2610.jpg" alt="Juliet Rose Bouquet" loading="lazy"></button>
+       
+          </div>
+        <div class="card-body">
+          <p class="eyebrow">Roses</p>
+          <h3>Juliet Rose Bouquet</h3>
+          <p class="desc">A romantic arrangement of delicate Juliet roses, beautifully wrapped to express timeless elegance, love, and heartfelt affection.</p>
+          <div class="rating"><span class="stars" style="--r:99%" role="img" aria-label="Rated 4.9 out of 5">★★★★★</span><span>4.9 (128)</span></div>
+          <div class="card-foot">
+            <span class="price">₱2,500</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-015">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 3 available</p>
+        </div>
+      </article>
+      
+      <article class="card product-card reveal" data-id="BB-016" data-category="mixed" data-price="1999" data-stock="10" data-rating="4.8" data-reviews="76" data-best="false" data-occasions="birthday,just-because" data-art="{&quot;kinds&quot;:[&quot;rose&quot;,&quot;tulip&quot;],&quot;pals&quot;:[&quot;blush&quot;,&quot;pink&quot;],&quot;n&quot;:7,&quot;wrap&quot;:&quot;blush&quot;,&quot;ribbon&quot;:&quot;#70263D&quot;,&quot;bg&quot;:&quot;blush&quot;,&quot;filler&quot;:true}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-016" aria-pressed="false" aria-label="Add to wishlist: Golden Glow Bouquet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <button class="media-btn" data-action="quick" data-id="BB-016" aria-label="Quick view: Golden Glow Bouquet">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/9a/18/a3/9a18a3ba947ebf0c54ae43a97f5eaf2a.jpg" alt="Golden Glow Bouquet" loading="lazy"></button>
+
+        </div>
+
+        <div class="card-body">
+          <p class="eyebrow">Mixed Bouquets</p>
+          <h3>Golden Glow Bouquet</h3>
+          <p class="desc">A radiant mix of creamy yellow roses, delicate white lilies, and golden blooms, beautifully arranged to bring warmth, happiness, and sunshine to any occasion.</p>
+          <div class="rating"><span class="stars" style="--r:96%" role="img" aria-label="Rated 4.8 out of 5">★★★★★</span><span>4.8 (76)</span></div>
+          <div class="card-foot">
+            <span class="price">₱1,999</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-016">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 10 available</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="BB-017" data-category="mixed" data-price="1899" data-stock="2" data-rating="4.8" data-reviews="86" data-best="false" data-occasions="birthday,just-because" data-art="{&quot;kinds&quot;:[&quot;rose&quot;,&quot;tulip&quot;],&quot;pals&quot;:[&quot;blush&quot;,&quot;pink&quot;],&quot;n&quot;:7,&quot;wrap&quot;:&quot;blush&quot;,&quot;ribbon&quot;:&quot;#70263D&quot;,&quot;bg&quot;:&quot;blush&quot;,&quot;filler&quot;:true}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-017" aria-pressed="false" aria-label="Add to wishlist: Bluebell Serenity Bouquet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <button class="media-btn" data-action="quick" data-id="BB-017" aria-label="Quick view: Bluebell Serenity Bouquet">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/b6/d4/c1/b6d4c1f062ed03c005023b59ae43235c.jpg" alt="Bluebell Serenity Bouquet" loading="lazy"></button>
+
+        </div>
+
+        <div class="card-body">
+          <p class="eyebrow">Mixed Bouquets</p>
+          <h3>Bluebell Serenity Bouquet</h3>
+          <p class="desc">A delicate blend of blue wildflowers and white lily-of-the-valley, bringing a touch of elegance, peace, and natural beauty to every moment.</p>
+          <div class="rating"><span class="stars" style="--r:96%" role="img" aria-label="Rated 4.8 out of 5">★★★★★</span><span>4.8 (86)</span></div>
+          <div class="card-foot">
+            <span class="price">₱1,899</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-017">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 2 available</p>
+        </div>
+      </article>
+
+       <article class="card product-card reveal" data-id="BB-018" data-category="mixed" data-price="1599" data-stock="2" data-rating="4.8" data-reviews="89" data-best="false" data-occasions="birthday,just-because" data-art="{&quot;kinds&quot;:[&quot;rose&quot;,&quot;tulip&quot;],&quot;pals&quot;:[&quot;blush&quot;,&quot;pink&quot;],&quot;n&quot;:7,&quot;wrap&quot;:&quot;blush&quot;,&quot;ribbon&quot;:&quot;#70263D&quot;,&quot;bg&quot;:&quot;blush&quot;,&quot;filler&quot;:true}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-018" aria-pressed="false" aria-label="Add to wishlist: Lavender Serenity Bouquet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <span class="tag out">Sold Out</span>
+          <button class="media-btn" data-action="quick" data-id="BB-018" aria-label="Quick view: Lavender Serenity Bouquet">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/bf/32/43/bf3243784b0e782cb160e0f428fa8202.jpg" alt="Lavender Serenity Bouquet" loading="lazy"></button>
+
+        </div>
+
+        <div class="card-body">
+          <p class="eyebrow">Mixed Bouquets</p>
+          <h3>Lavender Serenity Bouquet</h3>
+          <p class="desc">A romantic blend of lavender roses, delicate purple blooms, and creamy white flowers, wrapped in elegant lilac paper for a soft, timeless touch.</p>
+          <div class="rating"><span class="stars" style="--r:96%" role="img" aria-label="Rated 4.8 out of 5">★★★★★</span><span>4.8 (89)</span></div>
+          <div class="card-foot">
+            <span class="price">₱1,599</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-018" disabled>Sold out</button>
+          </div>
+          <p class="stock none"> Currently unavailable</p>
+        </div>
+      </article>  
+
+    <article class="card product-card reveal" data-id="BB-019" data-category="mini" data-price="699" data-stock="40" data-rating="4.6" data-reviews="143" data-best="true" data-occasions="just-because,graduation,birthday,congratulations" data-art="{&quot;kinds&quot;:[&quot;tulip&quot;,&quot;rose&quot;,&quot;daisy&quot;],&quot;pals&quot;:[&quot;peach&quot;,&quot;pink&quot;,&quot;white&quot;],&quot;n&quot;:3,&quot;wrap&quot;:&quot;kraft&quot;,&quot;ribbon&quot;:&quot;#70263D&quot;,&quot;bg&quot;:&quot;blush&quot;}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-019" aria-pressed="false" aria-label="Add to wishlist: Golden Sunshine Bouquet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <span class="tag">Bestseller</span>
+          <button class="media-btn" data-action="quick" data-id="BB-019" aria-label="Quick view: Golden Sunshine Bouquet">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/84/bb/6a/84bb6a24dc88dd8447448829f1d31fc4.jpg" alt="Golden Sunshine Bouquet" loading="lazy"></button>
+
+        </div>
+
+        <div class="card-body">
+          <p class="eyebrow">Mini Bouquets</p>
+          <h3>Golden Sunshine Bouquet</h3>
+          <p class="desc">A cheerful sunflower paired with delicate pink blooms and fresh eucalyptus, wrapped in stylish blush and newspaper-print paper with a black ribbon. A charming arrangement that brings warmth, happiness, and a touch of modern elegance to any occasion. Perfect for birthdays, appreciation gifts, or simply brightening someone’s day.</p>
+          <div class="rating"><span class="stars" style="--r:92%" role="img" aria-label="Rated 4.6 out of 5">★★★★★</span><span>4.6 (143)</span></div>
+          <div class="card-foot">
+            <span class="price">₱699</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-019">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 40 available</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="BB-020" data-category="sunflowers" data-price="1499" data-stock="15" data-rating="4.9" data-reviews="112" data-best="true" data-occasions="graduation,congratulations,birthday,just-because" data-art="{&quot;kinds&quot;:[&quot;sunflower&quot;],&quot;pals&quot;:[&quot;yellow&quot;],&quot;n&quot;:5,&quot;wrap&quot;:&quot;kraft&quot;,&quot;ribbon&quot;:&quot;#70263D&quot;,&quot;bg&quot;:&quot;gold&quot;}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-020" aria-pressed="false" aria-label="Add to wishlist: Sunlit Bliss Bouquet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <span class="tag">Bestseller</span>
+          <button class="media-btn" data-action="quick" data-id="BB-020" aria-label="Quick view: Sunlit Bliss Bouquet">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/d5/21/60/d5216030b2cd21442ffa220476d0b341.jpg" alt="Sunlit Bliss Bouquet" loading="lazy"></button>
+
+        </div>
+
+        <div class="card-body">
+          <p class="eyebrow">Sunflowers</p>
+          <h3>Sunlit Bliss Bouquet</h3>
+          <p class="desc">A cheerful arrangement of bright sunflowers, delicate baby’s breath, and fresh eucalyptus, wrapped in kraft paper with a golden ribbon to bring warmth and happiness to any occasion.</p>
+          <div class="rating"><span class="stars" style="--r:98%" role="img" aria-label="Rated 4.9 out of 5">★★★★★</span><span>4.9 (112)</span></div>
+          <div class="card-foot">
+            <span class="price">₱1,499</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-020">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 15 available</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="BB-021" data-category="mini" data-price="699" data-stock="40" data-rating="4.6" data-reviews="143" data-best="true" data-occasions="just-because,graduation,birthday,congratulations" data-art="{&quot;kinds&quot;:[&quot;tulip&quot;,&quot;rose&quot;,&quot;daisy&quot;],&quot;pals&quot;:[&quot;peach&quot;,&quot;pink&quot;,&quot;white&quot;],&quot;n&quot;:3,&quot;wrap&quot;:&quot;kraft&quot;,&quot;ribbon&quot;:&quot;#70263D&quot;,&quot;bg&quot;:&quot;blush&quot;}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-021" aria-pressed="false" aria-label="Add to wishlist: Sage Serenity Bouquet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <span class="tag">Bestseller</span>
+          <button class="media-btn" data-action="quick" data-id="BB-021" aria-label="Quick view: Sage Serenity Bouquet">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/7a/5c/b6/7a5cb6788f9106c1b2f8cb09f696bd66.jpg" alt="Sage Serenity Bouquet" loading="lazy"></button>
+
+        </div>
+
+        <div class="card-body">
+          <p class="eyebrow">Mini Bouquets</p>
+          <h3>Sage Serenity Bouquet</h3>
+          <p class="desc">A delicate arrangement of pristine white tulips and soft blue blossoms, wrapped in elegant sage-green paper and finished with luxurious ivory satin ribbons. Its minimalist design and calming colors create a timeless, sophisticated gift, perfect for birthdays, anniversaries, graduations, or thoughtful everyday surprises.</p>
+          <div class="rating"><span class="stars" style="--r:92%" role="img" aria-label="Rated 4.6 out of 5">★★★★★</span><span>4.6 (140)</span></div>
+          <div class="card-foot">
+            <span class="price">₱599</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-021">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 36 available</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="BB-022" data-category="premium" data-price="3999" data-stock="5" data-rating="5" data-reviews="102" data-best="true" data-occasions="anniversary,valentines,birthday" data-art="{&quot;kinds&quot;:[&quot;rose&quot;,&quot;lily&quot;,&quot;rose&quot;],&quot;pals&quot;:[&quot;burgundy&quot;,&quot;white&quot;,&quot;blush&quot;],&quot;n&quot;:7,&quot;wrap&quot;:&quot;burgundy&quot;,&quot;ribbon&quot;:&quot;#D4B483&quot;,&quot;bg&quot;:&quot;maroon&quot;,&quot;filler&quot;:true}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-022" aria-pressed="false" aria-label="Add to wishlist:  Champagne Elegance Bouquet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <span class="tag">Bestseller</span>
+          <button class="media-btn" data-action="quick" data-id="BB-022" aria-label="Quick view:  Champagne Elegance Bouquet">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/87/5c/0a/875c0a9f87a6b5ba2857b3b51eae3809.jpg" alt=" Champagne Elegance Bouquet" loading="lazy"></button>
+       
+          </div>
+
+        <div class="card-body">
+          <p class="eyebrow">Premium Bouquets</p>
+          <h3>Champagne Elegance Bouquet</h3>
+          <p class="desc">A luxurious bouquet featuring delicate blush roses, creamy white lilies, and peach-toned blooms, beautifully wrapped in premium champagne and brown paper with elegant satin ribbons. Perfect for anniversaries, birthdays, romantic surprises, and other special occasions.</p>
+          <div class="rating"><span class="stars" style="--r:100%" role="img" aria-label="Rated 5 out of 5">★★★★★</span><span>5.0 (102)</span></div>
+          <div class="card-foot">
+            <span class="price">₱3,999</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-022">Add to Cart</button>
+          </div>
+          <p class="stock low">Only 3 left</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="BB-023" data-category="mixed" data-price="3499" data-stock="5" data-rating="5" data-reviews="102" data-best="true" data-occasions="wedding" data-art="{&quot;kinds&quot;:[&quot;orchid&quot;,&quot;rose&quot;,&quot;orchid&quot;],&quot;pals&quot;:[&quot;white&quot;,&quot;cream&quot;,&quot;beige&quot;],&quot;n&quot;:7,&quot;wrap&quot;:&quot;white&quot;,&quot;ribbon&quot;:&quot;#D4B483&quot;,&quot;bg&quot;:&quot;maroon&quot;,&quot;filler&quot;:true}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-023" aria-pressed="false" aria-label="Add to wishlist:  Ivory Elegance Bridal Bouquet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <span class="tag">Bestseller</span>
+          <button class="media-btn" data-action="quick" data-id="BB-023" aria-label="Quick view:  Ivory Elegance Bridal Bouquet">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/47/4a/1e/474a1e1ecce892ac0da1f389a3d26e52.jpg" alt=" Ivory Elegance Bridal Bouquet" loading="lazy"></button>
+       
+          </div>
+
+        <div class="card-body">
+          <p class="eyebrow">Mixed Bouquets</p>
+          <h3>Ivory Elegance Bridal Bouquet</h3>
+          <p class="desc">A graceful blend of white orchids, cream roses, and soft beige blooms with lush greenery, perfect for weddings and timeless romantic moments.</p>
+          <div class="rating"><span class="stars" style="--r:100%" role="img" aria-label="Rated 5 out of 5">★★★★★</span><span>5.0 (102)</span></div>
+          <div class="card-foot">
+            <span class="price">₱3,499</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-023">Add to Cart</button>
+          </div>
+          <p class="stock low">Only 24 left</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="BB-024" data-category="mixed" data-price="2499" data-stock="5" data-rating="5" data-reviews="102" data-best="true" data-occasions="wedding" data-art="{&quot;kinds&quot;:[&quot;orchid&quot;,&quot;rose&quot;,&quot;orchid&quot;],&quot;pals&quot;:[&quot;white&quot;,&quot;cream&quot;,&quot;beige&quot;],&quot;n&quot;:7,&quot;wrap&quot;:&quot;white&quot;,&quot;ribbon&quot;:&quot;#D4B483&quot;,&quot;bg&quot;:&quot;maroon&quot;,&quot;filler&quot;:true}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-024" aria-pressed="false" aria-label="Add to wishlist:  Blush Elegance Bridal Bouquet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <span class="tag">Bestseller</span>
+          <button class="media-btn" data-action="quick" data-id="BB-024" aria-label="Quick view:  Blush Elegance Bridal Bouquet">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/17/16/13/171613d7c7539a103df9b0ffd65dd46f.jpg" alt=" Blush Elegance Bridal Bouquet" loading="lazy"></button>
+       
+          </div>
+
+        <div class="card-body">
+          <p class="eyebrow">Mixed Bouquets</p>
+          <h3>Blush Elegance Bridal Bouquet</h3>
+          <p class="desc">A graceful blend of white orchids, cream roses, and soft beige blooms with lush greenery, perfect for weddings and timeless romantic moments.</p>
+          <div class="rating"><span class="stars" style="--r:100%" role="img" aria-label="Rated 5 out of 5">★★★★★</span><span>5.0 (102)</span></div>
+          <div class="card-foot">
+            <span class="price">₱2,499</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-024">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 37 available</p>
+        </div>
+      </article>
+      
+<article class="card product-card reveal" data-id="BB-025" data-category="roses" data-price="499" data-stock="20" data-rating="4.9" data-reviews="128" data-best="true" data-occasions="birthday" data-art="{&quot;kinds&quot;:[&quot;rose&quot;],&quot;pals&quot;:[&quot;red&quot;],&quot;n&quot;:7,&quot;wrap&quot;:&quot;blush&quot;,&quot;ribbon&quot;:&quot;#70263D&quot;,&quot;bg&quot;:&quot;blush&quot;}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-025" aria-pressed="false" aria-label="Add to wishlist: Blush Birthday Bouquet">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <span class="tag">Bestseller</span>
+          <button class="media-btn" data-action="quick" data-id="BB-025" aria-label="Quick view: Blush Birthday Bouquet">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/e4/9c/cb/e49ccbbcc169a6178ae950b2c6fd595e.jpg" alt="Blush Birthday Bouquet" loading="lazy"></button>
+       
+          </div>
+        <div class="card-body">
+          <p class="eyebrow">Roses</p>
+          <h3>Blush Birthday Bouquet</h3>
+          <p class="desc">A charming arrangement of soft pink roses and delicate baby’s breath, wrapped in elegant blush-pink and ivory paper. Paired with a heartfelt birthday card, it’s a beautiful way to celebrate someone special with love and sweetness.</p>
+          <div class="rating"><span class="stars" style="--r:98%" role="img" aria-label="Rated 4.9 out of 5">★★★★★</span><span>4.9 (128)</span></div>
+          <div class="card-foot">
+            <span class="price">₱499</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-025">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 20 available</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="BB-026" data-category="mini" data-price="499" data-stock="20" data-rating="4.6" data-reviews="143" data-best="true" data-occasions="just-because,graduation,birthday,congratulations" data-art="{&quot;kinds&quot;:[&quot;tulip&quot;,&quot;rose&quot;,&quot;daisy&quot;],&quot;pals&quot;:[&quot;peach&quot;,&quot;pink&quot;,&quot;white&quot;],&quot;n&quot;:3,&quot;wrap&quot;:&quot;kraft&quot;,&quot;ribbon&quot;:&quot;#70263D&quot;,&quot;bg&quot;:&quot;blush&quot;}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-026" aria-pressed="false" aria-label="Add to wishlist: The Graduation Bloom Bouquet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+      
+          <button class="media-btn" data-action="quick" data-id="BB-026" aria-label="Quick view: The Graduation Bloom Bouquet">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/5c/b5/f0/5cb5f01fe018838742a673f01619a756.jpg" alt="The Graduation Bloom Bouquet" loading="lazy"></button>
+
+        </div>
+
+        <div class="card-body">
+          <p class="eyebrow">Mini Bouquets</p>
+          <h3>The Graduation Bloom Bouquet</h3>
+          <p class="desc">An elegant bouquet of white blooms featuring an adorable graduate teddy bear, wrapped in charcoal gray and finished with a satin ribbon—perfect for celebrating academic achievements and new beginnings.</p>
+          <div class="rating"><span class="stars" style="--r:92%" role="img" aria-label="Rated 4.6 out of 5">★★★★★</span><span>4.6 (140)</span></div>
+          <div class="card-foot">
+            <span class="price">₱499</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-026">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 20 available</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="BB-027" data-category="roses" data-price="5000" data-stock="20" data-rating="4.6" data-reviews="143" data-best="true" data-occasions="Anniversary,Valentine's Day, Congratulations" data-art="{&quot;kinds&quot;:[&quot;tulip&quot;,&quot;rose&quot;,&quot;daisy&quot;],&quot;pals&quot;:[&quot;peach&quot;,&quot;pink&quot;,&quot;white&quot;],&quot;n&quot;:3,&quot;wrap&quot;:&quot;kraft&quot;,&quot;ribbon&quot;:&quot;#70263D&quot;,&quot;bg&quot;:&quot;blush&quot;}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-027" aria-pressed="false" aria-label="Add to wishlist: Velvet Rose Bouquet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+      
+          <button class="media-btn" data-action="quick" data-id="BB-027" aria-label="Quick view: Velvet Rose Bouquet">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/86/97/21/86972140cad4b77064d4c7af5109f90a.jpg" alt="Velvet Rose Bouquet" loading="lazy"></button>
+
+        </div>
+
+        <div class="card-body">
+          <p class="eyebrow">Roses</p>
+          <h3>Velvet Rose Bouquet</h3>
+          <p class="desc">A timeless blend of romantic red, blush, and cream roses, crafted to express love, gratitude, and everything in between.</p>
+          <div class="rating"><span class="stars" style="--r:92%" role="img" aria-label="Rated 4.6 out of 5">★★★★★</span><span>4.6 (140)</span></div>
+          <div class="card-foot">
+            <span class="price">₱5,000</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-027">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 10 available</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="BB-028" data-category="tulips" data-price="4999" data-stock="10" data-rating="4.6" data-reviews="143" data-best="true" data-occasions="Anniversary,Valentine's Day, Congratulations, Just Because, " data-art="{&quot;kinds&quot;:[&quot;tulip&quot;,&quot;rose&quot;,&quot;daisy&quot;],&quot;pals&quot;:[&quot;peach&quot;,&quot;pink&quot;,&quot;white&quot;],&quot;n&quot;:3,&quot;wrap&quot;:&quot;kraft&quot;,&quot;ribbon&quot;:&quot;#70263D&quot;,&quot;bg&quot;:&quot;blush&quot;}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-028" aria-pressed="false" aria-label="Add to wishlist: Rainbow Tulip Bouquet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+      
+          <button class="media-btn" data-action="quick" data-id="BB-028" aria-label="Quick view: Rainbow Tulip Bouquet">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/29/c9/4e/29c94e89c8c724ca7e09c889c54feffb.jpg" alt="Rainbow Tulip Bouquet" loading="lazy"></button>
+
+        </div>
+
+        <div class="card-body">
+          <p class="eyebrow">Tulips</p>
+          <h3>Rainbow Tulip Bouquet</h3>
+          <p class="desc">A vibrant mix of colorful tulips, elegantly wrapped in cream paper, symbolizing joy, love, and happiness for every special occasion.</p>
+          <div class="rating"><span class="stars" style="--r:92%" role="img" aria-label="Rated 4.6 out of 5">★★★★★</span><span>4.6 (140)</span></div>
+          <div class="card-foot">
+            <span class="price">₱4,999</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-028">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 10 available</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="BB-029" data-category="gifts" data-price="1999" data-stock="11" data-rating="4.9" data-reviews="149" data-best="false" data-occasions="valentines,anniversary,birthday" data-art="{&quot;kinds&quot;:[&quot;rose&quot;],&quot;pals&quot;:[&quot;pink&quot;,&quot;burgundy&quot;],&quot;n&quot;:5,&quot;wrap&quot;:&quot;ivory&quot;,&quot;ribbon&quot;:&quot;#D4B483&quot;,&quot;bg&quot;:&quot;ivory&quot;,&quot;box&quot;:true}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-029" aria-pressed="false" aria-label="Add to wishlist: Blush Rose Bouquet Box"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <button class="media-btn" data-action="quick" data-id="BB-029" aria-label="Quick view: Blush Rose Bouquet Box">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/ac/7d/70/ac7d70fbb2f6a4616320d25da2c28edb.jpg" alt="Blush Rose Bouquet Box" loading="lazy"></button>
+
+        </div>
+
+        <div class="card-body">
+          <p class="eyebrow">Flower Gift Sets</p>
+          <h3>Blush Rose Bouquet Box</h3>
+          <p class="desc">A luxurious pink rose arrangement in an elegant clear gift box, beautifully wrapped with satin ribbons for a timeless and romantic gift. Perfect for birthdays, anniversaries, and special moments.</p>
+          <div class="rating"><span class="stars" style="--r:98%" role="img" aria-label="Rated 4.9 out of 5">★★★★★</span><span>4.9 (149)</span></div>
+          <div class="card-foot">
+            <span class="price">₱1,999</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-029">Add to Cart</button>
+          </div>
+          <p class="stock "> In stock · 11 available</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="BB-030" data-category="gifts" data-price="1599" data-stock="11" data-rating="4.9" data-reviews="159" data-best="false" data-occasions="valentines,anniversary,birthday, graduate" data-art="{&quot;kinds&quot;:[&quot;rose&quot;],&quot;pals&quot;:[&quot;pink&quot;,&quot;burgundy&quot;],&quot;n&quot;:5,&quot;wrap&quot;:&quot;ivory&quot;,&quot;ribbon&quot;:&quot;#D4B483&quot;,&quot;bg&quot;:&quot;ivory&quot;,&quot;box&quot;:true}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-030" aria-pressed="false" aria-label="Add to wishlist: Sage Blossom Luxury Flower Box"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <button class="media-btn" data-action="quick" data-id="BB-030" aria-label="Quick view: Sage Blossom Luxury Flower Box">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/11/c7/d3/11c7d32b8be88bd41bdba4f95e3e15b7.jpg" alt="Sage Blossom Luxury Flower Box" loading="lazy"></button>
+
+        </div>
+
+        <div class="card-body">
+          <p class="eyebrow">Flower Gift Sets</p>
+          <h3>Sage Blossom Luxury Flower Box</h3>
+          <p class="desc">A luxurious blend of soft peach roses and fresh green carnations, beautifully arranged in an elegant sage-green box for a timeless and graceful gift.</p>
+          <div class="rating"><span class="stars" style="--r:98%" role="img" aria-label="Rated 4.9 out of 5">★★★★★</span><span>4.9 (159)</span></div>
+          <div class="card-foot">
+            <span class="price">₱1,599</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-030">Add to Cart</button>
+          </div>
+          <p class="low stock ">  18 available</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="BB-031" data-category="mixed" data-price="1999" data-stock="10" data-rating="4.8" data-reviews="76" data-best="false" data-occasions="birthday,just-because" data-art="{&quot;kinds&quot;:[&quot;rose&quot;,&quot;tulip&quot;],&quot;pals&quot;:[&quot;blush&quot;,&quot;pink&quot;],&quot;n&quot;:7,&quot;wrap&quot;:&quot;blush&quot;,&quot;ribbon&quot;:&quot;#70263D&quot;,&quot;bg&quot;:&quot;blush&quot;,&quot;filler&quot;:true}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-031" aria-pressed="false" aria-label="Add to wishlist: Lavender Dream Bouquet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <button class="media-btn" data-action="quick" data-id="BB-031" aria-label="Quick view: Lavender Dream Bouquet">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/28/f7/e1/28f7e13af52f697fa6520793fc5fc0b6.jpg" alt="Lavender Dream Bouquet" loading="lazy"></button>
+
+        </div>
+
+        <div class="card-body">
+          <p class="eyebrow">Mixed Bouquets</p>
+          <h3>Lavender Dream Bouquet</h3>
+          <p class="desc">A dreamy blend of lavender lilies, soft purple roses, and delicate white flowers, wrapped in elegant white paper for a graceful and romantic touch.</p>
+          <div class="rating"><span class="stars" style="--r:96%" role="img" aria-label="Rated 4.8 out of 5">★★★★★</span><span>4.8 (76)</span></div>
+          <div class="card-foot">
+            <span class="price">₱1,999</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-031">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 10 available</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="BB-32" data-category="gifts" data-price="1000" data-stock="11" data-rating="4.9" data-reviews="150" data-best="false" data-occasions="valentines,anniversary,birthday" data-art="{&quot;kinds&quot;:[&quot;rose&quot;],&quot;pals&quot;:[&quot;pink&quot;,&quot;burgundy&quot;],&quot;n&quot;:5,&quot;wrap&quot;:&quot;ivory&quot;,&quot;ribbon&quot;:&quot;#D4B483&quot;,&quot;bg&quot;:&quot;ivory&quot;,&quot;box&quot;:true}">
+        <div class="card-media">
+          <button class="wish-btn " data-action="wish" data-id="BB-032" aria-pressed="false" aria-label="Add to wishlist:Golden Glow Floral Gift Set"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <button class="media-btn" data-action="quick" data-id="BB-032" aria-label="Quick view: Golden Glow Floral Gift Set">
+            
+            <img class="prod-img" src="https://i.pinimg.com/736x/8d/be/9f/8dbe9fc43c7bb5ee8554e38b22c4bf44.jpg" alt="Golden Glow Floral Gift Set" loading="lazy"></button>
+
+        </div>
+
+        <div class="card-body">
+          <p class="eyebrow">Flower Gift Sets</p>
+          <h3>Golden Glow Floral Gift Set</h3>
+          <p class="desc">A luxurious gift box featuring ivory and buttery-yellow roses, a scented candle, and a reed diffuser. Beautifully arranged in elegant cream packaging, perfect for birthdays, anniversaries, and thoughtful gifts.</p>
+          <div class="rating"><span class="stars" style="--r:98%" role="img" aria-label="Rated 4.9 out of 5">★★★★★</span><span>4.9 (150)</span></div>
+          <div class="card-foot">
+            <span class="price">₱1,000</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="BB-032">Add to Cart</button>
+          </div>
+          <p class="low-stock ">  11 available</p>
+        </div>
+      </article>
+
+  </div><!-- /#shopGrid -->
+      
+      <div class="empty" id="shopEmpty" hidden>
+        <h3>No bouquets found</h3>
+        <p class="muted">Try a different search or clear your filters.</p>
+        <button class="btn btn-primary btn-sm" data-action="reset-filters">Clear filters</button>
+      </div>
+    </div><!-- /.container -->
+  </section>
+  
+
+ 
+  <!-- ============ CATEGORIES ============ -->
+<section class="page" id="page-categories" data-title="Flower Categories">
+  <div class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Flower Categories</p>
+      <h1>Shop by Flower</h1>
+      <p>Roses, tulips, sunflowers, lilies, mixed bouquets, premium arrangements, minis and gift sets.</p>
+    </div>
+  </div>
+
+  <div class="container section">
+    <!-- TO CHANGE A PICTURE: edit only the src="..." of the <img> in each card.
+         Use a file path (images/roses.jpg) or a web link (https://...). -->
+    <div class="grid grid-4" id="categoryGrid">
+
+      <article class="category-card">
+        <img src="https://i.pinimg.com/736x/33/8a/46/338a467ad2caa89d0541794c2a507e02.jpg" alt="Rose bouquets">
+        <div class="category-info">
+          <h3>Roses</h3>
+          <button class="btn btn-primary btn-sm" data-category="roses">
+            Shop Roses
+          </button>
+        </div>
+      </article>
+
+      <article class="category-card">
+        <img src="https://i.pinimg.com/736x/ff/24/bf/ff24bfb1cf55905bdbb9270a56686951.jpg" alt="Tulip bouquets">
+        <div class="category-info">
+          <h3>Tulips</h3>
+          <button class="btn btn-primary btn-sm" data-category="tulips">
+            Shop Tulips
+          </button>
+        </div>
+      </article>
+
+      <article class="category-card">
+        <img src="https://i.pinimg.com/736x/af/53/cc/af53ccf7ec3cdae94e60a2be6dea5426.jpg" alt="Sunflower bouquets">
+        <div class="category-info">
+          <h3>Sunflowers</h3>
+          <button class="btn btn-primary btn-sm" data-category="sunflowers">
+            Shop Sunflowers
+          </button>
+        </div>
+      </article>
+
+      <article class="category-card">
+        <img src="https://i.pinimg.com/736x/65/7b/73/657b733af49014ca39e4c4e1aeedab77.jpg" alt="Lily bouquets">
+        <div class="category-info">
+          <h3>Lilies</h3>
+          <button class="btn btn-primary btn-sm" data-category="lilies">
+            Shop Lilies
+          </button>
+        </div>
+      </article>
+
+      <article class="category-card">
+        <img src="https://i.pinimg.com/736x/29/0e/90/290e90f0857d66472a599343b0dfaca7.jpg" alt="Mixed flower bouquets">
+        <div class="category-info">
+          <h3>Mixed Bouquets</h3>
+          <button class="btn btn-primary btn-sm" data-category="mixed">
+            Shop Mixed
+          </button>
+        </div>
+      </article>
+
+      <article class="category-card">
+        <img src="https://i.pinimg.com/736x/79/ac/a7/79aca7729ed8356370de24f2ffbb6436.jpg" alt="Premium flower arrangements">
+        <div class="category-info">
+          <h3>Premium</h3>
+          <button class="btn btn-primary btn-sm" data-category="premium">
+            Shop Premium
+          </button>
+        </div>
+      </article>
+
+      <article class="category-card">
+        <img src="https://i.pinimg.com/736x/aa/68/87/aa6887fd0f54b5debc5a122930a80847.jpg" alt="Mini flower bouquets">
+        <div class="category-info">
+          <h3>Mini Bouquets</h3>
+          <button class="btn btn-primary btn-sm" data-category="mini">
+            Shop Minis
+          </button>
+        </div>
+      </article>
+
+      <article class="category-card">
+        <img src="https://i.pinimg.com/736x/71/37/a2/7137a2b0ba25765edb863a3df9e9f30a.jpg" alt="Flower gift sets">
+        <div class="category-info">
+          <h3>Gift Sets</h3>
+          <button class="btn btn-primary btn-sm" data-category="gift-sets">
+            Shop Gifts
+          </button>
+        </div>
+      </article>
+
+      
+
+    </div>
+  </div>
+</section>
+
+  <!-- ============ OCCASIONS ============ -->
+
+<section class="page" id="page-occasions" data-title="Shop by Occasion">
+  <div class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Shop by Occasion</p>
+      <h1>Flowers for Every Moment</h1>
+      <p>Whatever you are celebrating — or comforting — we have the right words in bloom.</p>
+    </div>
+  </div>
+
+  <div class="container section">
+    <!-- TO CHANGE A PICTURE: edit only the src="..." of the <img> in each card.
+         Use a file path (images/birthday.jpg) or a web link (https://...). -->
+    <div class="grid grid-4" id="occasionGrid">
+
+      <article class="occasion-card">
+        <img src="https://i.pinimg.com/736x/e4/9c/cb/e49ccbbcc169a6178ae950b2c6fd595e.jpg" alt="Birthday flower bouquet">
+        <div class="occasion-info">
+          <h3>Birthday</h3>
+          <p>Make their special day bloom.</p>
+          <button class="btn btn-primary btn-sm" data-occasion="birthday">Shop Now</button>
+        </div>
+      </article>
+
+      <article class="occasion-card">
+        <img src="https://i.pinimg.com/736x/83/25/d0/8325d0b722ec434acf517d49665dbaea.jpg" alt="Anniversary flowers">
+        <div class="occasion-info">
+          <h3>Anniversary</h3>
+          <p>Celebrate love and memories.</p>
+          <button class="btn btn-primary btn-sm" data-occasion="anniversary">Shop Now</button>
+        </div>
+      </article>
+
+      <article class="occasion-card">
+        <img src="https://i.pinimg.com/736x/e7/95/c9/e795c9190e6f5122b86085810860fa41.jpg" alt="Romantic red roses">
+        <div class="occasion-info">
+          <h3>Romance</h3>
+          <p>Say what words cannot.</p>
+          <button class="btn btn-primary btn-sm" data-occasion="romance">Shop Now</button>
+        </div>
+      </article>
+
+      <article class="occasion-card">
+        <img src="https://i.pinimg.com/736x/5c/b5/f0/5cb5f01fe018838742a673f01619a756.jpg" alt="Graduation flower bouquet">
+        <div class="occasion-info">
+          <h3>Graduation</h3>
+          <p>Celebrate a beautiful achievement.</p>
+          <button class="btn btn-primary btn-sm" data-occasion="graduation">Shop Now</button>
+        </div>
+      </article>
+
+      <article class="occasion-card">
+        <img src="https://i.pinimg.com/736x/47/4a/1e/474a1e1ecce892ac0da1f389a3d26e52.jpg" alt="Wedding flower arrangement">
+        <div class="occasion-info">
+          <h3>Wedding</h3>
+          <p>Flowers for your forever moment.</p>
+          <button class="btn btn-primary btn-sm" data-occasion="wedding">Shop Now</button>
+        </div>
+      </article>
+
+      <article class="occasion-card">
+        <img src="https://i.pinimg.com/736x/b9/5f/e5/b95fe5a4540ebd9f76ff740959ef2610.jpg" alt="Thank-you flower bouquet">
+        <div class="occasion-info">
+          <h3>Thank You</h3>
+          <p>Share a little appreciation.</p>
+          <button class="btn btn-primary btn-sm" data-occasion="thank-you">Shop Now</button>
+        </div>
+      </article>
+
+      <article class="occasion-card">
+        <img src="https://i.pinimg.com/736x/1a/8b/32/1a8b322f0edd8ca751b4eb8fa43ff14e.jpg" alt="Cheerful get-well flower bouquet">
+        <div class="occasion-info">
+          <h3>Get Well Soon</h3>
+          <p>Send comfort and brighter days.</p>
+          <button class="btn btn-primary btn-sm" data-occasion="get-well">Shop Now</button>
+        </div>
+      </article>
+
+      <article class="occasion-card">
+        <img src="https://i.pinimg.com/736x/8f/03/a7/8f03a77c6bd1a85bd76c206c7daae916.jpg" alt="Sympathy flower arrangement">
+        <div class="occasion-info">
+          <h3>Sympathy</h3>
+          <p>Offer comfort when it matters most.</p>
+          <button class="btn btn-primary btn-sm" data-occasion="sympathy">Shop Now</button>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+  <!-- ============ ADD-ONS ============ -->
+  <section class="page" id="page-addons" data-title="Add-ons">
+    <div class="page-hero"><div class="container">
+      <p class="eyebrow">Add-ons</p>
+      <h1>Make It Extra Special</h1>
+      <p>Pair your bouquet with a heartfelt card, elegant wrapping, a satin ribbon or a little gift. Browse by name or category, just like the shop.</p>
+    </div></div>
+    <div class="container" style="padding-bottom:4rem">
+      <form class="toolbar" id="addonToolbar" role="search" onsubmit="return false" style="grid-template-columns:1.6fr 1fr auto">
+        <div><label class="sr-only" for="addonSearch">Search add-ons by name</label>
+          <input type="search" id="addonSearch" placeholder="Search add-ons by name…" autocomplete="off"></div>
+        <div><label class="sr-only" for="addonSort">Sort add-ons</label>
+          <select id="addonSort">
+            <option value="featured">Sort: Featured</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="name">Name: A–Z</option>
+          </select></div>
+        <button type="button" class="btn btn-ghost btn-sm" data-action="reset-addons">Reset</button>
+      </form>
+      <div class="chips" id="addonChips" role="group" aria-label="Filter by add-on category"></div>
+      <p class="result-count" id="addonCount" aria-live="polite"></p>
+      <div class="grid product-grid" id="addonGrid">
+      <!-- ======================================================================
+           ADD-ON CATALOG  (works exactly like the shop products above)
+             - IMAGE ........ the src="" of the <img class="prod-img">  (empty = emoji tile)
+             - name ......... the <h3>          - description ... the <p class="desc">
+             - price ........ data-price="50" (and the text in <span class="price">)
+             - stock ........ data-stock="50"   - category ..... data-category="addon-cards | addon-wrap | addon-gifts"
+             - letter box ... data-message="true" + the <textarea class="addon-msg"> lets customers write their own card message
+             - emoji tile ... inside data-art  {"emoji":"🧸"}
+           To add one, copy a whole <article> block and give it a new data-id (AD-012, AD-013 …).
+           ====================================================================== -->
+      <article class="card product-card reveal" data-id="AD-001" data-message="true" data-category="addon-cards" data-price="50" data-stock="50" data-rating="0" data-reviews="0" data-best="false" data-occasions="" data-art="{&quot;emoji&quot;:&quot;💌&quot;}">
+        <div class="card-media">
+          <button class="wish-btn" data-action="wish" data-id="AD-001" aria-pressed="false" aria-label="Add to wishlist: Classic greeting card"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <button class="media-btn" data-action="quick" data-id="AD-001" aria-label="Quick view: Classic greeting card">
+            <img class="prod-img" src="https://i.pinimg.com/736x/68/f9/24/68f924c9f807ead39b0e35d53d740f16.jpg" alt="Classic greeting card" loading="lazy"></button>
+        </div>
+        <div class="card-body">
+          <p class="eyebrow">Cards &amp; Messages</p>
+          <h3>Classic greeting card</h3>
+          <p class="desc">Printed with your personal message.</p>
+          <label class="sr-only" for="msg-AD-001">Your message for the Classic greeting card</label><textarea id="msg-AD-001" class="addon-msg" maxlength="300" placeholder="Write your own message for the card (optional)"></textarea>
+          <div class="card-foot">
+            <span class="price">₱50</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="AD-001">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 50 available</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="AD-002" data-message="true" data-category="addon-cards" data-price="120" data-stock="500" data-rating="0" data-reviews="0" data-best="false" data-occasions="" data-art="{&quot;emoji&quot;:&quot;✉️&quot;}">
+        <div class="card-media">
+          <button class="wish-btn" data-action="wish" data-id="AD-002" aria-pressed="false" aria-label="Add to wishlist: Premium gold-foil card"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <button class="media-btn" data-action="quick" data-id="AD-002" aria-label="Quick view: Premium gold-foil card">
+            <img class="prod-img" src="https://i.pinimg.com/736x/bc/44/26/bc442630206206a5fcb307323169a5ef.jpg" alt="Premium gold-foil card" loading="lazy"></button>
+        </div>
+        <div class="card-body">
+          <p class="eyebrow">Cards &amp; Messages</p>
+          <h3>Premium gold-foil card</h3>
+          <p class="desc">Thick ivory card with a gold-foil edge.</p>
+          <label class="sr-only" for="msg-AD-002">Your message for the Premium gold-foil card</label><textarea id="msg-AD-002" class="addon-msg" maxlength="300" placeholder="Write your own message for the card (optional)"></textarea>
+          <div class="card-foot">
+            <span class="price">₱120</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="AD-002">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 500 available</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="AD-003" data-category="addon-wrap" data-price="80" data-stock="150" data-rating="0" data-reviews="0" data-best="false" data-occasions="" data-art="{&quot;emoji&quot;:&quot;🎀&quot;}">
+        <div class="card-media">
+          <button class="wish-btn" data-action="wish" data-id="AD-003" aria-pressed="false" aria-label="Add to wishlist: Blush tissue wrap"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <button class="media-btn" data-action="quick" data-id="AD-003" aria-label="Quick view: Blush tissue wrap">
+            <img class="prod-img" src="https://i.pinimg.com/736x/58/b9/6b/58b96b27e8805179e76b6177cb80d645.jpg" alt="Blush tissue wrap" loading="lazy"></button>
+        </div>
+        <div class="card-body">
+          <p class="eyebrow">Wrapping &amp; Ribbon</p>
+          <h3>Blush tissue wrap</h3>
+          <p class="desc">Soft, romantic tissue wrapping.</p>
+          <div class="card-foot">
+            <span class="price">₱80</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="AD-003">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 150 available</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="AD-004" data-category="addon-wrap" data-price="200" data-stock="50" data-rating="0" data-reviews="0" data-best="false" data-occasions="" data-art="{&quot;emoji&quot;:&quot;🎁&quot;}">
+        <div class="card-media">
+          <button class="wish-btn" data-action="wish" data-id="AD-004" aria-pressed="false" aria-label="Add to wishlist: Luxury ivory wrap"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <button class="media-btn" data-action="quick" data-id="AD-004" aria-label="Quick view: Luxury ivory wrap">
+            <img class="prod-img" src="https://i.pinimg.com/736x/c5/65/b1/c565b11da2ddb0cebfb6b0ba9d8fcd92.jpg" alt="Luxury ivory wrap" loading="lazy"></button>
+        </div>
+        <div class="card-body">
+          <p class="eyebrow">Wrapping &amp; Ribbon</p>
+          <h3>Luxury ivory wrap</h3>
+          <p class="desc">Premium paper for an elegant finish.</p>
+          <div class="card-foot">
+            <span class="price">₱200</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="AD-004">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 50 available</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="AD-005" data-category="addon-wrap" data-price="50" data-stock="50" data-rating="0" data-reviews="0" data-best="false" data-occasions="" data-art="{&quot;emoji&quot;:&quot;✨&quot;}">
+        <div class="card-media">
+          <button class="wish-btn" data-action="wish" data-id="AD-005" aria-pressed="false" aria-label="Add to wishlist: Champagne gold ribbon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <button class="media-btn" data-action="quick" data-id="AD-005" aria-label="Quick view: Champagne gold ribbon">
+            <img class="prod-img" src="https://i.pinimg.com/736x/c9/56/6e/c9566eeeaf4dd524a9048e9d4ec12397.jpg" alt="Champagne gold ribbon" loading="lazy"></button>
+        </div>
+        <div class="card-body">
+          <p class="eyebrow">Wrapping &amp; Ribbon</p>
+          <h3>Champagne gold ribbon</h3>
+          <p class="desc">A luxe, shimmering satin ribbon.</p>
+          <div class="card-foot">
+            <span class="price">₱50</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="AD-005">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 50 available</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="AD-006" data-category="addon-wrap" data-price="80" data-stock="500" data-rating="0" data-reviews="0" data-best="false" data-occasions="" data-art="{&quot;emoji&quot;:&quot;🌿&quot;}">
+        <div class="card-media">
+          <button class="wish-btn" data-action="wish" data-id="AD-006" aria-pressed="false" aria-label="Add to wishlist: Sage velvet ribbon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <button class="media-btn" data-action="quick" data-id="AD-006" aria-label="Quick view: Sage velvet ribbon">
+            <img class="prod-img" src="https://i.pinimg.com/736x/0c/60/0f/0c600fdb949e139f74429d77efbd2ce9.jpg" alt="Sage velvet ribbon" loading="lazy"></button>
+        </div>
+        <div class="card-body">
+          <p class="eyebrow">Wrapping &amp; Ribbon</p>
+          <h3>Sage velvet ribbon</h3>
+          <p class="desc">Soft velvet texture in muted green.</p>
+          <div class="card-foot">
+            <span class="price">₱80</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="AD-006">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 500 available</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="AD-007" data-category="addon-gifts" data-price="299" data-stock="150" data-rating="0" data-reviews="0" data-best="false" data-occasions="" data-art="{&quot;emoji&quot;:&quot;🏺&quot;}">
+        <div class="card-media">
+          <button class="wish-btn" data-action="wish" data-id="AD-007" aria-pressed="false" aria-label="Add to wishlist: Glass vase"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <button class="media-btn" data-action="quick" data-id="AD-007" aria-label="Quick view: Glass vase">
+            <img class="prod-img" src="https://i.pinimg.com/736x/78/fc/05/78fc0504c4b025448634b0b3baffe222.jpg" alt="Glass vase" loading="lazy"></button>
+        </div>
+        <div class="card-body">
+          <p class="eyebrow">Gifts &amp; Extras</p>
+          <h3>Glass vase</h3>
+          <p class="desc">Ready to display your bouquet right away.</p>
+          <div class="card-foot">
+            <span class="price">₱299</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="AD-007">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 150 available</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="AD-008" data-category="addon-gifts" data-price="350" data-stock="250" data-rating="0" data-reviews="0" data-best="false" data-occasions="" data-art="{&quot;emoji&quot;:&quot;🍫&quot;}">
+        <div class="card-media">
+          <button class="wish-btn" data-action="wish" data-id="AD-008" aria-pressed="false" aria-label="Add to wishlist: Chocolate box"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <button class="media-btn" data-action="quick" data-id="AD-008" aria-label="Quick view: Chocolate box">
+            <img class="prod-img" src="https://i.pinimg.com/736x/97/56/f8/9756f8ed0f6b46083f29186bea5e8d08.jpg" alt="Chocolate box" loading="lazy"></button>
+        </div>
+        <div class="card-body">
+          <p class="eyebrow">Gifts &amp; Extras</p>
+          <h3>Chocolate box</h3>
+          <p class="desc">Assorted chocolates, 9 pieces.</p>
+          <div class="card-foot">
+            <span class="price">₱350</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="AD-008">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 250 available</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="AD-009" data-category="addon-gifts" data-price="450" data-stock="501" data-rating="0" data-reviews="0" data-best="false" data-occasions="" data-art="{&quot;emoji&quot;:&quot;🧸&quot;}">
+        <div class="card-media">
+          <button class="wish-btn" data-action="wish" data-id="AD-009" aria-pressed="false" aria-label="Add to wishlist: Teddy bear"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <button class="media-btn" data-action="quick" data-id="AD-009" aria-label="Quick view: Teddy bear">
+            <img class="prod-img" src="https://i.pinimg.com/736x/c6/24/f9/c624f9d6540c2e03aa420f6b4429084e.jpg" alt="Teddy bear" loading="lazy"></button>
+        </div>
+        <div class="card-body">
+          <p class="eyebrow">Gifts &amp; Extras</p>
+          <h3>Teddy bear</h3>
+          <p class="desc">A cuddly 20 cm bear to go with your flowers.</p>
+          <div class="card-foot">
+            <span class="price">₱450</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="AD-009">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 501 available</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="AD-010" data-category="addon-gifts" data-price="150" data-stock="510" data-rating="0" data-reviews="0" data-best="false" data-occasions="" data-art="{&quot;emoji&quot;:&quot;🎈&quot;}">
+        <div class="card-media">
+          <button class="wish-btn" data-action="wish" data-id="AD-010" aria-pressed="false" aria-label="Add to wishlist: Celebration balloon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <button class="media-btn" data-action="quick" data-id="AD-010" aria-label="Quick view: Celebration balloon">
+            <img class="prod-img" src="https://i.pinimg.com/736x/96/8d/fd/968dfd7a53da935759eab33fc09d02d5.jpg" alt="Celebration balloon" loading="lazy"></button>
+        </div>
+        <div class="card-body">
+          <p class="eyebrow">Gifts &amp; Extras</p>
+          <h3>Celebration balloon</h3>
+          <p class="desc">Helium-filled foil balloon.</p>
+          <div class="card-foot">
+            <span class="price">₱150</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="AD-010">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 510 available</p>
+        </div>
+      </article>
+
+      <article class="card product-card reveal" data-id="AD-011" data-category="addon-gifts" data-price="280" data-stock="50" data-rating="0" data-reviews="0" data-best="false" data-occasions="" data-art="{&quot;emoji&quot;:&quot;🕯️&quot;}">
+        <div class="card-media">
+          <button class="wish-btn" data-action="wish" data-id="AD-011" aria-pressed="false" aria-label="Add to wishlist: Scented candle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21z"></path></svg></button>
+          <button class="media-btn" data-action="quick" data-id="AD-011" aria-label="Quick view: Scented candle">
+            <img class="prod-img" src="https://i.pinimg.com/736x/0b/41/b1/0b41b1146db967bd28655dd0e615b749.jpg" alt="Scented candle" loading="lazy"></button>
+        </div>
+        <div class="card-body">
+          <p class="eyebrow">Gifts &amp; Extras</p>
+          <h3>Scented candle</h3>
+          <p class="desc">Rose &amp; vanilla soy candle.</p>
+          <div class="card-foot">
+            <span class="price">₱280</span>
+            <button class="btn btn-primary btn-sm" data-action="add" data-id="AD-011">Add to Cart</button>
+          </div>
+          <p class="stock ">In stock · 50 available</p>
+        </div>
+      </article>
+
+      </div>
+      <div class="empty" id="addonEmpty" hidden>
+        <h3>No add-ons found</h3>
+        <p class="muted">Try a different search or clear your filters.</p>
+        <button class="btn btn-primary btn-sm" data-action="reset-addons">Clear filters</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CART ============ -->
+  <section class="page" id="page-cart" data-title="Shopping Cart">
+    <div class="page-hero"><div class="container"><p class="eyebrow">Your Basket</p><h1>Shopping Cart</h1></div></div>
+    <div class="container section" id="cartRoot"></div>
+  </section>
+
+  <!-- ============ LOGIN / SIGN UP ============ -->
+  <section class="page" id="page-login" data-title="Login or Sign Up">
+    <div class="container">
+      <div class="auth-wrap">
+        <div class="auth-side">
+          <p class="eyebrow" style="color:var(--gold)">Welcome</p>
+          <h2>Every Bloom Tells a Story</h2>
+          <p>Create an account to checkout faster, save your favorite bouquets and track every order.</p>
+          <div class="demo"><strong>Demo admin account</strong><br>admin@bloombliss.demo<br>Password: Admin@123</div>
+        </div>
+        <div class="auth-main">
+          <div class="tabs" role="tablist">
+            <button type="button" role="tab" class="active" data-action="auth-tab" data-tab="login" aria-selected="true" id="tabLogin">Login</button>
+            <button type="button" role="tab" data-action="auth-tab" data-tab="register" aria-selected="false" id="tabRegister">Sign Up</button>
+          </div>
+          <div class="form-alert info" id="authNotice" hidden></div>
+
+          <form id="loginForm" novalidate aria-labelledby="tabLogin">
+            <div class="field"><label for="loginEmail">Email</label><input type="email" id="loginEmail" name="email" autocomplete="email" placeholder="you@example.com"><span class="error" data-error-for="email" role="alert"></span></div>
+            <div class="field"><label for="loginPass">Password</label><input type="password" id="loginPass" name="password" autocomplete="current-password" placeholder="Your password"><span class="error" data-error-for="password" role="alert"></span></div>
+            <div class="form-alert" id="loginAlert" hidden></div>
+            <button class="btn btn-primary btn-block" type="submit">Login</button>
+          </form>
+
+          <form id="registerForm" novalidate hidden aria-labelledby="tabRegister">
+            <div class="field"><label for="regName">Full name</label><input type="text" id="regName" name="name" autocomplete="name" placeholder="Maria Santos"><span class="error" data-error-for="name" role="alert"></span></div>
+            <div class="field"><label for="regEmail">Email</label><input type="email" id="regEmail" name="email" autocomplete="email" placeholder="you@example.com"><span class="error" data-error-for="email" role="alert"></span></div>
+            <div class="field"><label for="regPass">Password</label><input type="password" id="regPass" name="password" autocomplete="new-password" placeholder="At least 8 characters"><span class="hint">Use 8+ characters with letters and numbers.</span><span class="error" data-error-for="password" role="alert"></span></div>
+            <div class="field"><label for="regConfirm">Confirm password</label><input type="password" id="regConfirm" name="confirm" autocomplete="new-password"><span class="error" data-error-for="confirm" role="alert"></span></div>
+            <button class="btn btn-primary btn-block" type="submit">Create Account</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CHECKOUT ============ -->
+  <section class="page" id="page-checkout" data-title="Checkout">
+    <div class="page-hero"><div class="container"><p class="eyebrow">Almost there</p><h1>Checkout</h1></div></div>
+    <div class="container section" id="checkoutRoot"></div>
+  </section>
+
+  <!-- ============ ORDER CONFIRMATION ============ -->
+  <section class="page" id="page-confirmation" data-title="Order Confirmed">
+    <div class="container" id="confirmRoot"></div>
+  </section>
+
+  <!-- ============ WISHLIST ============ -->
+  <section class="page" id="page-wishlist" data-title="Wishlist">
+    <div class="page-hero"><div class="container"><p class="eyebrow">Saved for later</p><h1>My Wishlist</h1><p>Bouquets you love, all in one place.</p></div></div>
+    <div class="container section">
+      <div class="grid product-grid" id="wishGrid"></div>
+      <div class="empty" id="wishEmpty" hidden>
+        <h3>Your wishlist is empty</h3>
+        <p class="muted">Tap the heart on any bouquet to save it here.</p>
+        <a class="btn btn-primary btn-sm" href="#/shop">Browse flowers</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MY ORDERS ============ -->
+  <section class="page" id="page-orders" data-title="My Orders">
+    <div class="page-hero"><div class="container"><p class="eyebrow">Order history</p><h1>My Orders</h1><p>Track your purchases from Pending to Delivered.</p></div></div>
+    <div class="container section" id="ordersRoot"></div>
+  </section>
+
+  <!-- ============ ABOUT ============ -->
+  <section class="page" id="page-about" data-title="About Us">
+    <div class="page-hero"><div class="container"><p class="eyebrow">About Us</p><h1>Our Story</h1></div></div>
+    <div class="container section">
+      <div class="split">
+        <div class="art reveal" id="aboutArt">
+  <img
+    src="https://i.pinimg.com/736x/5e/77/4d/5e774d26a6a27770fdd07da1873fa7f1.jpg"
+    alt="Illustration of a beautiful burgundy and pink flower bouquet"
+    class="about-image"
+  >
+</div>
+        <div class="reveal">
+          <p class="eyebrow">Since the first bloom</p>
+          <h2>Flowers That Speak from the Heart</h2>
+          <p>Bloom &amp; Bliss began with a simple belief: every bouquet carries a story — a first date, a milestone, a thank-you, a goodbye. We started as a tiny home studio, hand-tying arrangements for friends and family, and grew into a florist devoted to turning feelings into flowers.</p>
+          <p><strong>Our mission</strong> is to make thoughtful, beautiful floral gifting effortless — with fresh blooms, honest prices, and the personal touches that make each order feel one-of-a-kind.</p>
+          <p><strong>Our promise:</strong> farm-fresh flowers, careful hand-arranging, on-time delivery, and a smile with every order.</p>
+          <a class="btn btn-primary" href="#/shop">Explore the Collection</a>
+        </div>
+      </div>
+    </div>
+    <div class="section alt">
+      <div class="container values">
+        <div class="section-head reveal"><h2>What we believe in</h2></div>
+        <div class="grid grid-3">
+          <div class="card reveal"><div class="ico">🌷</div><h3>Freshness first</h3><p class="muted">Flowers are sourced and arranged daily so they bloom longer in your home.</p></div>
+          <div class="card reveal"><div class="ico">🤍</div><h3>Made with care</h3><p class="muted">Each bouquet is hand-tied by a florist who treats it like a gift to a friend.</p></div>
+          <div class="card reveal"><div class="ico">🌿</div><h3>Kind to the planet</h3><p class="muted">Recyclable wrapping, minimal plastic, and locally grown blooms where possible.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CONTACT ============ -->
+  <section class="page" id="page-contact" data-title="Contact Us">
+    <div class="page-hero"><div class="container"><p class="eyebrow">Contact Us</p><h1>We’d love to hear from you</h1><p>Questions about an order, a wedding, or a custom request? Send us a note.</p></div></div>
+    <div class="container section">
+      <div class="contact-layout">
+        <div class="form-card">
+          <div class="form-alert ok" id="contactSuccess" hidden>Thank you! Your message was sent. We’ll reply within 24 hours.</div>
+          <form id="contactForm" novalidate>
+            <div class="form-row">
+              <div class="field"><label for="cName">Your name</label><input type="text" id="cName" name="name" autocomplete="name"><span class="error" data-error-for="name" role="alert"></span></div>
+              <div class="field"><label for="cEmail">Email</label><input type="email" id="cEmail" name="email" autocomplete="email"><span class="error" data-error-for="email" role="alert"></span></div>
+            </div>
+            <div class="field"><label for="cSubject">Subject</label>
+              <select id="cSubject" name="subject"><option value="">Select a topic…</option><option>Order question</option><option>Wedding &amp; events</option><option>Custom request</option><option>Feedback</option><option>Other</option></select>
+              <span class="error" data-error-for="subject" role="alert"></span></div>
+            <div class="field"><label for="cMessage">Message</label><textarea id="cMessage" name="message" placeholder="How can we help?"></textarea><span class="error" data-error-for="message" role="alert"></span></div>
+            <button class="btn btn-primary" type="submit">Send Message</button>
+          </form>
+        </div>
+        <aside class="form-card">
+          <h2>Customer support</h2>
+          <ul class="info-list">
+            <li><b>Email</b><span>hello@bloombliss.example</span></li>
+            <li><b>Phone</b><span>+63 900 000 0000 <small class="muted">(placeholder)</small></span></li>
+            <li><b>Hours</b><span>Mon–Sun, 8:00 AM – 8:00 PM</span></li>
+            <li><b>Studio</b><span>123 Blossom Street, Your City, Philippines</span></li>
+          </ul>
+          <p class="eyebrow">Follow us</p>
+          <div class="socials">
+            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">Facebook</a>
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">Instagram</a>
+            <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer">TikTok</a>
+            <a href="https://pin.it/6174aUtx1" target="_blank" rel="noopener noreferrer">Pinterest</a>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ADMIN ============ -->
+  <section class="page" id="page-admin" data-title="Admin Dashboard">
+    <div class="page-hero"><div class="container"><p class="eyebrow">Administration</p><h1>Admin Dashboard</h1><p>Manage products, stock, prices and customer orders.</p></div></div>
+    <div class="container section" id="adminRoot"></div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <a class="brand" href="#/home">Bloom <span>&amp;</span> Bliss</a>
+        <p style="max-width:320px;opacity:.85">“Every Bloom Tells a Story.” Hand-tied bouquets for the moments that matter most.</p>
+      </div>
+      <div><h4>Shop</h4><ul><li><a href="#/shop">All Flowers</a></li><li><a href="#/categories">Categories</a></li><li><a href="#/occasions">Occasions</a></li><li><a href="#/addons">Add-ons</a></li></ul></div>
+      <div><h4>Account</h4><ul><li><a href="#/login">Login / Sign Up</a></li><li><a href="#/orders">My Orders</a></li><li><a href="#/wishlist">Wishlist</a></li><li><a href="#/cart">Cart</a></li></ul></div>
+      <div><h4>Company</h4><ul><li><a href="#/about">About Us</a></li><li><a href="#/contact">Contact Us</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="year"></span> Bloom &amp; Bliss. All rights reserved.</span>
+      <span>Frontend demo — accounts, payments and orders are simulated in your browser.</span>
+    </div>
+  </div>
+</footer>
+
+<div id="modal" hidden></div>
+<div id="toasts" role="status" aria-live="polite"></div>
+
+
+
+<!-- Bloom & Bliss: Floating Cursor Petals -->
+<div id="petal-trail" aria-hidden="true"></div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
