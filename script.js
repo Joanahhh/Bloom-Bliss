@@ -1052,6 +1052,35 @@ function renderHome() {
   /* ------------------------------------------------------------------------
      10. Menus + events
      ------------------------------------------------------------------------ */
+  function copyPromoCodeFallback(code) {
+    const field = document.createElement('textarea');
+    field.value = code;
+    field.setAttribute('readonly', '');
+    field.style.position = 'fixed';
+    field.style.opacity = '0';
+    document.body.appendChild(field);
+    field.select();
+    try {
+      if (document.execCommand('copy')) toast('Promo code copied: ' + code);
+      else toast('Could not copy the promo code. Please copy ' + code + ' manually.', 'error');
+    } catch (error) {
+      toast('Could not copy the promo code. Please copy ' + code + ' manually.', 'error');
+    } finally {
+      field.remove();
+    }
+  }
+
+  function copyPromoCode() {
+    const code = 'BLOOM10';
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(code)
+        .then(() => toast('Promo code copied: ' + code))
+        .catch(() => copyPromoCodeFallback(code));
+      return;
+    }
+    copyPromoCodeFallback(code);
+  }
+
   function closeMenus() {
     const nav = $('#nav'); const btn = $('#menuBtn');
     if (nav) nav.classList.remove('open'); if (btn) btn.setAttribute('aria-expanded', 'false');
@@ -1073,6 +1102,12 @@ function renderHome() {
     const el = e.target.closest('[data-action]'); if (!el) return;
     const act = el.dataset.action; const id = el.dataset.id; const key = el.dataset.key;
     switch (act) {
+      case 'copy-promo': copyPromoCode(); break;
+      case 'dismiss-promo': {
+        $('#topPromo').hidden = true;
+        $('.brand').focus();
+        break;
+      }
       case 'add': addToCart(id, el); break;
       case 'filter-addon-cat': addonFilters.cat = el.dataset.cat; renderAddons(); break;
       case 'reset-addons': addonFilters.q = ''; addonFilters.cat = 'all'; addonFilters.sort = 'featured'; renderAddons(); break;
@@ -1170,12 +1205,30 @@ function renderHome() {
      ------------------------------------------------------------------------ */
   function initPetals() {
     const box = $('#petals'); if (!box || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    for (let i = 0; i < 14; i++) {
+    const petals = [];
+    for (let i = 0; i < 42; i++) {
       const p = document.createElement('span'); p.className = 'petal';
       const size = 10 + Math.random() * 12;
-      p.style.cssText = `left:${Math.random() * 100}%;width:${size}px;height:${size * 1.25}px;animation-duration:${9 + Math.random() * 9}s;animation-delay:${-Math.random() * 14}s;opacity:${.45 + Math.random() * .4}`;
+      p.style.cssText = `left:${Math.random() * 100}%;width:${size}px;height:${size * 1.25}px;opacity:${.45 + Math.random() * .4}`;
       box.appendChild(p);
+      petals.push({ element: p, pace: .75 + Math.random() * .5, offset: Math.random() });
     }
+
+    function updatePetalFall() {
+      const pageHeight = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+      const baseDuration = Math.max(14, pageHeight / Math.max(window.innerHeight, 1) * 12);
+      box.style.setProperty('--petal-page-height', pageHeight + 'px');
+      petals.forEach(({ element, pace, offset }) => {
+        const duration = baseDuration * pace;
+        element.style.setProperty('--petal-fall-distance', pageHeight + 'px');
+        element.style.animationDuration = duration + 's';
+        element.style.animationDelay = -(duration * offset) + 's';
+      });
+    }
+
+    updatePetalFall();
+    window.addEventListener('resize', updatePetalFall);
+    if ('ResizeObserver' in window) new ResizeObserver(updatePetalFall).observe(document.body);
   }
   function hideLoader() { const l = $('#loader'); if (l) { l.classList.add('done'); setTimeout(() => l.remove(), 800); } }
 
@@ -1187,9 +1240,9 @@ function renderHome() {
     if (!location.hash) location.hash = '#/home'; else route();
     if (!location.hash || location.hash === '#/home') route();
     
-    window.addEventListener('load', () => setTimeout(hideLoader, 450));
-    setTimeout(hideLoader, 2500);
-    if (document.readyState === 'complete') setTimeout(hideLoader, 450);
+    window.addEventListener('load', () => setTimeout(hideLoader, 5000));
+    setTimeout(hideLoader, 5000);
+    if (document.readyState === 'complete') setTimeout(hideLoader, 5000);
   }
   init();
 

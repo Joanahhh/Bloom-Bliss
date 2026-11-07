@@ -16,9 +16,43 @@
 
   <!-- Loading animation -->
 <div id="loader" aria-hidden="true">
+  <svg class="loader-flower-shapes" aria-hidden="true" focusable="false">
+    <symbol id="loader-flower-shape" viewBox="0 0 64 64">
+      <g fill="#A64D69">
+        <ellipse cx="32" cy="16" rx="8" ry="15" transform="rotate(240 32 32)"/>
+        <ellipse cx="32" cy="16" rx="8" ry="15" transform="rotate(60 32 32)" fill="#C7798F"/>
+        <ellipse cx="32" cy="16" rx="8" ry="15" transform="rotate(120 32 32)"/>
+        <ellipse cx="32" cy="16" rx="8" ry="15" transform="rotate(180 32 32)" fill="#C7798F"/>
+        <ellipse cx="32" cy="16" rx="8" ry="15"/>
+        <ellipse cx="32" cy="16" rx="8" ry="15" transform="rotate(300 32 32)" fill="#C7798F"/>
+      </g>
+      <circle cx="32" cy="32" r="7" fill="#D4B483"/>
+    </symbol>
+  </svg>
+  <div class="loader-flower-field">
+    <span class="loader-mini-flower flower-a"><svg viewBox="0 0 64 64"><use href="#loader-flower-shape"/></svg></span>
+    <span class="loader-mini-flower flower-b"><svg viewBox="0 0 64 64"><use href="#loader-flower-shape"/></svg></span>
+    <span class="loader-mini-flower flower-c"><svg viewBox="0 0 64 64"><use href="#loader-flower-shape"/></svg></span>
+    <span class="loader-mini-flower flower-d"><svg viewBox="0 0 64 64"><use href="#loader-flower-shape"/></svg></span>
+    <span class="loader-mini-flower flower-e"><svg viewBox="0 0 64 64"><use href="#loader-flower-shape"/></svg></span>
+    <span class="loader-mini-flower flower-f"><svg viewBox="0 0 64 64"><use href="#loader-flower-shape"/></svg></span>
+    <span class="loader-mini-flower flower-g"><svg viewBox="0 0 64 64"><use href="#loader-flower-shape"/></svg></span>
+    <span class="loader-mini-flower flower-h"><svg viewBox="0 0 64 64"><use href="#loader-flower-shape"/></svg></span>
+    <span class="loader-mini-flower flower-i"><svg viewBox="0 0 64 64"><use href="#loader-flower-shape"/></svg></span>
+    <span class="loader-mini-flower flower-j"><svg viewBox="0 0 64 64"><use href="#loader-flower-shape"/></svg></span>
+    <span class="loader-mini-flower flower-k"><svg viewBox="0 0 64 64"><use href="#loader-flower-shape"/></svg></span>
+    <span class="loader-mini-flower flower-l"><svg viewBox="0 0 64 64"><use href="#loader-flower-shape"/></svg></span>
+    <span class="loader-mini-flower flower-m"><svg viewBox="0 0 64 64"><use href="#loader-flower-shape"/></svg></span>
+    <span class="loader-mini-flower flower-n"><svg viewBox="0 0 64 64"><use href="#loader-flower-shape"/></svg></span>
+    <span class="loader-mini-flower flower-o"><svg viewBox="0 0 64 64"><use href="#loader-flower-shape"/></svg></span>
+    <span class="loader-mini-flower flower-p"><svg viewBox="0 0 64 64"><use href="#loader-flower-shape"/></svg></span>
+  </div>
+  <div class="loader-petals" aria-hidden="true">
+    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+  </div>
   <div class="loader-bloom">
-    <div class="flower"><i></i><i></i><i></i><i></i><i></i></div>
-    <h2>Bloom &amp; Bliss</h2> 
+    <div class="flower"><i></i><i></i><i></i><i></i><i></i><i></i><span class="flower-center"></span></div>
+    <h2>Bloom &amp; Bliss</h2>
     <p class="loader-tagline">Where every flower tells a story</p>
   </div>
 </div>
@@ -29,7 +63,23 @@
 
 <a class="skip-link" href="#main">Skip to content</a>
 
-<div class="promo-bar">Free delivery on orders over <strong>₱3,000</strong> · Use code <strong>BLOOM10</strong> for 10% off</div>
+<section class="top-promo" id="topPromo" aria-label="Special offer">
+  <!-- Replace this image source with your landscape promo photo when ready. -->
+  <img class="top-promo-image" src="PICTURES/Blush Birthday Bouquet.png" alt="" aria-hidden="true">
+  <div class="top-promo-shade"></div>
+  <div class="top-promo-content">
+    <p class="top-promo-eyebrow">A little something for you</p>
+    <h2>Make their day bloom</h2>
+    <p>Enjoy 10% off your order, plus free delivery on orders over <strong>₱3,000</strong>.</p>
+    <div class="top-promo-actions">
+      <a class="top-promo-shop" href="#/shop">Shop the collection <span aria-hidden="true">→</span></a>
+      <button class="top-promo-code" type="button" data-action="copy-promo" aria-label="Copy promo code BLOOM10">
+        Use code <strong>BLOOM10</strong> <span class="top-promo-copy-label">Copy</span>
+      </button>
+    </div>
+  </div>
+  <button class="top-promo-dismiss" type="button" data-action="dismiss-promo" aria-label="Dismiss promotion">×</button>
+</section>
 
 <header class="site-header">
   <div class="container header-inner">
@@ -70,6 +120,16 @@
   <section class="page" id="page-home" data-title="Home">
     <div class="hero">
       <div class="petals" aria-hidden="true"></div>
+      <div class="hero-orbit-gallery" aria-hidden="true">
+        <span class="hero-orbit-tile tile-one"><img src="PICTURES/Blush Pink Dream Bouquet.png" alt=""></span>
+        <span class="hero-orbit-tile tile-four"><img src="PICTURES/Pink Tulip Bouquet.png" alt=""></span>
+        <span class="hero-orbit-tile tile-five"><img src="PICTURES/White Lily Arrangement.png" alt=""></span>
+        <span class="hero-orbit-tile tile-eight"><img src="PICTURES/Wildflowers.png" alt=""></span>
+        <span class="hero-orbit-tile tile-eleven"><img src="PICTURES/Classic Red Rose Bouquet.png" alt=""></span>
+        <span class="hero-orbit-tile tile-fourteen"><img src="PICTURES/Sunlit Bliss Bouquet.png" alt=""></span>
+        <span class="hero-orbit-tile tile-fifteen"><img src="PICTURES/Pure Ivory Elegance Bouquet.png" alt=""></span>
+        <span class="hero-orbit-tile tile-sixteen"><img src="PICTURES/Burgundy Romance Bouquet.png" alt=""></span>
+      </div>
       <div class="container hero-inner">
         <div>
           <p class="eyebrow">Fresh flowers · Hand-tied with love</p>
@@ -86,7 +146,7 @@
 
 <div class="hero-art">
     <div class="frame" id="heroArt">
-        <img src="https://i.pinimg.com/736x/20/1c/f4/201cf463c551840bcd8b379f69d312bb.jpg" alt="Beautiful flower bouquet" class="hero-image">
+        <img src="PICTURES/Bloom &amp; Bliss Signature Bouquet.png" alt="Beautiful flower bouquet" class="hero-image">
     </div>
 
     <span class="chip a">🌷 Fresh daily</span>
@@ -1453,7 +1513,7 @@
           <p class="eyebrow" style="color:var(--gold)">Welcome</p>
           <h2>Every Bloom Tells a Story</h2>
           <p>Create an account to checkout faster, save your favorite bouquets and track every order.</p>
-          <div class="demo"><strong>Demo admin account</strong><br>admin@bloombliss.demo<br>Password: Admin@123</div>
+         
         </div>
         <div class="auth-main">
           <div class="tabs" role="tablist">
