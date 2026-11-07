@@ -1004,7 +1004,10 @@ function renderHome() {
         </tbody></table></div>` : '<div class="empty"><h3>No orders yet</h3><p class="muted">Orders placed by customers will appear here.</p></div>');
     } else {
       const msgs = state.messages.slice().reverse();
-      body = `<div class="admin-bar"><h2 style="margin:0">Customer Messages (${msgs.length})</h2></div>` + (msgs.length ? msgs.map((m) => `<div class="msg-card"><h4>${esc(m.subject)}</h4><small>${esc(m.name)} · ${esc(m.email)} · ${prettyDate(m.at)}</small><p style="margin:.5rem 0 0">${esc(m.message)}</p></div>`).join('') : '<div class="empty"><h3>No messages</h3></div>');
+      body = `<div class="admin-bar"><h2 style="margin:0">Customer Messages (${msgs.length})</h2><p class="muted" style="margin:0">Reply opens a draft in your email app.</p></div>` + (msgs.length ? msgs.map((m) => {
+        const replyHref = `mailto:${encodeURIComponent(m.email || '')}?subject=${encodeURIComponent('Re: ' + (m.subject || ''))}`;
+        return `<div class="msg-card"><h4>${esc(m.subject)}</h4><small>${esc(m.name)} · ${esc(m.email)} · ${prettyDate(m.at)}</small><p style="margin:.5rem 0 0">${esc(m.message)}</p><p style="margin:.75rem 0 0"><a class="btn btn-ghost btn-sm" href="${esc(replyHref)}">Reply by email</a></p></div>`;
+      }).join('') : '<div class="empty"><h3>No messages</h3></div>');
     }
     root.innerHTML = `<div class="stat-grid"><div class="stat"><b>${state.products.length}</b><span>Products</span></div><div class="stat"><b>${lowCount}</b><span>Low / out of stock</span></div><div class="stat"><b>${state.orders.length}</b><span>Orders (${pending} pending)</span></div><div class="stat"><b>${peso(revenue)}</b><span>Total sales</span></div></div>
       <div class="tabs" style="max-width:480px" role="tablist">${['products', 'orders', 'messages'].map((t) => `<button type="button" role="tab" class="${adminTab === t ? 'active' : ''}" aria-selected="${adminTab === t}" data-action="admin-tab" data-tab="${t}">${t[0].toUpperCase() + t.slice(1)}</button>`).join('')}</div>
