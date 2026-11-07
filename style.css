@@ -85,18 +85,12 @@ main:focus { outline: none; }
 .flower-a { left: 4%; top: 9%; --mini-petal: #F2B8C6; --mini-petal-light: #F9D7DE; --mini-center: #EBCB8B; --spin-time: 25s; --spin-delay: -8s; --bloom-delay: .05s; }
 .flower-b { left: 18%; top: 24%; width: clamp(16px, 2vw, 28px); opacity: .5; --mini-petal: #70263D; --mini-petal-light: #A64D69; --mini-center: #F0D8A5; --spin-time: 32s; --spin-delay: -21s; --bloom-delay: .2s; }
 .flower-c { left: 29%; top: 7%; width: clamp(18px, 2.5vw, 34px); opacity: .62; --mini-petal: #F2D49C; --mini-petal-light: #F8E8C9; --mini-center: #D99AA8; --spin-time: 28s; --spin-delay: -13s; --bloom-delay: .35s; }
-.flower-d { left: 41%; top: 19%; width: clamp(22px, 3.2vw, 44px); opacity: .42; --mini-petal: #AFCFC0; --mini-petal-light: #D5E7DC; --mini-center: #F1D99F; --spin-time: 35s; --spin-delay: -5s; --bloom-delay: .1s; }
 .flower-e { left: 55%; top: 6%; width: clamp(16px, 2.2vw, 30px); opacity: .55; --mini-petal: #5A1D32; --mini-petal-light: #8C3550; --mini-center: #EBCB8B; --spin-time: 27s; --spin-delay: -18s; --bloom-delay: .45s; }
-.flower-f { left: 68%; top: 23%; width: clamp(21px, 2.7vw, 38px); opacity: .66; --mini-petal: #AEC9E8; --mini-petal-light: #D9E7F5; --mini-center: #F0D8A5; --spin-time: 31s; --spin-delay: -11s; --bloom-delay: .25s; }
 .flower-g { right: 17%; top: 8%; width: clamp(24px, 3.5vw, 48px); opacity: .48; --mini-petal: #C6B4E2; --mini-petal-light: #E2D8F1; --mini-center: #F0D8A5; --spin-time: 38s; --spin-delay: -29s; --bloom-delay: .5s; }
-.flower-h { right: 4%; top: 31%; width: clamp(18px, 2.4vw, 34px); opacity: .7; --mini-petal: #F2D49C; --mini-petal-light: #F8E8C9; --mini-center: #D99AA8; --spin-time: 26s; --spin-delay: -17s; --bloom-delay: .15s; }
-.flower-i { left: 6%; top: 53%; width: clamp(22px, 3.2vw, 44px); opacity: .52; --mini-petal: #AEC9E8; --mini-petal-light: #D9E7F5; --mini-center: #F0D8A5; --spin-time: 34s; --spin-delay: -23s; --bloom-delay: .4s; }
 .flower-j { left: 23%; top: 71%; width: clamp(16px, 2.3vw, 32px); opacity: .68; --mini-petal: #70263D; --mini-petal-light: #B65370; --mini-center: #EBCB8B; --spin-time: 29s; --spin-delay: -9s; --bloom-delay: .3s; }
-.flower-k { left: 39%; top: 86%; width: clamp(21px, 2.8vw, 38px); opacity: .46; --mini-petal: #AFCFC0; --mini-petal-light: #D5E7DC; --mini-center: #F1D99F; --spin-time: 37s; --spin-delay: -31s; --bloom-delay: .55s; }
 .flower-l { left: 55%; top: 69%; width: clamp(18px, 2.5vw, 35px); opacity: .64; --mini-petal: #C6B4E2; --mini-petal-light: #E2D8F1; --mini-center: #F0D8A5; --spin-time: 30s; --spin-delay: -14s; --bloom-delay: .2s; }
 .flower-m { right: 27%; top: 88%; width: clamp(17px, 2.2vw, 31px); opacity: .5; --mini-petal: #F2D49C; --mini-petal-light: #F8E8C9; --mini-center: #D99AA8; --spin-time: 33s; --spin-delay: -26s; --bloom-delay: .35s; }
 .flower-n { right: 12%; top: 66%; width: clamp(23px, 3vw, 42px); opacity: .62; --mini-petal: #5A1D32; --mini-petal-light: #A64D69; --mini-center: #EBCB8B; --spin-time: 28s; --spin-delay: -7s; --bloom-delay: .1s; }
-.flower-o { right: 3%; top: 86%; width: clamp(16px, 2.4vw, 33px); opacity: .48; --mini-petal: #AEC9E8; --mini-petal-light: #D9E7F5; --mini-center: #F0D8A5; --spin-time: 36s; --spin-delay: -19s; --bloom-delay: .5s; }
 .flower-p { left: 82%; top: 43%; width: clamp(20px, 2.8vw, 39px); opacity: .44; --mini-petal: #AFCFC0; --mini-petal-light: #D5E7DC; --mini-center: #F1D99F; --spin-time: 31s; --spin-delay: -3s; --bloom-delay: .25s; }
 @keyframes loaderFlowerSpin { to { rotate: 360deg; } }
 @keyframes loaderMiniBloom {
@@ -110,19 +104,29 @@ main:focus { outline: none; }
   border-radius: 80% 0 80% 0; background: linear-gradient(135deg, #f3b6c1, #d97a93);
   opacity: 0; animation: loaderPetalFall var(--petal-duration) var(--petal-delay) ease-in infinite;
 }
-.loader-petals i:nth-child(1) { --petal-left: 9%; --petal-duration: 3.3s; --petal-delay: 0s; }
-.loader-petals i:nth-child(2) { --petal-left: 21%; --petal-duration: 2.8s; --petal-delay: .6s; }
-.loader-petals i:nth-child(3) { --petal-left: 34%; --petal-duration: 3.6s; --petal-delay: .2s; }
-.loader-petals i:nth-child(4) { --petal-left: 47%; --petal-duration: 3s; --petal-delay: 1s; }
-.loader-petals i:nth-child(5) { --petal-left: 61%; --petal-duration: 3.5s; --petal-delay: .4s; }
-.loader-petals i:nth-child(6) { --petal-left: 73%; --petal-duration: 2.9s; --petal-delay: .8s; }
-.loader-petals i:nth-child(7) { --petal-left: 86%; --petal-duration: 3.7s; --petal-delay: .1s; }
-.loader-petals i:nth-child(8) { --petal-left: 96%; --petal-duration: 3.1s; --petal-delay: .7s; }
+.loader-petals i:nth-child(1) { --petal-left: 4%; --petal-duration: 10s; --petal-delay: 0s; }
+.loader-petals i:nth-child(2) { --petal-left: 11%; --petal-duration: 12s; --petal-delay: -1s; }
+.loader-petals i:nth-child(3) { --petal-left: 18%; --petal-duration: 14s; --petal-delay: -3.5s; }
+.loader-petals i:nth-child(4) { --petal-left: 25%; --petal-duration: 11s; --petal-delay: -5s; }
+.loader-petals i:nth-child(5) { --petal-left: 32%; --petal-duration: 13s; --petal-delay: -7.5s; }
+.loader-petals i:nth-child(6) { --petal-left: 39%; --petal-duration: 10s; --petal-delay: -2s; }
+.loader-petals i:nth-child(7) { --petal-left: 46%; --petal-duration: 12s; --petal-delay: -6s; }
+.loader-petals i:nth-child(8) { --petal-left: 53%; --petal-duration: 14s; --petal-delay: -10s; }
+.loader-petals i:nth-child(9) { --petal-left: 60%; --petal-duration: 11s; --petal-delay: -3s; }
+.loader-petals i:nth-child(10) { --petal-left: 67%; --petal-duration: 13s; --petal-delay: -9s; }
+.loader-petals i:nth-child(11) { --petal-left: 74%; --petal-duration: 10s; --petal-delay: -4s; }
+.loader-petals i:nth-child(12) { --petal-left: 81%; --petal-duration: 12s; --petal-delay: -8s; }
+.loader-petals i:nth-child(13) { --petal-left: 88%; --petal-duration: 14s; --petal-delay: -1.5s; }
+.loader-petals i:nth-child(14) { --petal-left: 95%; --petal-duration: 11s; --petal-delay: -6.5s; }
+.loader-petals i:nth-child(15) { --petal-left: 15%; --petal-duration: 13s; --petal-delay: -11s; }
+.loader-petals i:nth-child(16) { --petal-left: 85%; --petal-duration: 10s; --petal-delay: -12s; }
 @keyframes loaderPetalFall {
   0% { transform: translate3d(0, -5vh, 0) rotate(0deg); opacity: 0; }
-  12% { opacity: .8; }
-  50% { transform: translate3d(34px, 52vh, 0) rotate(220deg); opacity: .75; }
-  100% { transform: translate3d(-18px, 110vh, 0) rotate(440deg); opacity: 0; }
+  10% { opacity: .8; }
+  25% { transform: translate3d(32px, 22vh, 0) rotate(80deg); opacity: .8; }
+  50% { transform: translate3d(-22px, 52vh, 0) rotate(190deg); opacity: .75; }
+  75% { transform: translate3d(36px, 82vh, 0) rotate(300deg); opacity: .65; }
+  100% { transform: translate3d(-12px, 110vh, 0) rotate(420deg); opacity: 0; }
 }
 .loader-bloom { position: relative; z-index: 1; text-align: center; font-family: var(--font-head); color: var(--burgundy); font-size: 1.5rem; }
 .loader-butterfly { position: absolute; z-index: 2; width: 30px; height: 24px; color: #A64D69; pointer-events: none; }
@@ -497,6 +501,9 @@ fieldset { border: 0; padding: 0; margin: 0 0 1.2rem; min-width: 0; }
 .cart-info h3 { margin: 0 0 .1rem; font-size: 1.05rem; }
 .cart-info p { margin: 0 0 .5rem; font-size: .8rem; color: var(--muted); }
 .cart-info .msg { font-style: italic; color: var(--burgundy); }
+.cart-message-editor { max-width: 420px; margin: .65rem 0; }
+.cart-message-editor label { display: block; margin-bottom: .3rem; color: var(--maroon); font-size: .8rem; font-weight: 600; }
+.cart-message-editor textarea { min-height: 68px; margin-bottom: .25rem; font-size: .82rem; }
 .cart-price { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: .15rem; }
 .cart-price strong { font-family: var(--font-head); font-size: 1.2rem; color: var(--burgundy); }
 .cart-price small { color: var(--muted); font-size: .76rem; }

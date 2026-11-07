@@ -28,7 +28,15 @@
       try { const v = localStorage.getItem('bb_' + key); return v === null ? fallback : JSON.parse(v); }
       catch (e) { return fallback; }
     },
-    set(key, value) { try { localStorage.setItem('bb_' + key, JSON.stringify(value)); } catch (e) { /* storage full or blocked */ } },
+    set(key, value) {
+      try {
+        localStorage.setItem('bb_' + key, JSON.stringify(value));
+        return true;
+      } catch (error) {
+        console.error('Could not save Bloom & Bliss browser data.', error);
+        return false;
+      }
+    },
     clearAll() { try { Object.keys(localStorage).filter((k) => k.indexOf('bb_') === 0).forEach((k) => localStorage.removeItem(k)); } catch (e) { /* ignore */ } }
   };
 
@@ -460,6 +468,15 @@
     save('cart'); updateBadges(); renderCart();
     if (line) toast(line.name + ' removed from cart');
   }
+  function saveCartMessage(key, button) {
+    const line = state.cart.find((i) => i.key === key);
+    const input = button.closest('.cart-item').querySelector('.cart-message-input');
+    if (!line || !input) return;
+    line.message = input.value.trim();
+    save('cart');
+    renderCart();
+    toast(line.message ? 'Card message saved.' : 'Card message removed.');
+  }
 
   function toggleWish(pid) {
     const i = state.wish.indexOf(pid);
@@ -696,13 +713,21 @@ function renderHome() {
       return;
     }
     const t = totals();
-    const items = state.cart.map((i) => `<article class="cart-item">
+    const items = state.cart.map((i) => {
+      const product = i.pid ? getProduct(i.pid) : null;
+      const messageEditor = product && product.message ? `<div class="cart-message-editor">
+          <label for="cart-message-${esc(i.key)}">Card message (optional)</label>
+          <textarea id="cart-message-${esc(i.key)}" class="cart-message-input" maxlength="300" placeholder="Write a personal message for the card">${esc(i.message || '')}</textarea>
+          <button type="button" class="link-btn" data-action="save-message" data-key="${esc(i.key)}">Save message</button>
+        </div>` : '';
+      return `<article class="cart-item">
         <div class="cart-thumb">${prodMedia(i, i.name)}</div>
-        <div class="cart-info"><h3>${esc(i.name)}</h3><p>${esc(i.note || '')}</p>${i.message ? `<p class="msg">“${esc(i.message)}”</p>` : ''}
+        <div class="cart-info"><h3>${esc(i.name)}</h3><p>${esc(i.note || '')}</p>${i.message && !messageEditor ? `<p class="msg">“${esc(i.message)}”</p>` : ''}${messageEditor}
           <div class="qty" role="group" aria-label="Quantity for ${esc(i.name)}"><button type="button" data-action="qty-dec" data-key="${i.key}" aria-label="Decrease quantity">−</button><output aria-live="polite">${i.qty}</output><button type="button" data-action="qty-inc" data-key="${i.key}" aria-label="Increase quantity">+</button></div>
         </div>
         <div class="cart-price"><strong>${peso(i.price * i.qty)}</strong><small>${peso(i.price)} each</small><button type="button" class="link-btn" data-action="remove" data-key="${i.key}">Remove</button></div>
-      </article>`).join('');
+      </article>`;
+    }).join('');
     root.innerHTML = `<div class="cart-layout"><div>${items}<a class="link-btn" href="#/shop">← Continue shopping</a></div>
       <aside class="summary">${summaryHTML(t, true)}
         <form class="promo-form" id="promoForm" novalidate><label class="sr-only" for="promoInput">Promo code</label><input type="text" id="promoInput" name="code" placeholder="Promo code" autocomplete="off"><button class="btn btn-ghost btn-sm" type="submit">Apply</button></form>
@@ -768,7 +793,28 @@ function renderHome() {
     });
     if (!data) return;
     const u = { name: data.name, email: data.email.toLowerCase(), pass: hash(data.password), role: 'customer' };
-    state.users.push(u); state.session = u.email; save('users', 'session'); form.reset();
+    const users = state.users.concat(u);
+    if (!store.set('users', users)) {
+      const notice = $('#authNotice');
+      notice.hidden = false;
+      notice.className = 'form-alert error';
+      notice.textContent = 'Your account could not be saved in this browser. Check your browser storage settings and try again.';
+      return;
+    }
+    state.users = users;
+    state.session = u.email;
+    if (!store.set('session', state.session)) {
+      state.session = null;
+      const notice = $('#authNotice');
+      notice.hidden = false;
+      notice.className = 'form-alert info';
+      notice.textContent = 'Your account was saved. Please log in with your email and password.';
+      form.reset();
+      setAuthTab('login');
+      $('#loginEmail').value = u.email;
+      return;
+    }
+    form.reset();
     toast('Account created. Welcome to Bloom & Bliss, ' + u.name.split(' ')[0] + '!'); renderAuthArea(); afterAuth();
   }
   function logout() {
@@ -1126,6 +1172,7 @@ function renderHome() {
       case 'qty-inc': changeQty(key, 1); break;
       case 'qty-dec': changeQty(key, -1); break;
       case 'remove': removeLine(key); break;
+      case 'save-message': saveCartMessage(key, el); break;
       case 'remove-promo': state.promo = null; save('promo'); renderCart(); toast('Promo code removed'); break;
       case 'filter-cat': shopFilters.cat = el.dataset.cat; renderShop(); break;
       case 'reset-filters': shopFilters.q = ''; shopFilters.cat = 'all'; shopFilters.occ = 'all'; shopFilters.sort = 'featured'; applyShopParams(); renderShop(); break;
