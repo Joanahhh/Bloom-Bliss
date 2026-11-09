@@ -1660,6 +1660,14 @@ function renderHome() {
     nav.classList.toggle('open', open); $('#menuBtn').setAttribute('aria-expanded', String(open));
   });
   window.addEventListener('storage', (e) => {
+    if (e.key === 'bb_orders' || e.key === 'bb_products') {
+      state.orders = store.get('orders', []);
+      state.products = store.get('products', state.products);
+      if (currentPage === 'admin' && isAdmin()) renderAdmin();
+      else if (currentPage === 'orders' && currentUser() && currentUser().role !== 'admin') renderOrders();
+      else if (currentPage === 'confirmation' && currentUser()) renderConfirmation();
+      return;
+    }
     if (e.key === 'bb_conversations') {
       state.conversations = store.get('conversations', []);
       if (currentPage === 'chat' && currentUser() && currentUser().role !== 'admin') renderCustomerChat();
