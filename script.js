@@ -1715,6 +1715,42 @@
   };
   const PRESET_LABELS = { 'red-roses': 'Red roses', 'burgundy-roses': 'Burgundy roses', 'pink-tulips': 'Pink tulips', 'white-lilies': 'White lilies', 'sunflowers': 'Sunflowers', 'mixed-pastel': 'Mixed pastel', 'mini': 'Mini bunch', 'gift-box': 'Gift box' };
 
+  async function setAdminOrderStatus(orderId, nextStatus, control) {
+    const order = state.orders.find((item) => item.id === orderId);
+    if (!isAdmin() || !order || !STATUSES.includes(nextStatus) || order.status === 'Cancelled') {
+      toast('This order status cannot be changed.', 'error');
+      return;
+    }
+
+    control.disabled = true;
+    let data;
+    let error;
+    try {
+      ({ data, error } = await supabaseClient.rpc('admin_update_order_status', {
+        target_order_id: order.id,
+        next_status: nextStatus
+      }));
+    } catch (reason) {
+      console.error('Supabase update the order status failed.', reason);
+      toast(reason instanceof Error ? reason.message : 'Could not reach the store database. Please try again.', 'error');
+      control.disabled = false;
+      return;
+    }
+    const savedOrder = Array.isArray(data) ? data[0] : data;
+    if (error || !savedOrder) {
+      if (error) console.error('Supabase update the order status failed.', error);
+      toast(error ? error.message : 'The order status could not be updated. Refresh the dashboard and try again.', 'error');
+      if (control.matches('select')) control.value = order.status;
+      control.disabled = false;
+      return;
+    }
+
+    order.status = savedOrder.status || nextStatus;
+    if (savedOrder.data) Object.assign(order, savedOrder.data, { id: order.id, status: order.status });
+    toast('Order ' + order.id + ' → ' + order.status);
+    renderAdmin();
+  }
+
   function renderAdmin() {
     const root = $('#adminRoot'); if (!root) return;
     if (adminTab === 'orders' && state.ownerOrderNotifications.length) {
@@ -1757,7 +1793,7 @@
       body = `<div class="admin-bar"><div><h2 style="margin:0">Orders (${orders.length})</h2><p class="muted" style="margin:.25rem 0 0">Update an order to Delivered when it arrives; customer confirmation is not required.</p></div></div>` + (orders.length ? `<div class="table-wrap"><table><thead><tr><th>Order</th><th>Customer</th><th>Placed</th><th>Delivery</th><th>Total</th><th>Status</th><th></th></tr></thead><tbody>
         ${orders.map((o) => `<tr><td><strong>${esc(o.id)}</strong></td><td>${esc(o.customer)}<br><small class="muted">${esc(o.user)}</small></td><td>${prettyDate(o.createdAt)}</td><td>${prettyDate(o.delivery.date)}<br><small class="muted">${esc(o.delivery.time)}</small></td><td>${peso(o.totals.total)}</td>
           <td><select data-admin-status="${esc(o.id)}" aria-label="Status for order ${esc(o.id)}" ${o.status === 'Cancelled' ? 'disabled' : ''}>${STATUSES.map((s) => `<option ${s === o.status ? 'selected' : ''}>${s}</option>`).join('')}</select></td>
-          <td><button class="btn btn-ghost btn-sm" data-action="admin-order" data-id="${esc(o.id)}">Details</button></td></tr>`).join('')}
+          <td><div class="row-actions"><button class="btn btn-primary btn-sm" data-action="admin-mark-delivered" data-id="${esc(o.id)}" ${o.status === 'Delivered' || o.status === 'Cancelled' ? 'disabled' : ''}>Mark delivered</button><button class="btn btn-ghost btn-sm" data-action="admin-order" data-id="${esc(o.id)}">Details</button></div></td></tr>`).join('')}
         </tbody></table></div>` : '<div class="empty"><h3>No orders yet</h3><p class="muted">Orders placed by customers will appear here.</p></div>');
     } else {
       const msgs = state.messages.slice().reverse();
@@ -2062,6 +2098,7 @@
         break;
       }
       case 'admin-order': { const o = state.orders.find((x) => x.id === id); if (o) orderDetailModal(o); break; }
+      case 'admin-mark-delivered': await setAdminOrderStatus(id, 'Delivered', el); break;
       case 'cancel-order': {
         const u = currentUser();
         const o = state.orders.find((order) => order.id === id && u && order.user === u.email);
@@ -2118,27 +2155,7 @@
       toast((field === 'price' ? 'Price' : 'Stock') + ' updated for ' + p.name);
     }
     if (t.dataset && t.dataset.adminStatus) {
-      const o = state.orders.find((x) => x.id === t.dataset.adminStatus);
-      if (!o || !STATUSES.includes(t.value)) return;
-      const previousStatus = o.status;
-      t.disabled = true;
-      const { data, error } = await supabaseClient.rpc('admin_update_order_status', {
-        target_order_id: o.id,
-        next_status: t.value
-      });
-      if (error || !data) {
-        if (error) {
-          console.error('Supabase update the order status failed.', error);
-          toast(error.message || 'The order status could not be updated.', 'error');
-        }
-        else toast('The order no longer exists. Refresh the dashboard.', 'error');
-        t.value = previousStatus;
-        t.disabled = false;
-        return;
-      }
-      o.status = data.status;
-      toast('Order ' + o.id + ' → ' + o.status);
-      renderAdmin();
+      await setAdminOrderStatus(t.dataset.adminStatus, t.value, t);
     }
   });
 
