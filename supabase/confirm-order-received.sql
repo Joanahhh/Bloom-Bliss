@@ -1,3 +1,6 @@
+alter table public.owner_notifications
+  add column if not exists notification_type text not null default 'new_order';
+
 create or replace function public.customer_confirm_order_received(target_order_id text)
 returns public.orders
 language plpgsql
@@ -25,6 +28,8 @@ begin
   returning * into confirmed_order;
 
   if confirmed_order.id is not null then
+    insert into public.owner_notifications (order_id, notification_type)
+    values (confirmed_order.id, 'order_received');
     return confirmed_order;
   end if;
 

@@ -301,7 +301,8 @@
       if (isAdmin()) {
         const [messageResult, notificationResult] = await Promise.all([
           supabaseClient.from('contact_messages').select('id,name,email,subject,message,created_at').order('created_at', { ascending: false }),
-          supabaseClient.from('owner_notifications').select('order_id').is('read_at', null)
+          supabaseClient.from('owner_notifications')
+            .select('id,order_id,notification_type').is('read_at', null)
         ]);
         if (messageResult.error) throw messageResult.error;
         if (notificationResult.error) throw notificationResult.error;
@@ -309,7 +310,7 @@
           id: message.id, name: message.name, email: message.email, subject: message.subject,
           message: message.message, at: message.created_at
         }));
-        state.ownerOrderNotifications = (notificationResult.data || []).map((notification) => notification.order_id);
+        state.ownerOrderNotifications = notificationResult.data || [];
         if (!cloudProducts.length) {
           const { error } = await supabaseClient.from('products').upsert(
             domProducts.map((product) => ({ id: product.id, data: product }))
@@ -380,10 +381,17 @@
           ));
           const previousContactIds = new Set(state.messages.map((message) => message.id).filter(Boolean));
           await loadCloudState(state.authUser);
-          const newNotifications = state.ownerOrderNotifications.filter((id) => !previousNotifications.includes(id));
+          const newNotifications = state.ownerOrderNotifications.filter((notification) =>
+            !previousNotifications.some((previous) => previous.id === notification.id)
+          );
           if (isAdmin() && newNotifications.length) {
-            const order = state.orders.find((item) => item.id === newNotifications[newNotifications.length - 1]);
-            toast(order ? `New order from ${order.customer}.` : 'New customer order received.');
+            const notification = newNotifications[newNotifications.length - 1];
+            const order = state.orders.find((item) => item.id === notification.order_id);
+            if (notification.notification_type === 'order_received') {
+              toast(order ? `${order.customer} confirmed order ${order.id} was received.` : 'A customer confirmed an order was received.');
+            } else {
+              toast(order ? `New order from ${order.customer}.` : 'New customer order received.');
+            }
           }
           const changedOrder = state.orders.find((order) =>
             previousOrderStatuses.has(order.id) && previousOrderStatuses.get(order.id) !== order.status

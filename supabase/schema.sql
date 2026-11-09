@@ -77,9 +77,13 @@ create table if not exists public.contact_messages (
 create table if not exists public.owner_notifications (
   id uuid primary key default gen_random_uuid(),
   order_id text not null references public.orders (id) on delete cascade,
+  notification_type text not null default 'new_order',
   created_at timestamptz not null default now(),
   read_at timestamptz
 );
+
+alter table public.owner_notifications
+  add column if not exists notification_type text not null default 'new_order';
 
 create index if not exists owner_notifications_unread_idx
   on public.owner_notifications (created_at desc) where read_at is null;
@@ -329,6 +333,8 @@ begin
   returning * into confirmed_order;
 
   if confirmed_order.id is not null then
+    insert into public.owner_notifications (order_id, notification_type)
+    values (confirmed_order.id, 'order_received');
     return confirmed_order;
   end if;
 
