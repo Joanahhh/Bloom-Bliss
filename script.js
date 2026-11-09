@@ -166,6 +166,11 @@
     console.error(`Supabase ${action} failed.`, error);
     if (error && (error.code === 'PGRST205' || error.code === '42P01')) {
       toast('The Supabase database schema is not installed. Apply supabase/schema.sql, then reload.', 'error');
+    } else if (error && error.code === 'P0001' && typeof error.message === 'string') {
+      const message = error.message === 'A product in your cart is no longer available.'
+        ? 'A product in your cart is missing from the store catalog. Please ask the owner to sign in and sync the catalog, then try again.'
+        : error.message;
+      toast(message, 'error');
     } else {
       toast(`Could not ${action}. Please try again.`, 'error');
     }

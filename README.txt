@@ -45,8 +45,9 @@ To enable owner features:
 2. In the SQL Editor, promote that verified account (replace the example email):
    update public.profiles set role = 'admin'
    where lower(email) = lower('owner@example.com');
-3. Sign in as the owner. The initial storefront catalog is then seeded in the
-   products table. Customers can register and place orders after that.
+3. Sign in to the storefront as the owner at least once. This seeds the initial
+   storefront catalog in the products table. Customers can place orders only
+   after this catalog sync has completed.
 
 The schema migration is idempotent and configures row-level security. Existing
 browser-only accounts and their password hashes are not imported; each user
