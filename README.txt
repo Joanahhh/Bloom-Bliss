@@ -40,6 +40,8 @@ configured Supabase project. For a fresh project, run supabase/schema.sql in the
 SQL Editor, then run supabase/seed-catalog.sql to add the storefront catalog.
 The catalog seed contains 32 bouquets and 11 add-ons, is safe to rerun, and
 does not overwrite existing product rows.
+For an existing project, run supabase/update-order-status.sql in the SQL Editor
+to allow the owner to set an order to Delivered without customer confirmation.
 
 To enable owner features:
 1. Register the owner's account through the storefront using the intended owner

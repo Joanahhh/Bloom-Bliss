@@ -1754,9 +1754,9 @@
         </tbody></table></div>`;
     } else if (adminTab === 'orders') {
       const orders = state.orders.slice().sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-      body = `<div class="admin-bar"><h2 style="margin:0">Orders (${orders.length})</h2></div>` + (orders.length ? `<div class="table-wrap"><table><thead><tr><th>Order</th><th>Customer</th><th>Placed</th><th>Delivery</th><th>Total</th><th>Status</th><th></th></tr></thead><tbody>
+      body = `<div class="admin-bar"><div><h2 style="margin:0">Orders (${orders.length})</h2><p class="muted" style="margin:.25rem 0 0">Update an order to Delivered when it arrives; customer confirmation is not required.</p></div></div>` + (orders.length ? `<div class="table-wrap"><table><thead><tr><th>Order</th><th>Customer</th><th>Placed</th><th>Delivery</th><th>Total</th><th>Status</th><th></th></tr></thead><tbody>
         ${orders.map((o) => `<tr><td><strong>${esc(o.id)}</strong></td><td>${esc(o.customer)}<br><small class="muted">${esc(o.user)}</small></td><td>${prettyDate(o.createdAt)}</td><td>${prettyDate(o.delivery.date)}<br><small class="muted">${esc(o.delivery.time)}</small></td><td>${peso(o.totals.total)}</td>
-          <td><select data-admin-status="${esc(o.id)}" aria-label="Status for order ${esc(o.id)}">${STATUSES.map((s) => `<option ${s === o.status ? 'selected' : ''}>${s}</option>`).join('')}</select></td>
+          <td><select data-admin-status="${esc(o.id)}" aria-label="Status for order ${esc(o.id)}" ${o.status === 'Cancelled' ? 'disabled' : ''}>${STATUSES.map((s) => `<option ${s === o.status ? 'selected' : ''}>${s}</option>`).join('')}</select></td>
           <td><button class="btn btn-ghost btn-sm" data-action="admin-order" data-id="${esc(o.id)}">Details</button></td></tr>`).join('')}
         </tbody></table></div>` : '<div class="empty"><h3>No orders yet</h3><p class="muted">Orders placed by customers will appear here.</p></div>');
     } else {
@@ -2121,17 +2121,22 @@
       const o = state.orders.find((x) => x.id === t.dataset.adminStatus);
       if (!o || !STATUSES.includes(t.value)) return;
       const previousStatus = o.status;
-      const nextOrder = Object.assign({}, o, { status: t.value });
-      const { data, error } = await supabaseClient.from('orders')
-        .update({ status: t.value, data: nextOrder })
-        .eq('id', o.id).select('id').maybeSingle();
+      t.disabled = true;
+      const { data, error } = await supabaseClient.rpc('admin_update_order_status', {
+        target_order_id: o.id,
+        next_status: t.value
+      });
       if (error || !data) {
-        if (error) reportCloudError('update the order status', error);
+        if (error) {
+          console.error('Supabase update the order status failed.', error);
+          toast(error.message || 'The order status could not be updated.', 'error');
+        }
         else toast('The order no longer exists. Refresh the dashboard.', 'error');
         t.value = previousStatus;
+        t.disabled = false;
         return;
       }
-      o.status = t.value;
+      o.status = data.status;
       toast('Order ' + o.id + ' → ' + o.status);
       renderAdmin();
     }
