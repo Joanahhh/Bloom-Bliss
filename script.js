@@ -1042,10 +1042,10 @@
     $('#occasionFilter').value = shopFilters.occ;
     $('#sortSelect').value = shopFilters.sort;
   }
-  function renderShop() {
+  function renderShop(animateFilter = false) {
     initShopControls();
     $('#catChips').innerHTML = [{ id: 'all', label: 'All' }].concat(CATEGORIES).map((c) =>
-      `<button type="button" class="chip-btn ${shopFilters.cat === c.id ? 'active' : ''}" data-action="filter-cat" data-cat="${c.id}" aria-pressed="${shopFilters.cat === c.id}">${esc(c.label)}</button>`).join('');
+      `<button type="button" class="chip-btn ${shopFilters.cat === c.id ? 'active' : ''}${animateFilter && shopFilters.cat === c.id ? ' filter-glide' : ''}" data-action="filter-cat" data-cat="${c.id}" aria-pressed="${shopFilters.cat === c.id}">${esc(c.label)}</button>`).join('');
     const q = shopFilters.q.trim().toLowerCase();
     let list = state.products.filter((p) => !isAddon(p) &&
       (!q || p.name.toLowerCase().includes(q)) &&
@@ -1059,6 +1059,7 @@
     $('#resultCount').textContent = list.length + (list.length === 1 ? ' bouquet' : ' bouquets') + ' found';
     const grid = $('#shopGrid');
     grid.innerHTML = list.map(productCard).join('');
+    grid.classList.toggle('filter-glide', animateFilter);
     $('#shopEmpty').hidden = list.length > 0;
     observeReveals();
   }
@@ -2131,7 +2132,7 @@
       case 'save-message': saveCartMessage(key, el); break;
       case 'remove-promo': state.promo = null; save('promo'); renderCart(); toast('Promo code removed'); break;
       case 'show-branch-map': showBranchMap(el); break;
-      case 'filter-cat': shopFilters.cat = el.dataset.cat; renderShop(); break;
+      case 'filter-cat': shopFilters.cat = el.dataset.cat; renderShop(true); break;
       case 'reset-filters': shopFilters.q = ''; shopFilters.cat = 'all'; shopFilters.occ = 'all'; shopFilters.sort = 'featured'; applyShopParams(); renderShop(); break;
       case 'close-modal': closeModal(); break;
       case 'confirm-ok': { const r = modalResolve; modalResolve = null; closeModal(); if (r) r(true); break; }

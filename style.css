@@ -27,6 +27,7 @@
   --shadow: 0 12px 34px rgba(74, 23, 40, .12);
   --shadow-lg: 0 24px 60px rgba(74, 23, 40, .20);
   --ease: cubic-bezier(.22, .8, .3, 1);
+  --glide: cubic-bezier(.16, 1, .3, 1);
   --header-h: 76px;
   --container: 1200px;
 }
@@ -247,13 +248,13 @@ main:focus { outline: none; }
 .brand span { color: var(--gold); font-style: italic; }
 .brand img { width: 36px; height: 36px; object-fit: contain; }
 .nav { display: flex; gap: .25rem; align-items: center; }
-.nav a { color: var(--text); font-size: .92rem; font-weight: 500; padding: .5rem .8rem; border-radius: 999px; transition: background .25s, color .25s; }
-.nav a:hover { background: var(--blush); text-decoration: none; }
+.nav a { color: var(--text); font-size: .92rem; font-weight: 500; padding: .5rem .8rem; border-radius: 999px; transition: background .35s var(--glide), color .35s var(--glide), transform .45s var(--glide); }
+.nav a:hover { background: var(--blush); text-decoration: none; transform: translateY(-2px); }
 .nav a.active { background: var(--burgundy); color: #fff; }
 .header-actions { display: flex; align-items: center; gap: .35rem; }
 .icon-btn {
   position: relative; display: inline-grid; place-items: center; width: 42px; height: 42px; border-radius: 50%;
-  border: 0; background: transparent; color: var(--maroon); transition: background .25s, transform .25s;
+  border: 0; background: transparent; color: var(--maroon); transition: background .35s var(--glide), transform .45s var(--glide);
 }
 .icon-btn:hover { background: var(--blush); text-decoration: none; transform: translateY(-1px); }
 .icon-btn svg { width: 22px; height: 22px; }
@@ -287,9 +288,9 @@ main:focus { outline: none; }
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: .5rem; padding: .8rem 1.6rem; border-radius: 999px;
   border: 1.5px solid transparent; font-weight: 600; font-size: .95rem; letter-spacing: .02em;
-  transition: transform .25s var(--ease), box-shadow .25s, background .25s, color .25s, border-color .25s; text-decoration: none;
+  transition: transform .45s var(--glide), box-shadow .45s var(--glide), background .35s var(--glide), color .35s var(--glide), border-color .35s var(--glide); text-decoration: none;
 }
-.btn:hover { text-decoration: none; transform: translateY(-2px); }
+.btn:hover { text-decoration: none; transform: translateY(-4px); }
 .btn:active { transform: translateY(0); }
 .btn-primary { background: var(--burgundy); color: #fff; box-shadow: 0 8px 20px rgba(112, 38, 61, .28); }
 .btn-primary:hover { background: var(--maroon); box-shadow: 0 12px 26px rgba(112, 38, 61, .35); color: #fff; }
@@ -402,12 +403,12 @@ main:focus { outline: none; }
 .grid-2 { grid-template-columns: repeat(2, 1fr); }
 .product-grid { grid-template-columns: repeat(auto-fill, minmax(255px, 1fr)); }
 
-.card { background: #fff; border-radius: var(--radius); border: 1px solid var(--line); box-shadow: var(--shadow-sm); overflow: hidden; transition: transform .4s var(--ease), box-shadow .4s var(--ease); }
+.card { background: #fff; border-radius: var(--radius); border: 1px solid var(--line); box-shadow: var(--shadow-sm); overflow: hidden; transition: transform .55s var(--glide), box-shadow .55s var(--glide); }
 .product-card:hover, .tile:hover { transform: translateY(-6px); box-shadow: var(--shadow); }
 .card-media { position: relative; aspect-ratio: 1; background: var(--blush); overflow: hidden; }
 .media-btn { display: block; width: 100%; height: 100%; border: 0; padding: 0; background: none; }
-.media-btn svg { width: 100%; height: 100%; transition: transform .7s var(--ease); }
-.product-card:hover .media-btn svg { transform: scale(1.07) rotate(-1deg); }
+.media-btn svg { width: 100%; height: 100%; transition: transform .8s var(--glide); }
+.product-card:hover .media-btn svg { transform: translateY(-3px) scale(1.07) rotate(-1deg); }
 .wish-btn {
   position: absolute; top: 12px; right: 12px; z-index: 2; width: 40px; height: 40px; border-radius: 50%; border: 0; background: rgba(255,255,255,.92);
   display: grid; place-items: center; color: var(--burgundy); box-shadow: var(--shadow-sm); transition: transform .25s var(--ease);
@@ -462,9 +463,23 @@ main:focus { outline: none; }
 /* ---------- Shop toolbar ---------- */
 .toolbar { display: grid; grid-template-columns: 1.4fr 1fr 1fr auto; gap: .8rem; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem; box-shadow: var(--shadow-sm); margin: -1.5rem 0 1.2rem; position: relative; z-index: 3; }
 .chips { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.2rem; }
-.chip-btn { border: 1.5px solid var(--line); background: #fff; padding: .4rem 1rem; border-radius: 999px; font-size: .85rem; font-weight: 500; transition: all .25s; }
-.chip-btn:hover { border-color: var(--burgundy); }
+.chip-btn { border: 1.5px solid var(--line); background: #fff; padding: .4rem 1rem; border-radius: 999px; font-size: .85rem; font-weight: 500; transition: background .4s var(--glide), color .4s var(--glide), border-color .4s var(--glide), box-shadow .4s var(--glide), transform .45s var(--glide); }
+.chip-btn:hover { border-color: var(--burgundy); transform: translateY(-2px); }
+.chip-btn:active { transform: translateY(0) scale(.97); }
 .chip-btn.active { background: var(--burgundy); color: #fff; border-color: var(--burgundy); }
+.chip-btn.filter-glide { animation: filterChipGlide .45s var(--glide) both; }
+#shopGrid.filter-glide .product-card { animation: filterProductGlide .5s var(--glide) both; }
+#shopGrid.filter-glide .product-card:nth-child(2) { animation-delay: .04s; }
+#shopGrid.filter-glide .product-card:nth-child(3) { animation-delay: .08s; }
+#shopGrid.filter-glide .product-card:nth-child(4) { animation-delay: .12s; }
+@keyframes filterChipGlide {
+  from { opacity: .7; transform: translateY(6px) scale(.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes filterProductGlide {
+  from { opacity: 0; transform: translateX(14px); }
+  to { opacity: 1; transform: translateX(0); }
+}
 .result-count { color: var(--muted); font-size: .9rem; margin-bottom: 1rem; }
 .empty { text-align: center; padding: 3.5rem 1rem; background: #fff; border: 1px dashed var(--line); border-radius: var(--radius); }
 .empty h3 { margin-bottom: .3rem; }
@@ -867,8 +882,8 @@ td select { min-height: 36px; padding: .3rem .6rem; }
 
 /* ---- Product photos (<img class="prod-img">) ---- */
 .prod-img { display: block; width: 100%; height: 100%; object-fit: cover; }
-.media-btn img { transition: transform .7s var(--ease); }
-.product-card:hover .media-btn img { transform: scale(1.07); }
+.media-btn img { transition: transform .8s var(--glide); }
+.product-card:hover .media-btn img { transform: translateY(-3px) scale(1.07); }
 
 
 
@@ -942,8 +957,8 @@ h1, h2, h3, h4 { letter-spacing: -.01em; }
 .auth-wrap, .confirm-box, .modal-card, .split .art { border-radius: 6px; }
 .toast { border-radius: 2px; }
 
-/* Hover lift: smaller, snappier */
-.product-card:hover, .tile:hover { transform: translateY(-3px); }
+/* Smooth glide lift on interactive cards */
+.product-card:hover, .tile:hover { transform: translateY(-5px); }
 
 /* Forms: thin, square inputs with a hard focus ring */
 input[type="text"], input[type="email"], input[type="password"], input[type="tel"],
@@ -981,11 +996,11 @@ th { letter-spacing: .1em; }
     border-radius: 14px;
     background: #fffaf5;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform .55s var(--glide), box-shadow .55s var(--glide);
 }
 
 .category-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-6px);
     box-shadow: 0 8px 22px rgba(0, 0, 0, 0.13);
 }
 
@@ -1034,11 +1049,11 @@ th { letter-spacing: .1em; }
     border-radius: 14px;
     background: #fffaf5;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform .55s var(--glide), box-shadow .55s var(--glide);
 }
 
 .occasion-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-6px);
     box-shadow: 0 8px 22px rgba(0, 0, 0, 0.13);
 }
 
