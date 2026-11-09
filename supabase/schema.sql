@@ -473,7 +473,7 @@ declare
 begin
   if exists (select 1 from pg_catalog.pg_publication where pubname = 'supabase_realtime') then
     foreach table_name in array array[
-      'products', 'orders', 'reviews', 'conversations',
+      'profiles', 'products', 'user_preferences', 'orders', 'reviews', 'conversations',
       'conversation_messages', 'contact_messages', 'owner_notifications'
     ]
     loop

@@ -119,11 +119,11 @@
     session: null,
     authUser: null,
     profile: null,
-    orders: store.get('orders', []),
-    ownerOrderNotifications: store.get('ownerOrderNotifications', []),
-    messages: store.get('messages', []),
-    conversations: store.get('conversations', []),
-    reviews: store.get('reviews', []),
+    orders: [],
+    ownerOrderNotifications: [],
+    messages: [],
+    conversations: [],
+    reviews: [],
     promo: store.get('promo', null)
   };
 
@@ -148,11 +148,15 @@
   // Add-ons written in index.html that are missing from an older saved catalog are added automatically.
   domProducts.forEach((d) => { if (isAddon(d) && !state.products.some((p) => p.id === d.id)) state.products.push(d); });
 
-  const save = (...keys) => keys.forEach((k) => {
-    if (k === 'products') state.customProducts = true;
-    store.set(k, state[k]);
-    if (cloudReady) persistCloudKey(k);
-  });
+  const save = (...keys) => {
+    keys.forEach((key) => {
+      if (key === 'products') state.customProducts = true;
+      store.set(key, state[key]);
+    });
+    return cloudReady
+      ? Promise.all(keys.map((key) => persistCloudKey(key)))
+      : Promise.resolve(keys.map(() => true));
+  };
   const getProduct = (id) => state.products.find((p) => p.id === id);
   const currentUser = () => state.profile;
   const isAdmin = () => { const u = currentUser(); return !!u && u.role === 'admin'; };
@@ -165,13 +169,16 @@
     }
   }
   async function persistCloudKey(key) {
-    if (!supabaseClient || !state.authUser) return;
+    if (!supabaseClient) return false;
+    if (!state.authUser) return ['cart', 'wish', 'promo'].includes(key);
     try {
       if (key === 'products' && isAdmin()) {
-        const { error } = await supabaseClient.from('products').upsert(
-          state.products.map((product) => ({ id: product.id, data: product }))
-        );
-        if (error) throw error;
+        if (state.products.length) {
+          const { error } = await supabaseClient.from('products').upsert(
+            state.products.map((product) => ({ id: product.id, data: product }))
+          );
+          if (error) throw error;
+        }
       } else if (['cart', 'wish', 'promo'].includes(key)) {
         const value = state[key];
         const { error } = await supabaseClient.from('user_preferences').upsert(
@@ -179,26 +186,21 @@
           { onConflict: 'user_id,key' }
         );
         if (error) throw error;
-      } else if (key === 'orders' && isAdmin()) {
-        for (const order of state.orders) {
-          const { error } = await supabaseClient.from('orders')
-            .update({ status: order.status, data: order })
-            .eq('id', order.id);
-          if (error) throw error;
-        }
       } else if (key === 'ownerOrderNotifications' && isAdmin() && !state.ownerOrderNotifications.length) {
         const { error } = await supabaseClient.from('owner_notifications')
           .update({ read_at: new Date().toISOString() }).is('read_at', null);
         if (error) throw error;
       }
+      return true;
     } catch (error) {
       reportCloudError(`save ${key}`, error);
+      return false;
     }
   }
 
   async function loadCloudState(authUser) {
     const previousAuthUserId = state.authUser && state.authUser.id;
-    if (authUser && previousAuthUserId && previousAuthUserId !== authUser.id) {
+    if (authUser && previousAuthUserId !== authUser.id) {
       state.cart = [];
       state.wish = [];
       state.promo = null;
@@ -282,6 +284,7 @@
           messages: (conversation.conversation_messages || []).slice()
             .sort((a, b) => a.created_at.localeCompare(b.created_at))
             .map((message) => ({
+              id: message.id,
               from: message.sender_id === conversation.customer_id ? 'customer' : 'owner',
               text: message.text, at: message.created_at
             }))
@@ -290,13 +293,13 @@
 
       if (isAdmin()) {
         const [messageResult, notificationResult] = await Promise.all([
-          supabaseClient.from('contact_messages').select('name,email,subject,message,created_at').order('created_at', { ascending: false }),
+          supabaseClient.from('contact_messages').select('id,name,email,subject,message,created_at').order('created_at', { ascending: false }),
           supabaseClient.from('owner_notifications').select('order_id').is('read_at', null)
         ]);
         if (messageResult.error) throw messageResult.error;
         if (notificationResult.error) throw notificationResult.error;
         state.messages = (messageResult.data || []).map((message) => ({
-          name: message.name, email: message.email, subject: message.subject,
+          id: message.id, name: message.name, email: message.email, subject: message.subject,
           message: message.message, at: message.created_at
         }));
         state.ownerOrderNotifications = (notificationResult.data || []).map((notification) => notification.order_id);
@@ -322,6 +325,7 @@
     const { data, error } = await supabaseClient.auth.getSession();
     if (error) throw error;
     await loadCloudState(data.session ? data.session.user : null);
+    route();
     supabaseClient.auth.onAuthStateChange((event, session) => {
       setTimeout(async () => {
         try {
@@ -335,34 +339,65 @@
     subscribeToCloudChanges();
   }
 
+  function requireCloudStore(action) {
+    if (cloudReady) return true;
+    toast(`The database is not ready yet, so you cannot ${action}. Apply supabase/schema.sql and reload.`, 'error');
+    return false;
+  }
+
   function renderAfterCloudRefresh() {
-    renderAuthArea();
-    if (currentPage === 'admin' && isAdmin()) renderAdmin();
-    else if (currentPage === 'orders' && currentUser() && !isAdmin()) renderOrders();
-    else if (currentPage === 'chat' && currentUser() && !isAdmin()) renderCustomerChat();
-    else if (currentPage === 'confirmation' && currentUser()) renderConfirmation();
-    else if (currentPage === 'home') renderHomeStats();
-    else if (currentPage === 'shop') renderShop();
-    else if (currentPage === 'addons') renderAddons();
-    else if (currentPage === 'profile' && currentUser()) renderProfile();
+    const scrollY = window.scrollY;
+    route();
+    window.scrollTo({ top: scrollY, behavior: 'auto' });
   }
 
   function subscribeToCloudChanges() {
     let refreshQueue = Promise.resolve();
-    const tables = ['products', 'orders', 'reviews', 'conversations', 'conversation_messages', 'contact_messages', 'owner_notifications'];
+    let refreshTimer = null;
+    const tables = ['profiles', 'products', 'user_preferences', 'orders', 'reviews', 'conversations', 'conversation_messages', 'contact_messages', 'owner_notifications'];
     let channel = supabaseClient.channel('bloom-bliss-store-data');
     tables.forEach((table) => {
       channel = channel.on('postgres_changes', { event: '*', schema: 'public', table }, () => {
+        clearTimeout(refreshTimer);
+        refreshTimer = setTimeout(() => {
         refreshQueue = refreshQueue.then(async () => {
           const previousNotifications = state.ownerOrderNotifications.slice();
+          const previousOrderStatuses = new Map(state.orders.map((order) => [order.id, order.status]));
+          const previousMessageIds = new Set(state.conversations.flatMap((conversation) =>
+            conversation.messages.map((message) => message.id).filter(Boolean)
+          ));
+          const previousContactIds = new Set(state.messages.map((message) => message.id).filter(Boolean));
           await loadCloudState(state.authUser);
           const newNotifications = state.ownerOrderNotifications.filter((id) => !previousNotifications.includes(id));
           if (isAdmin() && newNotifications.length && !(currentPage === 'admin' && adminTab === 'orders')) {
             const order = state.orders.find((item) => item.id === newNotifications[newNotifications.length - 1]);
             toast(order ? `New order from ${order.customer}.` : 'New customer order received.');
           }
+          const changedOrder = state.orders.find((order) =>
+            previousOrderStatuses.has(order.id) && previousOrderStatuses.get(order.id) !== order.status
+          );
+          if (!isAdmin() && changedOrder) toast(`Order ${changedOrder.id} is now ${changedOrder.status}.`);
+          const incomingMessages = state.conversations.flatMap((conversation) =>
+            conversation.messages
+              .filter((message) => message.id && !previousMessageIds.has(message.id))
+              .map((message) => ({ conversation, message }))
+          );
+          const incomingMessage = incomingMessages.find(({ message }) =>
+            message.from === (isAdmin() ? 'customer' : 'owner')
+          );
+          if (incomingMessage) {
+            const activeThread = currentPage === 'chat' || (currentPage === 'admin' && adminTab === 'messages');
+            if (!activeThread) {
+              toast(isAdmin()
+                ? `New message from ${incomingMessage.conversation.name}.`
+                : 'Bloom & Bliss sent you a chat message.');
+            }
+          }
+          const newContactMessage = state.messages.find((message) => message.id && !previousContactIds.has(message.id));
+          if (isAdmin() && newContactMessage) toast(`New contact message from ${newContactMessage.name}.`);
           renderAfterCloudRefresh();
         }).catch((error) => reportCloudError('refresh shared store data', error));
+        }, 120);
       });
     });
     channel.subscribe((status, error) => {
@@ -575,7 +610,7 @@
     const err = t.form.querySelector(`[data-error-for="${t.name}"]`);
     if (err && err.textContent) { err.textContent = ''; t.removeAttribute('aria-invalid'); }
   });
-  document.addEventListener('change', (e) => {
+  document.addEventListener('change', async (e) => {
     const t = e.target;
     if (t && t.id === 'profilePhotoInput') { handleProfilePhotoInput(t); return; }
     if (!t || !t.name || !t.form) return;
@@ -1143,6 +1178,7 @@
     });
     const alert = $('#loginAlert'); alert.hidden = true;
     if (!data) return;
+    if (!requireCloudStore('sign in')) return;
     if (!supabaseClient) {
       alert.hidden = false;
       alert.textContent = 'Sign-in is unavailable because the Supabase client is not configured.';
@@ -1170,6 +1206,7 @@
       confirm: (v, d) => v !== d.password ? 'Passwords do not match.' : ''
     });
     if (!data) return;
+    if (!requireCloudStore('create an account')) return;
     if (!supabaseClient) {
       const notice = $('#authNotice');
       notice.hidden = false;
@@ -1207,6 +1244,12 @@
   }
   async function logout() {
     if (!supabaseClient) { reportCloudError('sign out', new Error('Supabase client is not configured.')); return; }
+    state.cart = [];
+    state.wish = [];
+    state.promo = null;
+    store.set('cart', state.cart);
+    store.set('wish', state.wish);
+    store.set('promo', state.promo);
     const { error } = await supabaseClient.auth.signOut();
     if (error) { reportCloudError('sign out', error); return; }
     await loadCloudState(null);
@@ -1276,6 +1319,7 @@
     box.innerHTML = html; box.hidden = false;
   }
   async function handleCheckout(form) {
+    if (!requireCloudStore('place an order')) return;
     const method = ($('input[name="payment"]:checked', form) || {}).value;
     const rules = {
       rname: (v) => v.length < 2 ? 'Please enter the recipient’s name.' : '',
@@ -1426,6 +1470,7 @@
     </section>`;
   }
   async function sendChatMessage(email, from, text) {
+    if (!requireCloudStore('send a message')) return false;
     let conversation = state.conversations.find((thread) => thread.email === email);
     if (from === 'customer') {
       if (!state.authUser || state.profile.role === 'admin') {
@@ -1751,7 +1796,7 @@
         <div class="modal-actions"><button type="button" class="btn btn-ghost btn-sm" data-action="close-modal">Cancel</button><button type="submit" class="btn btn-primary btn-sm">${isNew ? 'Add Product' : 'Save Changes'}</button></div>
       </form>`, 'medium');
   }
-  function handleProductForm(form) {
+  async function handleProductForm(form) {
     const data = validate(form, {
       name: (v) => v.length < 3 ? 'Name must be at least 3 characters.' : '',
       price: (v) => !(+v > 0) ? 'Enter a price greater than 0.' : '',
@@ -1759,20 +1804,32 @@
       desc: (v) => v.length < 10 ? 'Description must be at least 10 characters.' : ''
     });
     if (!data) return;
+    if (!requireCloudStore('save products')) return;
     const occasions = $$('input[name="occasions"]:checked', form).map((el) => el.value);
     const best = !!$('input[name="best"]', form).checked;
+    let previousProduct = null;
+    let productId = data.id;
     if (data.id) {
       const p = getProduct(data.id); if (!p) return;
+      previousProduct = clone(p);
       Object.assign(p, { name: data.name, category: data.category, price: Math.round(+data.price), stock: +data.stock, desc: data.desc, occasions, best, image: data.image || '' });
       if (data.preset) p.art = clone(ART_PRESETS[data.preset]);
-      toast('Product updated');
     } else {
       const nums = state.products.map((p) => parseInt(String(p.id).replace(/\D/g, ''), 10) || 0);
       const id = 'BB-' + String(Math.max(0, ...nums) + 1).padStart(3, '0');
+      productId = id;
       state.products.push({ id, name: data.name, category: data.category, price: Math.round(+data.price), stock: +data.stock, rating: 4.5, reviews: 0, best, occasions, desc: data.desc, image: data.image || '', art: clone(ART_PRESETS[data.preset] || ART_PRESETS['mixed-pastel']) });
-      toast('Product added');
     }
-    save('products'); closeModal(); renderAdmin();
+    const [saved] = await save('products');
+    if (!saved) {
+      if (previousProduct) Object.assign(getProduct(productId), previousProduct);
+      else state.products = state.products.filter((product) => product.id !== productId);
+      renderAdmin();
+      return;
+    }
+    closeModal();
+    renderAdmin();
+    toast(data.id ? 'Product updated' : 'Product added');
   }
   function orderDetailModal(o) {
     openModal(`<h2>Order ${esc(o.id)}</h2>
@@ -1807,6 +1864,7 @@
       review: (value) => value.length < 10 ? 'Please write at least 10 characters.' : ''
     });
     if (!data) return;
+    if (!requireCloudStore('save feedback')) return;
     const current = state.reviews.slice();
     const index = current.findIndex((review) => review.productId === p.id && review.userId === user.id);
     const review = {
@@ -1847,6 +1905,7 @@
       message: (v) => v.length < 10 ? 'Please write at least 10 characters.' : ''
     });
     if (!data) return;
+    if (!requireCloudStore('send your message')) return;
     const { error } = await supabaseClient.from('contact_messages').insert({
       name: data.name, email: data.email.toLowerCase(), subject: data.subject, message: data.message
     });
@@ -1921,7 +1980,7 @@
     const ub = $('.user-btn'); if (ub) ub.setAttribute('aria-expanded', 'false');
   }
 
-  document.addEventListener('click', (e) => {
+  document.addEventListener('click', async (e) => {
     const inUser = e.target.closest('.user-menu');
     if (!inUser) { const dd = $('#userDropdown'); if (dd && !dd.hidden) closeMenus(); }
     const link = e.target.closest('a[href^="#/"]');
@@ -1974,10 +2033,19 @@
       case 'admin-edit': productFormModal(getProduct(id)); break;
       case 'admin-delete': {
         const p = getProduct(id); if (!p) break;
-        confirmBox('Delete product?', '“' + p.name + '” will be permanently removed from the shop.', 'Delete').then((ok) => {
+        confirmBox('Delete product?', '“' + p.name + '” will be permanently removed from the shop.', 'Delete').then(async (ok) => {
           if (!ok) return;
-          state.products = state.products.filter((x) => x.id !== id); state.wish = state.wish.filter((x) => x !== id);
-          save('products', 'wish'); syncCart(); updateBadges(); renderAdmin(); toast('Product deleted');
+          try {
+            const { error } = await supabaseClient.from('products').delete().eq('id', id);
+            if (error) { reportCloudError('delete the product', error); return; }
+            state.products = state.products.filter((product) => product.id !== id);
+            state.wish = state.wish.filter((productId) => productId !== id);
+            const [, preferenceSaved] = await save('products', 'wish');
+            if (!preferenceSaved) return;
+            syncCart(); updateBadges(); renderAdmin(); toast('Product deleted');
+          } catch (error) {
+            reportCloudError('delete the product', error);
+          }
         });
         break;
       }
@@ -2018,7 +2086,7 @@
     }
   });
 
-  document.addEventListener('change', (e) => {
+  document.addEventListener('change', async (e) => {
     const t = e.target;
     if (t.name === 'payment' && t.closest('#checkoutForm')) showPayDetail(t.value);
     if (t.dataset && t.dataset.adminField) {
@@ -2026,11 +2094,34 @@
       if (!p) return;
       const valid = field === 'price' ? v > 0 : Number.isInteger(v) && v >= 0;
       if (!valid) { t.value = p[field]; toast(field === 'price' ? 'Price must be greater than 0.' : 'Stock must be a whole number, 0 or more.', 'error'); return; }
-      p[field] = Math.round(v); save('products'); syncCart(); updateBadges(); toast((field === 'price' ? 'Price' : 'Stock') + ' updated for ' + p.name);
+      const previous = p[field];
+      p[field] = Math.round(v);
+      const [saved] = await save('products');
+      if (!saved) {
+        p[field] = previous;
+        t.value = String(previous);
+        return;
+      }
+      syncCart(); updateBadges();
+      toast((field === 'price' ? 'Price' : 'Stock') + ' updated for ' + p.name);
     }
     if (t.dataset && t.dataset.adminStatus) {
       const o = state.orders.find((x) => x.id === t.dataset.adminStatus);
-      if (o) { o.status = t.value; save('orders'); toast('Order ' + o.id + ' → ' + o.status); renderAdmin(); }
+      if (!o || !STATUSES.includes(t.value)) return;
+      const previousStatus = o.status;
+      const nextOrder = Object.assign({}, o, { status: t.value });
+      const { data, error } = await supabaseClient.from('orders')
+        .update({ status: t.value, data: nextOrder })
+        .eq('id', o.id).select('id').maybeSingle();
+      if (error || !data) {
+        if (error) reportCloudError('update the order status', error);
+        else toast('The order no longer exists. Refresh the dashboard.', 'error');
+        t.value = previousStatus;
+        return;
+      }
+      o.status = t.value;
+      toast('Order ' + o.id + ' → ' + o.status);
+      renderAdmin();
     }
   });
 
@@ -2079,41 +2170,7 @@
   window.addEventListener('storage', (e) => {
     if (e.key && e.key.indexOf(VISITOR_KEY_PREFIX) === 0) {
       if (currentPage === 'home') renderHomeStats();
-      return;
     }
-    if (!cloudReady && e.key === 'bb_reviews') {
-      state.reviews = store.get('reviews', []);
-      if (currentPage === 'home') renderHomeStats();
-      return;
-    }
-    if (!cloudReady && e.key === 'bb_ownerOrderNotifications') {
-      const previous = state.ownerOrderNotifications;
-      state.ownerOrderNotifications = store.get('ownerOrderNotifications', []);
-      renderAuthArea();
-      const newIds = state.ownerOrderNotifications.filter((id) => !previous.includes(id));
-      if (isAdmin() && newIds.length && !(currentPage === 'admin' && adminTab === 'orders')) {
-        const order = state.orders.find((item) => item.id === newIds[newIds.length - 1]);
-        toast(order ? `New order from ${order.customer}.` : 'New customer order received.');
-      }
-      if (currentPage === 'admin' && isAdmin() && adminTab === 'orders') renderAdmin();
-      return;
-    }
-    if (!cloudReady && (e.key === 'bb_orders' || e.key === 'bb_products')) {
-      state.orders = store.get('orders', []);
-      state.products = store.get('products', state.products);
-      if (currentPage === 'home') renderHomeStats();
-      if (currentPage === 'admin' && isAdmin()) renderAdmin();
-      else if (currentPage === 'orders' && currentUser() && currentUser().role !== 'admin') renderOrders();
-      else if (currentPage === 'confirmation' && currentUser()) renderConfirmation();
-      return;
-    }
-    if (!cloudReady && e.key === 'bb_conversations') {
-      state.conversations = store.get('conversations', []);
-      if (currentPage === 'chat' && currentUser() && currentUser().role !== 'admin') renderCustomerChat();
-      else if (currentPage === 'admin' && adminTab === 'messages') renderAdmin();
-      return;
-    }
-    if (e.key === 'bb_users' || e.key === 'bb_session') return;
   });
   window.addEventListener('hashchange', route);
 
