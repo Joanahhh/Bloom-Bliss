@@ -45,6 +45,21 @@
     clearAll() { try { Object.keys(localStorage).filter((k) => k.indexOf('bb_') === 0).forEach((k) => localStorage.removeItem(k)); } catch (e) { /* ignore */ } }
   };
 
+  function applyTheme(theme) {
+    const isDark = theme === 'dark';
+    document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
+    const themeColor = $('meta[name="theme-color"]');
+    if (themeColor) themeColor.content = isDark ? '#171217' : '#70263D';
+    const toggle = $('.theme-toggle');
+    if (!toggle) return;
+    toggle.setAttribute('aria-pressed', String(isDark));
+    const label = isDark ? 'Switch to light mode' : 'Switch to night mode';
+    toggle.setAttribute('aria-label', label);
+    toggle.title = label;
+    $('.theme-icon-moon', toggle).hidden = isDark;
+    $('.theme-icon-sun', toggle).hidden = !isDark;
+  }
+
   const dateStr = (offsetDays = 0) => {
     const d = new Date(); d.setDate(d.getDate() + offsetDays);
     const p = (n) => String(n).padStart(2, '0');
@@ -2132,6 +2147,12 @@
     const el = e.target.closest('[data-action]'); if (!el) return;
     const act = el.dataset.action; const id = el.dataset.id; const key = el.dataset.key;
     switch (act) {
+      case 'toggle-theme': {
+        const theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        applyTheme(theme);
+        if (!store.set('theme', theme)) toast('Theme changed for this visit, but could not be saved.', 'error');
+        break;
+      }
       case 'toggle-password': {
         const input = document.getElementById(el.dataset.target);
         if (!input || !['password', 'text'].includes(input.type)) break;
@@ -2330,6 +2351,7 @@
     if ('ResizeObserver' in window) new ResizeObserver(updatePetalFall).observe(document.body);
   }
   function init() {
+    applyTheme(store.get('theme', 'light'));
     $('#year').textContent = new Date().getFullYear();
     initPetals();
     checkImages();

@@ -258,6 +258,13 @@ main:focus { outline: none; }
 }
 .icon-btn:hover { background: var(--blush); text-decoration: none; transform: translateY(-1px); }
 .icon-btn svg { width: 22px; height: 22px; }
+.theme-toggle {
+  display: inline-grid; place-items: center; width: 42px; height: 42px; flex: 0 0 42px;
+  padding: 0; border: 0; border-radius: 4px; background: transparent; color: var(--maroon);
+  transition: background .35s var(--glide), color .35s var(--glide), transform .45s var(--glide);
+}
+.theme-toggle:hover { background: var(--blush); transform: translateY(-1px); }
+.theme-toggle svg { width: 21px; height: 21px; }
 #authArea { display: flex; align-items: center; gap: .35rem; }
 .badge {
   position: absolute; top: 0; right: 0; min-width: 19px; height: 19px; padding: 0 5px; border-radius: 999px;
@@ -801,7 +808,7 @@ td select { min-height: 36px; padding: .3rem .6rem; }
   .brand img { width: 28px; height: 28px; }
   .header-actions { flex: 0 0 auto; gap: 0; }
   .header-actions > a[href="#/wishlist"] { display: none; }
-  .header-actions .icon-btn, .menu-btn { width: 34px; height: 34px; flex: 0 0 34px; }
+  .header-actions .icon-btn, .menu-btn, .theme-toggle { width: 34px; height: 34px; flex: 0 0 34px; }
   .header-actions .icon-btn svg { width: 20px; height: 20px; }
   .header-actions .user-btn { width: 34px; height: 34px; }
   .header-actions #authArea { display: flex; }
@@ -944,6 +951,102 @@ h1, h2, h3, h4 { letter-spacing: -.01em; }
 .icon-btn.user-btn { border-radius: 50%; }
 .icon-btn.user-btn .user-avatar-image { border-radius: 50%; }
 .owner-order-badge { border-radius: 999px; }
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --burgundy: #c77891;
+  --maroon: #f0dce2;
+  --blush: #30232a;
+  --ivory: #171217;
+  --sage: #8d9d80;
+  --sage-dark: #b6c5a9;
+  --gold: #dfbd83;
+  --text: #f0e8ec;
+  --muted: #c2b1b8;
+  --white: #241e23;
+  --line: rgba(235, 213, 222, .18);
+  --shadow-sm: 0 2px 10px rgba(0, 0, 0, .24);
+  --shadow: 0 12px 34px rgba(0, 0, 0, .3);
+  --shadow-lg: 0 24px 60px rgba(0, 0, 0, .42);
+}
+:root[data-theme="dark"] body,
+:root[data-theme="dark"] .site-header,
+:root[data-theme="dark"] .dropdown,
+:root[data-theme="dark"] .home-live-panel,
+:root[data-theme="dark"] .card,
+:root[data-theme="dark"] .perk .ico,
+:root[data-theme="dark"] .toolbar,
+:root[data-theme="dark"] .chip-btn,
+:root[data-theme="dark"] .empty,
+:root[data-theme="dark"] input,
+:root[data-theme="dark"] select,
+:root[data-theme="dark"] textarea,
+:root[data-theme="dark"] .form-card,
+:root[data-theme="dark"] .profile-role,
+:root[data-theme="dark"] .opt > span,
+:root[data-theme="dark"] .cart-item,
+:root[data-theme="dark"] .qty,
+:root[data-theme="dark"] .summary,
+:root[data-theme="dark"] .auth-wrap,
+:root[data-theme="dark"] .tabs,
+:root[data-theme="dark"] .order-card,
+:root[data-theme="dark"] .confirm-box,
+:root[data-theme="dark"] .stat,
+:root[data-theme="dark"] .admin-overview-panel,
+:root[data-theme="dark"] .chat-panel,
+:root[data-theme="dark"] .chat-thread,
+:root[data-theme="dark"] .chat-message,
+:root[data-theme="dark"] .admin-chat-layout,
+:root[data-theme="dark"] .chat-inbox-item,
+:root[data-theme="dark"] .table-wrap,
+:root[data-theme="dark"] .msg-card,
+:root[data-theme="dark"] .modal-card,
+:root[data-theme="dark"] .modal-close,
+:root[data-theme="dark"] .review-entry,
+:root[data-theme="dark"] .branch-card,
+:root[data-theme="dark"] .category-card,
+:root[data-theme="dark"] .occasion-card {
+  background-color: #241e23;
+  color: var(--text);
+}
+:root[data-theme="dark"] .page-hero,
+:root[data-theme="dark"] .hero,
+:root[data-theme="dark"] .section.alt,
+:root[data-theme="dark"] .home-live-metric,
+:root[data-theme="dark"] .branch-disclaimer {
+  background: #211a20;
+}
+:root[data-theme="dark"] .site-header { border-bottom-color: var(--line); }
+:root[data-theme="dark"] .top-promo { background-color: #241016; }
+:root[data-theme="dark"] .nav a,
+:root[data-theme="dark"] .nav a.active,
+:root[data-theme="dark"] .chip-btn.active,
+:root[data-theme="dark"] .btn-ghost {
+  color: var(--text);
+}
+:root[data-theme="dark"] .nav a.active,
+:root[data-theme="dark"] .chip-btn.active {
+  background-color: var(--burgundy);
+}
+:root[data-theme="dark"] .nav a.active { color: #1b1015; }
+:root[data-theme="dark"] .chip-btn.active { color: #1b1015; }
+:root[data-theme="dark"] .btn-ghost { border-color: var(--burgundy); }
+:root[data-theme="dark"] .btn-ghost:hover { background: var(--burgundy); color: #1b1015; }
+:root[data-theme="dark"] .hero-art .chip { background: #30232a; color: var(--text); }
+:root[data-theme="dark"] .chat-inbox-item.active,
+:root[data-theme="dark"] .dropdown a:hover,
+:root[data-theme="dark"] .dropdown button:hover { background: #382831; }
+:root[data-theme="dark"] .branch-disclaimer { color: var(--text); }
+:root[data-theme="dark"] .category-card,
+:root[data-theme="dark"] .occasion-card { border: 1px solid var(--line); }
+:root[data-theme="dark"] input::placeholder,
+:root[data-theme="dark"] textarea::placeholder { color: var(--muted); }
+:root[data-theme="dark"] .theme-toggle:hover,
+:root[data-theme="dark"] .icon-btn:hover { background: #382831; }
+:root[data-theme="dark"] .top-promo h2,
+:root[data-theme="dark"] .section.dark h2,
+:root[data-theme="dark"] .section.dark h3 { color: #fff; }
+:root[data-theme="dark"] #loader { background: var(--ivory); }
 
 /* Cards, panels, media */
 .card, .form-card, .summary, .order-card, .cart-item, .stat, .table-wrap,
