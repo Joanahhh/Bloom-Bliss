@@ -22,6 +22,8 @@
     ? window.supabase.createClient(supabaseConfig.url, supabaseConfig.publishableKey)
     : null;
   let cloudReady = false;
+  let cloudInitialization = null;
+  let cloudInitializationError = null;
 
   const PESO = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', maximumFractionDigits: 0 });
   const peso = (n) => PESO.format(Math.round(n));
@@ -339,9 +341,14 @@
     subscribeToCloudChanges();
   }
 
-  function requireCloudStore(action) {
+  async function requireCloudStore(action) {
+    if (!cloudReady && cloudInitialization) await cloudInitialization;
     if (cloudReady) return true;
-    toast(`The database is not ready yet, so you cannot ${action}. Apply supabase/schema.sql and reload.`, 'error');
+    if (cloudInitializationError) {
+      toast(`Could not ${action} because the store database did not connect. Check your connection and Supabase setup, then reload.`, 'error');
+    } else {
+      toast(`The store database is still loading. Please try again in a moment.`, 'error');
+    }
     return false;
   }
 
@@ -1178,7 +1185,7 @@
     });
     const alert = $('#loginAlert'); alert.hidden = true;
     if (!data) return;
-    if (!requireCloudStore('sign in')) return;
+    if (!await requireCloudStore('sign in')) return;
     if (!supabaseClient) {
       alert.hidden = false;
       alert.textContent = 'Sign-in is unavailable because the Supabase client is not configured.';
@@ -1206,7 +1213,7 @@
       confirm: (v, d) => v !== d.password ? 'Passwords do not match.' : ''
     });
     if (!data) return;
-    if (!requireCloudStore('create an account')) return;
+    if (!await requireCloudStore('create an account')) return;
     if (!supabaseClient) {
       const notice = $('#authNotice');
       notice.hidden = false;
@@ -1319,7 +1326,7 @@
     box.innerHTML = html; box.hidden = false;
   }
   async function handleCheckout(form) {
-    if (!requireCloudStore('place an order')) return;
+    if (!await requireCloudStore('place an order')) return;
     const method = ($('input[name="payment"]:checked', form) || {}).value;
     const rules = {
       rname: (v) => v.length < 2 ? 'Please enter the recipient’s name.' : '',
@@ -1470,7 +1477,7 @@
     </section>`;
   }
   async function sendChatMessage(email, from, text) {
-    if (!requireCloudStore('send a message')) return false;
+    if (!await requireCloudStore('send a message')) return false;
     let conversation = state.conversations.find((thread) => thread.email === email);
     if (from === 'customer') {
       if (!state.authUser || state.profile.role === 'admin') {
@@ -1804,7 +1811,7 @@
       desc: (v) => v.length < 10 ? 'Description must be at least 10 characters.' : ''
     });
     if (!data) return;
-    if (!requireCloudStore('save products')) return;
+    if (!await requireCloudStore('save products')) return;
     const occasions = $$('input[name="occasions"]:checked', form).map((el) => el.value);
     const best = !!$('input[name="best"]', form).checked;
     let previousProduct = null;
@@ -1864,7 +1871,7 @@
       review: (value) => value.length < 10 ? 'Please write at least 10 characters.' : ''
     });
     if (!data) return;
-    if (!requireCloudStore('save feedback')) return;
+    if (!await requireCloudStore('save feedback')) return;
     const current = state.reviews.slice();
     const index = current.findIndex((review) => review.productId === p.id && review.userId === user.id);
     const review = {
@@ -1905,7 +1912,7 @@
       message: (v) => v.length < 10 ? 'Please write at least 10 characters.' : ''
     });
     if (!data) return;
-    if (!requireCloudStore('send your message')) return;
+    if (!await requireCloudStore('send your message')) return;
     const { error } = await supabaseClient.from('contact_messages').insert({
       name: data.name, email: data.email.toLowerCase(), subject: data.subject, message: data.message
     });
@@ -2213,7 +2220,10 @@
     syncCart();
     startBackgroundMusic();
     startVisitorPresence();
-    initializeSupabase().catch((error) => reportCloudError('connect to the store database', error));
+    cloudInitialization = initializeSupabase().catch((error) => {
+      cloudInitializationError = error;
+      reportCloudError('connect to the store database', error);
+    });
     if (!location.hash) location.hash = '#/home'; else route();
     if (!location.hash || location.hash === '#/home') route();
     
