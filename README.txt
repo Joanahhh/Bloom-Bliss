@@ -35,14 +35,17 @@ orders, reviews, preferences, customer chats, contact messages, and owner
 notifications. The public project URL and publishable key are configured in
 supabase-config.js. Never put a Supabase service-role key in browser code.
 
-Before using the cloud-backed features:
-1. Open the project's Supabase SQL Editor and run supabase/schema.sql.
-2. Register the owner's account through the storefront using the intended owner
+Database setup: supabase/schema.sql has been applied to the configured Supabase
+project, and the app tables are visible in the public schema. For a fresh
+Supabase project, open its SQL Editor and run supabase/schema.sql first.
+
+To enable owner features:
+1. Register the owner's account through the storefront using the intended owner
    email address, then confirm that email if Supabase requires confirmation.
-3. In the SQL Editor, promote that verified account (replace the example email):
+2. In the SQL Editor, promote that verified account (replace the example email):
    update public.profiles set role = 'admin'
    where lower(email) = lower('owner@example.com');
-4. Sign in as the owner. The initial storefront catalog is then seeded in the
+3. Sign in as the owner. The initial storefront catalog is then seeded in the
    products table. Customers can register and place orders after that.
 
 The schema migration is idempotent and configures row-level security. Existing
