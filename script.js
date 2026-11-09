@@ -810,6 +810,8 @@
 
   let loaderHideTimer = null;
   let initialLoaderTimer = null;
+  let tabBloomTimer = null;
+  let tabBloomCleanupTimer = null;
   function showLoader() {
     const loader = $('#loader');
     if (!loader) return;
@@ -825,8 +827,72 @@
     loaderHideTimer = setTimeout(() => loader.classList.add('done'), delay);
   }
   function startTabTransition() {
-    showLoader();
-    hideLoader(1400);
+    const loader = $('#tabBloomLoader');
+    const welcome = $('#welcomeScreen');
+    if (!loader || !welcome) return;
+
+    clearTimeout(tabBloomTimer);
+    clearTimeout(tabBloomCleanupTimer);
+    loader.replaceChildren();
+
+    const ambient = $('.welcome-ambient', welcome).cloneNode(true);
+    ambient.removeAttribute('id');
+    ambient.classList.remove('is-lit');
+    const scene = $('.welcome-scene', welcome).cloneNode(true);
+    const roseWrapper = $('.welcome-rose-wrapper', scene);
+    const roseHead = $('.welcome-rose-head', scene);
+    roseWrapper.classList.remove('is-rotating');
+    roseHead.classList.remove('is-blooming');
+    $('.welcome-stem', scene).classList.remove('is-grown');
+    $$('.welcome-leaf', scene).forEach((leaf) => leaf.classList.remove('is-visible'));
+    $('.welcome-calyx', scene).classList.remove('is-visible');
+    $$('.welcome-sepal, .welcome-rose-petal', scene).forEach((petal) => petal.remove());
+    const layers = [
+      { count: 4, width: 24, height: 46, curl: 78, delay: 0, depth: 2, className: 'welcome-petal-bud' },
+      { count: 5, width: 34, height: 58, curl: 65, delay: 0.25, depth: 9, className: 'welcome-petal-core' },
+      { count: 6, width: 46, height: 72, curl: 48, delay: 0.55, depth: 18, className: 'welcome-petal-inner' },
+      { count: 7, width: 58, height: 88, curl: 22, delay: 0.9, depth: 30, className: 'welcome-petal-mid-inner' },
+      { count: 8, width: 72, height: 104, curl: -5, delay: 1.3, depth: 44, className: 'welcome-petal-mid' },
+      { count: 9, width: 86, height: 118, curl: -25, delay: 1.75, depth: 60, className: 'welcome-petal-outer' },
+      { count: 10, width: 98, height: 130, curl: -48, delay: 2.25, depth: 76, className: 'welcome-petal-blush' }
+    ];
+
+    layers.forEach((layer, layerIndex) => {
+      const step = 360 / layer.count;
+      const layerOffset = layerIndex * 24 + (Math.random() - 0.5) * 8;
+      for (let index = 0; index < layer.count; index += 1) {
+        const petal = document.createElement('span');
+        const delay = Math.min(0.7, layer.delay * 0.28 + index * 0.012);
+        petal.className = 'welcome-rose-petal ' + layer.className;
+        petal.style.width = layer.width + 'px';
+        petal.style.height = layer.height + 'px';
+        petal.style.setProperty('--angle', (layerOffset + index * step + (Math.random() - 0.5) * 5) + 'deg');
+        petal.style.setProperty('--curl', (layer.curl + (Math.random() - 0.5) * 6) + 'deg');
+        petal.style.setProperty('--depth', layer.depth + 'px');
+        petal.style.setProperty('--petal-scale', (0.94 + Math.random() * 0.12));
+        petal.style.setProperty('--bloom-delay', delay + 's');
+        petal.style.setProperty('--bloom-duration', '1.15s');
+        roseHead.appendChild(petal);
+      }
+    });
+
+    loader.append(ambient, scene);
+    loader.hidden = false;
+    requestAnimationFrame(() => {
+      loader.classList.add('is-visible');
+      ambient.classList.add('is-lit');
+      requestAnimationFrame(() => {
+        roseHead.classList.add('is-blooming');
+        roseWrapper.classList.add('is-rotating');
+      });
+    });
+    tabBloomTimer = setTimeout(() => {
+      loader.classList.remove('is-visible');
+      tabBloomCleanupTimer = setTimeout(() => {
+        loader.hidden = true;
+        loader.replaceChildren();
+      }, 260);
+    }, 1740);
   }
   function scheduleInitialLoaderHide() {
     clearTimeout(initialLoaderTimer);
