@@ -137,7 +137,7 @@
       const img = $('.media-btn img', el);
       return {
         id: d.id, name: text('h3'), category: d.category, price: +d.price, stock: +d.stock,
-        rating: +d.rating, reviews: +d.reviews, best: d.best === 'true', message: d.message === 'true',
+        rating: 0, reviews: 0, best: d.best === 'true', message: d.message === 'true',
         occasions: (d.occasions || '').split(',').filter(Boolean), desc: text('.desc'), art,
         image: img ? (img.getAttribute('src') || '').trim() : ''
       };
@@ -650,15 +650,13 @@
      ------------------------------------------------------------------------ */
   const stars = (r) => `<span class="stars" style="--r:${f1(r / 5 * 100)}%" role="img" aria-label="Rated ${r} out of 5">★★★★★</span>`;
   function reviewsFor(pid) {
-    return state.reviews.filter((review) => review.productId === pid).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    return state.reviews.filter((review) => review.productId === pid)
+      .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
   }
   function productRating(p) {
     const written = reviewsFor(p.id);
-    const baseCount = Math.max(0, Number(p.reviews) || 0);
-    const baseRating = Number(p.rating) || 0;
-    const count = baseCount + written.length;
-    const total = written.reduce((sum, review) => sum + review.rating, baseRating * baseCount);
-    return { count, average: count ? total / count : 0 };
+    const total = written.reduce((sum, review) => sum + review.rating, 0);
+    return { count: written.length, average: written.length ? total / written.length : 0 };
   }
 
   function productCard(p) {
@@ -666,7 +664,7 @@
     const wished = state.wish.includes(p.id);
     const rating = productRating(p);
     const tag = out ? '<span class="tag out">Sold out</span>' : p.best ? '<span class="tag">Bestseller</span>' : low ? '<span class="tag">Low stock</span>' : '';
-    return `<article class="card product-card reveal" data-id="${esc(p.id)}" data-category="${esc(p.category)}" data-price="${p.price}" data-stock="${p.stock}" data-rating="${p.rating}" data-reviews="${p.reviews}" data-best="${!!p.best}" ${p.message ? 'data-message="true" ' : ''}data-occasions="${esc((p.occasions || []).join(','))}" data-art="${esc(JSON.stringify(p.art))}">
+    return `<article class="card product-card reveal" data-id="${esc(p.id)}" data-category="${esc(p.category)}" data-price="${p.price}" data-stock="${p.stock}" data-rating="${rating.average}" data-reviews="${rating.count}" data-best="${!!p.best}" ${p.message ? 'data-message="true" ' : ''}data-occasions="${esc((p.occasions || []).join(','))}" data-art="${esc(JSON.stringify(p.art))}">
       <div class="card-media">
         <button class="wish-btn ${wished ? 'active' : ''}" data-action="wish" data-id="${esc(p.id)}" aria-pressed="${wished}" aria-label="${wished ? 'Remove from' : 'Add to'} wishlist: ${esc(p.name)}">${ICON_HEART}</button>
         ${tag}
@@ -861,11 +859,9 @@
   /* ------------------------------------------------------------------------
      9. Page renderers
      ------------------------------------------------------------------------ */
-  const VISITOR_KEY_PREFIX = 'bb_liveVisitor_';
-  const VISITOR_TTL_MS = 15000;
-  const VISITOR_HEARTBEAT_MS = 5000;
   let visitorId = '';
-  let visitorHeartbeat = null;
+  let liveVisitorChannel = null;
+  let liveVisitorCount = null;
   const backgroundMusic = $('#backgroundMusic');
   let musicPlaying = false;
   let musicUnavailable = false;
@@ -914,21 +910,7 @@
     const ratingCount = $('#homeRatingCount');
     if (!visitorCount || !ratingValue || !ratingCount) return;
 
-    try {
-      const now = Date.now();
-      let activeVisitors = 0;
-      for (let i = localStorage.length - 1; i >= 0; i--) {
-        const key = localStorage.key(i);
-        if (!key || !key.startsWith(VISITOR_KEY_PREFIX)) continue;
-        const lastSeen = Number(localStorage.getItem(key));
-        if (Number.isFinite(lastSeen) && now - lastSeen <= VISITOR_TTL_MS) activeVisitors++;
-        else localStorage.removeItem(key);
-      }
-      visitorCount.textContent = String(activeVisitors);
-    } catch (error) {
-      console.error('Could not read the live visitor count.', error);
-      visitorCount.textContent = '—';
-    }
+    visitorCount.textContent = liveVisitorCount === null ? '—' : String(liveVisitorCount);
 
     const totals = state.products.reduce((result, product) => {
       const rating = productRating(product);
@@ -938,46 +920,51 @@
     }, { total: 0, count: 0 });
     const average = totals.count ? totals.total / totals.count : 0;
     ratingValue.textContent = totals.count ? average.toFixed(1) : '—';
-    ratingCount.textContent = totals.count ? `From ${totals.count} product ratings` : 'No ratings yet';
+    ratingCount.textContent = totals.count
+      ? `From ${totals.count} customer ${totals.count === 1 ? 'review' : 'reviews'}`
+      : 'No customer reviews yet';
     const ratingStars = $('#homeRatingStars');
     if (ratingStars) ratingStars.style.setProperty('--rating-fill', `${Math.max(0, Math.min(100, average / 5 * 100))}%`);
   }
 
   function startVisitorPresence() {
-    try {
-      visitorId = sessionStorage.getItem('bb_visitorTabId') || `${Date.now()}_${Math.random().toString(36).slice(2)}`;
-      sessionStorage.setItem('bb_visitorTabId', visitorId);
-    } catch (error) {
-      console.error('Could not create a visitor session.', error);
-      visitorId = `${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    const visitorCount = $('#homeVisitorCount');
+    if (!supabaseClient) {
+      if (visitorCount) visitorCount.textContent = '—';
+      console.error('Live visitor count is unavailable because Supabase is not configured.');
+      return;
     }
 
-    const updatePresence = () => {
-      try {
-        localStorage.setItem(VISITOR_KEY_PREFIX + visitorId, String(Date.now()));
+    visitorId = `${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    try {
+      liveVisitorChannel = supabaseClient.channel('store-live-visitors', {
+        config: { presence: { key: visitorId } }
+      });
+      liveVisitorChannel.on('presence', { event: 'sync' }, () => {
+        liveVisitorCount = Object.keys(liveVisitorChannel.presenceState()).length;
         if (currentPage === 'home') renderHomeStats();
-      } catch (error) {
-        console.error('Could not update the live visitor count.', error);
-        const visitorCount = $('#homeVisitorCount');
-        if (visitorCount) visitorCount.textContent = '—';
-        clearInterval(visitorHeartbeat);
-        visitorHeartbeat = null;
-      }
-    };
-    const stopPresence = () => {
-      clearInterval(visitorHeartbeat);
-      visitorHeartbeat = null;
-      try { localStorage.removeItem(VISITOR_KEY_PREFIX + visitorId); }
-      catch (error) { console.error('Could not end the live visitor session.', error); }
-    };
-    const startHeartbeat = () => {
-      updatePresence();
-      if (!visitorHeartbeat) visitorHeartbeat = setInterval(updatePresence, VISITOR_HEARTBEAT_MS);
-    };
-
-    startHeartbeat();
-    window.addEventListener('pagehide', stopPresence);
-    window.addEventListener('pageshow', startHeartbeat);
+      });
+      liveVisitorChannel.subscribe(async (status, error) => {
+        if (status === 'SUBSCRIBED') {
+          try {
+            const result = await liveVisitorChannel.track({ joined_at: new Date().toISOString() });
+            if (result !== 'ok') throw new Error(`Realtime presence tracking returned ${result}.`);
+          } catch (trackError) {
+            liveVisitorCount = null;
+            console.error('Could not join live visitor presence.', trackError);
+            if (currentPage === 'home') renderHomeStats();
+          }
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          liveVisitorCount = null;
+          console.error('Live visitor presence is unavailable.', error || status);
+          if (currentPage === 'home') renderHomeStats();
+        }
+      });
+    } catch (error) {
+      liveVisitorCount = null;
+      console.error('Could not start live visitor presence.', error);
+      if (visitorCount) visitorCount.textContent = '—';
+    }
   }
 
   function renderHome() {
@@ -1028,14 +1015,7 @@
     if (sorters[shopFilters.sort]) list = list.slice().sort(sorters[shopFilters.sort]);
     $('#resultCount').textContent = list.length + (list.length === 1 ? ' bouquet' : ' bouquets') + ' found';
     const grid = $('#shopGrid');
-    if (state.customProducts) {
-      grid.innerHTML = list.map(productCard).join('');
-    } else {
-      // Cards already exist in index.html: just show/hide and re-order them.
-      const shown = new Set(list.map((p) => p.id));
-      $$('.product-card', grid).forEach((card) => { card.hidden = !shown.has(card.dataset.id); });
-      list.forEach((p) => { const card = $(`.product-card[data-id="${p.id}"]`, grid); if (card) grid.appendChild(card); });
-    }
+    grid.innerHTML = list.map(productCard).join('');
     $('#shopEmpty').hidden = list.length > 0;
     observeReveals();
   }
@@ -1092,13 +1072,7 @@
     if (sorters[addonFilters.sort]) list = list.slice().sort(sorters[addonFilters.sort]);
     $('#addonCount').textContent = list.length + (list.length === 1 ? ' add-on' : ' add-ons') + ' found';
     const grid = $('#addonGrid');
-    if (state.customProducts) {
-      grid.innerHTML = list.map(productCard).join('');
-    } else {
-      const shown = new Set(list.map((p) => p.id));
-      $$('.product-card', grid).forEach((card) => { card.hidden = !shown.has(card.dataset.id); });
-      list.forEach((p) => { const card = $(`.product-card[data-id="${p.id}"]`, grid); if (card) grid.appendChild(card); });
-    }
+    grid.innerHTML = list.map(productCard).join('');
     $('#addonEmpty').hidden = list.length > 0;
     checkImages(grid);
     observeReveals();
@@ -1984,6 +1958,9 @@
     else current.push(mappedReview);
     state.reviews = current;
     toast(index >= 0 ? 'Your feedback was updated.' : 'Thank you for your feedback!');
+    if (currentPage === 'home') renderHome();
+    else if (currentPage === 'shop') renderShop();
+    else if (currentPage === 'addons') renderAddons();
     quickView(p.id);
   }
 
@@ -2243,11 +2220,6 @@
     musicUnavailable = true;
     updateMusicControl();
     console.error('The background music file could not be loaded.', backgroundMusic.error);
-  });
-  window.addEventListener('storage', (e) => {
-    if (e.key && e.key.indexOf(VISITOR_KEY_PREFIX) === 0) {
-      if (currentPage === 'home') renderHomeStats();
-    }
   });
   window.addEventListener('hashchange', route);
 
