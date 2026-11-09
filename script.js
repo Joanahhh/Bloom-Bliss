@@ -604,11 +604,129 @@
   /* ------------------------------------------------------------------------
      9. Page renderers
      ------------------------------------------------------------------------ */
-  
-function renderHome() {
+  const VISITOR_KEY_PREFIX = 'bb_liveVisitor_';
+  const VISITOR_TTL_MS = 15000;
+  const VISITOR_HEARTBEAT_MS = 5000;
+  let visitorId = '';
+  let visitorHeartbeat = null;
+  const backgroundMusic = $('#backgroundMusic');
+  let musicPlaying = false;
+  let musicUnavailable = false;
+
+  function updateMusicControl() {
+    const button = $('#musicToggle');
+    const label = $('#musicToggleLabel');
+    if (!button || !label) return;
+    button.setAttribute('aria-pressed', String(musicPlaying));
+    button.setAttribute('aria-label', musicUnavailable ? 'Background music unavailable' : musicPlaying ? 'Pause background music' : 'Play background music');
+    label.textContent = musicUnavailable ? 'Music unavailable' : musicPlaying ? 'Pause music' : 'Play music';
+  }
+
+  async function startBackgroundMusic() {
+    if (!backgroundMusic) return false;
+    try {
+      await backgroundMusic.play();
+      musicUnavailable = false;
+      $('#musicToggle').removeAttribute('title');
+      musicPlaying = true;
+      updateMusicControl();
+      return true;
+    } catch (error) {
+      musicPlaying = false;
+      updateMusicControl();
+      if (error.name === 'NotAllowedError') {
+        $('#musicToggle').title = 'Autoplay was blocked. Click to start the music.';
+        return false;
+      }
+      musicUnavailable = true;
+      updateMusicControl();
+      console.error('Could not play the background music file.', error);
+      return false;
+    }
+  }
+
+  async function stopBackgroundMusic() {
+    if (backgroundMusic) backgroundMusic.pause();
+    musicPlaying = false;
+    updateMusicControl();
+  }
+
+  function renderHomeStats() {
+    const visitorCount = $('#homeVisitorCount');
+    const ratingValue = $('#homeStoreRating');
+    const ratingCount = $('#homeRatingCount');
+    if (!visitorCount || !ratingValue || !ratingCount) return;
+
+    try {
+      const now = Date.now();
+      let activeVisitors = 0;
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i);
+        if (!key || !key.startsWith(VISITOR_KEY_PREFIX)) continue;
+        const lastSeen = Number(localStorage.getItem(key));
+        if (Number.isFinite(lastSeen) && now - lastSeen <= VISITOR_TTL_MS) activeVisitors++;
+        else localStorage.removeItem(key);
+      }
+      visitorCount.textContent = String(activeVisitors);
+    } catch (error) {
+      console.error('Could not read the live visitor count.', error);
+      visitorCount.textContent = '—';
+    }
+
+    const totals = state.products.reduce((result, product) => {
+      const rating = productRating(product);
+      result.count += rating.count;
+      result.total += rating.average * rating.count;
+      return result;
+    }, { total: 0, count: 0 });
+    const average = totals.count ? totals.total / totals.count : 0;
+    ratingValue.textContent = totals.count ? average.toFixed(1) : '—';
+    ratingCount.textContent = totals.count ? `From ${totals.count} product ratings` : 'No ratings yet';
+    const ratingStars = $('#homeRatingStars');
+    if (ratingStars) ratingStars.style.setProperty('--rating-fill', `${Math.max(0, Math.min(100, average / 5 * 100))}%`);
+  }
+
+  function startVisitorPresence() {
+    try {
+      visitorId = sessionStorage.getItem('bb_visitorTabId') || `${Date.now()}_${Math.random().toString(36).slice(2)}`;
+      sessionStorage.setItem('bb_visitorTabId', visitorId);
+    } catch (error) {
+      console.error('Could not create a visitor session.', error);
+      visitorId = `${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    }
+
+    const updatePresence = () => {
+      try {
+        localStorage.setItem(VISITOR_KEY_PREFIX + visitorId, String(Date.now()));
+        if (currentPage === 'home') renderHomeStats();
+      } catch (error) {
+        console.error('Could not update the live visitor count.', error);
+        const visitorCount = $('#homeVisitorCount');
+        if (visitorCount) visitorCount.textContent = '—';
+        clearInterval(visitorHeartbeat);
+        visitorHeartbeat = null;
+      }
+    };
+    const stopPresence = () => {
+      clearInterval(visitorHeartbeat);
+      visitorHeartbeat = null;
+      try { localStorage.removeItem(VISITOR_KEY_PREFIX + visitorId); }
+      catch (error) { console.error('Could not end the live visitor session.', error); }
+    };
+    const startHeartbeat = () => {
+      updatePresence();
+      if (!visitorHeartbeat) visitorHeartbeat = setInterval(updatePresence, VISITOR_HEARTBEAT_MS);
+    };
+
+    startHeartbeat();
+    window.addEventListener('pagehide', stopPresence);
+    window.addEventListener('pageshow', startHeartbeat);
+  }
+
+  function renderHome() {
     // Hero image and featured collection cards are written in index.html.
     checkCardImages();
-
+    renderHomeStats();
 
     const best = state.products.filter((p) => p.best && !isAddon(p)).slice(0, 4);
     $('#bestsellerGrid').innerHTML = best.map(productCard).join('');
@@ -1679,7 +1797,35 @@ function renderHome() {
     const nav = $('#nav'); const open = !nav.classList.contains('open');
     nav.classList.toggle('open', open); $('#menuBtn').setAttribute('aria-expanded', String(open));
   });
+  $('#musicToggle').addEventListener('click', () => {
+    if (musicPlaying) stopBackgroundMusic();
+    else startBackgroundMusic();
+  });
+  backgroundMusic.addEventListener('play', () => {
+    musicUnavailable = false;
+    musicPlaying = true;
+    updateMusicControl();
+  });
+  backgroundMusic.addEventListener('pause', () => {
+    musicPlaying = false;
+    updateMusicControl();
+  });
+  backgroundMusic.addEventListener('error', () => {
+    musicPlaying = false;
+    musicUnavailable = true;
+    updateMusicControl();
+    console.error('The background music file could not be loaded.', backgroundMusic.error);
+  });
   window.addEventListener('storage', (e) => {
+    if (e.key && e.key.indexOf(VISITOR_KEY_PREFIX) === 0) {
+      if (currentPage === 'home') renderHomeStats();
+      return;
+    }
+    if (e.key === 'bb_reviews') {
+      state.reviews = store.get('reviews', []);
+      if (currentPage === 'home') renderHomeStats();
+      return;
+    }
     if (e.key === 'bb_ownerOrderNotifications') {
       const previous = state.ownerOrderNotifications;
       state.ownerOrderNotifications = store.get('ownerOrderNotifications', []);
@@ -1695,6 +1841,7 @@ function renderHome() {
     if (e.key === 'bb_orders' || e.key === 'bb_products') {
       state.orders = store.get('orders', []);
       state.products = store.get('products', state.products);
+      if (currentPage === 'home') renderHomeStats();
       if (currentPage === 'admin' && isAdmin()) renderAdmin();
       else if (currentPage === 'orders' && currentUser() && currentUser().role !== 'admin') renderOrders();
       else if (currentPage === 'confirmation' && currentUser()) renderConfirmation();
@@ -1755,6 +1902,8 @@ function renderHome() {
     initPetals();
     checkImages();
     syncCart();
+    startBackgroundMusic();
+    startVisitorPresence();
     if (!location.hash) location.hash = '#/home'; else route();
     if (!location.hash || location.hash === '#/home') route();
     

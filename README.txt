@@ -24,3 +24,7 @@ Customize page: put these in an  images/custom/  folder (missing files are simpl
   ribbon-burgundy.jpg ribbon-ivory.jpg ribbon-gold.jpg ribbon-sage.jpg
   card-none.jpg card-classic.jpg card-premium.jpg
 To use other names or web links, edit the  image:  lines in script.js (inside CUSTOM).
+
+----- BACKGROUND MUSIC -----
+The site plays audio/palagi-sax-serenade-cover.mp3 from the music button.
+Browsers may block autoplay; visitors can use the Play music button to start it.

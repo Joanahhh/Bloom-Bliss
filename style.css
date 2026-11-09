@@ -316,6 +316,20 @@ main:focus { outline: none; }
 .reveal.in { opacity: 1; transform: none; }
 
 /* ---------- Hero ---------- */
+.home-live-strip { position: relative; z-index: 2; padding: 1.1rem 0; background: var(--ivory); border-bottom: 1px solid var(--line); }
+.home-live-panel { display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 1.2fr); align-items: center; gap: .55rem 2rem; padding: 1rem 1.25rem; border: 1px solid var(--line); border-radius: var(--radius); background: #fff; box-shadow: var(--shadow-sm); }
+.home-live-heading .eyebrow { display: flex; align-items: center; gap: .55rem; margin-bottom: .35rem; }
+.home-live-heading > p:last-child { margin: 0; color: var(--muted); font-size: .88rem; }
+.home-live-dot { width: .55rem; height: .55rem; flex: 0 0 .55rem; border-radius: 50%; background: #43956b; box-shadow: 0 0 0 4px rgba(67,149,107,.13); animation: livePulse 1.8s ease-in-out infinite; }
+@keyframes livePulse { 50% { box-shadow: 0 0 0 7px rgba(67,149,107,0); } }
+.home-live-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+.home-live-metric { display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: .6rem; padding: .65rem .8rem; border-radius: var(--radius); background: var(--blush); }
+.home-live-label { color: var(--muted); font-size: .76rem; font-weight: 600; }
+.home-live-metric strong { grid-row: span 2; color: var(--burgundy); font-family: var(--font-head); font-size: 1.65rem; line-height: 1; text-align: right; }
+.home-live-metric small { grid-column: 1 / -1; margin-top: .2rem; color: var(--muted); font-size: .66rem; }
+.home-live-rating strong { grid-column: 2; grid-row: 1 / span 2; }
+.home-live-stars { grid-column: 1; color: transparent; background: linear-gradient(90deg, #b78326 var(--rating-fill, 100%), #d8cfd1 var(--rating-fill, 100%)); background-clip: text; -webkit-background-clip: text; font-size: .78rem; letter-spacing: .08em; line-height: 1; }
+.home-live-note { grid-column: 1 / -1; margin: 0; color: var(--muted); font-size: .68rem; text-align: right; }
 .hero { position: relative; overflow: hidden; background: radial-gradient(circle at 80% 20%, #fff 0, var(--blush) 45%, #efd3d8 100%); }
 .hero-inner { display: grid; grid-template-columns: 1.05fr .95fr; align-items: center; gap: 2rem; min-height: min(84vh, 720px); padding: 3rem 0; position: relative; z-index: 2; }
 .hero h1 { font-size: clamp(2.6rem, 6vw, 4.8rem); margin-bottom: .3rem; }
@@ -740,6 +754,8 @@ td select { min-height: 36px; padding: .3rem .6rem; }
 @media (max-width: 900px) {
   .hero-inner, .cart-layout, .split, .contact-layout, .promo-banner, .auth-wrap { grid-template-columns: minmax(0, 1fr); }
   .contact-layout > * { min-width: 0; }
+  .home-live-panel { grid-template-columns: 1fr; }
+  .home-live-note { text-align: left; }
   .hero-inner { min-height: 0; text-align: center; padding: 2.5rem 0 3rem; }
   .hero p.lead { margin-inline: auto; } .hero-cta { justify-content: center; }
   .hero-art { width: min(80%, 380px); order: -1; }
@@ -754,6 +770,12 @@ td select { min-height: 36px; padding: .3rem .6rem; }
 }
 @media (max-width: 600px) {
   :root { --header-h: 68px; }
+  .home-live-strip { padding: .75rem 0; }
+  .home-live-panel { gap: .75rem; padding: .85rem; }
+  .home-live-metrics { gap: .5rem; }
+  .home-live-metric { padding: .6rem; }
+  .home-live-metric strong { font-size: 1.4rem; }
+  .home-live-note { font-size: .64rem; }
   .header-inner { width: calc(100% - 1rem); gap: .35rem; }
   .brand { gap: .2rem; font-size: 1.05rem; }
   .brand img { width: 28px; height: 28px; }
@@ -801,6 +823,14 @@ td select { min-height: 36px; padding: .3rem .6rem; }
 @media (max-width: 360px) {
   .brand { font-size: .88rem; }
   .brand img { width: 24px; height: 24px; }
+}
+
+.music-toggle { position: fixed; z-index: 20; left: 1rem; bottom: 1rem; display: inline-flex; align-items: center; gap: .5rem; min-height: 42px; padding: .6rem .9rem; border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,.96); color: var(--burgundy); box-shadow: var(--shadow); font: inherit; font-size: .78rem; font-weight: 600; cursor: pointer; }
+.music-toggle svg { width: 18px; height: 18px; flex: 0 0 18px; }
+.music-toggle:hover { background: var(--blush); }
+.music-toggle[aria-pressed="true"] { background: var(--burgundy); color: #fff; border-color: var(--burgundy); }
+@media (max-width: 600px) {
+  .music-toggle { left: .6rem; bottom: .6rem; min-height: 38px; padding: .5rem .7rem; font-size: .72rem; }
 }
 
 @media (max-width: 1100px) {

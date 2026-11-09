@@ -131,6 +131,30 @@
 
   <!-- ============ HOME ============ -->
   <section class="page" id="page-home" data-title="Home">
+    <div class="home-live-strip">
+      <div class="container">
+        <div class="home-live-panel">
+          <div class="home-live-heading">
+            <p class="eyebrow"><span class="home-live-dot" aria-hidden="true"></span> Live store pulse</p>
+            <p>See who's browsing and how customers rate our flowers.</p>
+          </div>
+          <div class="home-live-metrics">
+            <div class="home-live-metric">
+              <span class="home-live-label">Visitors online</span>
+              <strong id="homeVisitorCount">0</strong>
+              <small>Open visits in this browser</small>
+            </div>
+            <div class="home-live-metric home-live-rating">
+              <span class="home-live-label">Store rating</span>
+              <strong id="homeStoreRating">—</strong>
+              <span class="home-live-stars" id="homeRatingStars" aria-hidden="true">★★★★★</span>
+              <small id="homeRatingCount">Catalog ratings</small>
+            </div>
+          </div>
+          <p class="home-live-note">Demo stats are stored in this browser and are not shared across devices.</p>
+        </div>
+      </div>
+    </div>
     <div class="hero">
       <div class="petals" aria-hidden="true"></div>
       <div class="hero-orbit-gallery" aria-hidden="true">
@@ -1728,6 +1752,14 @@
 
 <div id="modal" hidden></div>
 <div id="toasts" role="status" aria-live="polite"></div>
+
+<button class="music-toggle" id="musicToggle" type="button" aria-pressed="false" aria-label="Play background music">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+  <span id="musicToggleLabel">Play music</span>
+</button>
+<audio id="backgroundMusic" preload="none" loop>
+  <source src="audio/palagi-sax-serenade-cover.mp3" type="audio/mpeg">
+</audio>
 
 <a class="website-qr-card" href="https://bloom-bliss-seven.vercel.app/" target="_blank" rel="noopener noreferrer" aria-label="Bloom &amp; Bliss" hidden>
   <span class="website-qr-label">Scan to visit</span>
