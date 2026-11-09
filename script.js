@@ -123,6 +123,7 @@
     session: store.get('session', null),
     orders: store.get('orders', []),
     messages: store.get('messages', []),
+    conversations: store.get('conversations', []),
     reviews: store.get('reviews', []),
     promo: store.get('promo', null)
   };
@@ -524,7 +525,7 @@
   /* ------------------------------------------------------------------------
      8. Router
      ------------------------------------------------------------------------ */
-  const PAGES = ['home', 'shop', 'categories', 'occasions', 'addons', 'cart', 'login', 'checkout', 'confirmation', 'wishlist', 'orders', 'profile', 'about', 'branches', 'contact', 'admin'];
+  const PAGES = ['home', 'shop', 'categories', 'occasions', 'addons', 'cart', 'login', 'checkout', 'confirmation', 'wishlist', 'orders', 'profile', 'chat', 'about', 'branches', 'contact', 'admin'];
   const NAV_MAP = { home: 'home', shop: 'shop', categories: 'categories', occasions: 'occasions', addons: 'addons', about: 'about', branches: 'branches', contact: 'contact' };
   let currentPage = 'home';
   let params = new URLSearchParams();
@@ -546,9 +547,10 @@
     let page = parsed.page; params = parsed.params;
 
     // Guards
-    if (page === 'checkout' || page === 'orders' || page === 'confirmation' || page === 'profile') {
-      if (!currentUser()) { go('login', { next: page === 'confirmation' ? 'orders' : page, notice: page === 'checkout' ? 'checkout' : page === 'profile' ? 'profile' : 'orders' }); return; }
+    if (page === 'checkout' || page === 'orders' || page === 'confirmation' || page === 'profile' || page === 'chat') {
+      if (!currentUser()) { go('login', { next: page === 'confirmation' ? 'orders' : page, notice: page === 'checkout' ? 'checkout' : page === 'profile' ? 'profile' : page === 'chat' ? 'chat' : 'orders' }); return; }
     }
+    if (page === 'chat' && currentUser().role === 'admin') { go('admin'); return; }
     if (page === 'admin' && !isAdmin()) {
       if (!currentUser()) { go('login', { next: 'admin', notice: 'admin' }); } else { toast('Admin access only.', 'error'); go('home'); }
       return;
@@ -575,9 +577,13 @@
       case 'confirmation': renderConfirmation(); break;
       case 'wishlist': renderWishlist(); break;
       case 'orders': renderOrders(); break;
+      case 'chat': renderCustomerChat(); break;
       case 'profile': renderProfile(); break;
       case 'branches': renderBranches(); break;
-      case 'admin': renderAdmin(); break;
+      case 'admin':
+        if (['overview', 'products', 'orders', 'messages'].includes(params.get('tab'))) adminTab = params.get('tab');
+        renderAdmin();
+        break;
       default: break;
     }
     renderAuthArea(); updateBadges(); syncWishButtons();
@@ -764,6 +770,11 @@ function renderHome() {
   /* ---- Auth ---- */
   function renderAuthArea(avatarOverride) {
     const u = currentUser(); const box = $('#authArea'); if (!box) return;
+    const chatShortcut = $('#chatShortcut');
+    if (chatShortcut) {
+      chatShortcut.href = !u ? '#/login?next=chat&notice=chat' : u.role === 'admin' ? '#/admin?tab=messages' : '#/chat';
+      chatShortcut.setAttribute('aria-label', u && u.role === 'admin' ? 'Open customer chats' : 'Chat with Bloom & Bliss');
+    }
     if (!u) {
       box.innerHTML = `<a class="icon-btn" href="#/login" aria-label="Login or sign up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg></a>`;
       return;
@@ -772,7 +783,7 @@ function renderHome() {
     const avatar = avatarSrc ? `<img class="user-avatar-image" src="${esc(avatarSrc)}" alt="">` : esc(u.name.charAt(0).toUpperCase());
     box.innerHTML = `<div class="user-menu"><button class="icon-btn user-btn" data-action="toggle-user" aria-haspopup="true" aria-expanded="false" aria-label="Account menu for ${esc(u.name)}">${avatar}</button>
       <div class="dropdown" id="userDropdown" hidden><p>Signed in as<br><strong>${esc(u.name)}</strong></p>
-        <a href="#/profile">${u.role === 'admin' ? 'Owner Profile' : 'My Profile'}</a><a href="#/orders">My Orders</a><a href="#/wishlist">Wishlist</a>${u.role === 'admin' ? '<a href="#/admin">Admin Dashboard</a>' : ''}
+        <a href="#/profile">${u.role === 'admin' ? 'Owner Profile' : 'My Profile'}</a>${u.role === 'admin' ? '<a href="#/admin">Admin Dashboard</a>' : '<a href="#/chat">Chat with shop</a><a href="#/orders">My Orders</a><a href="#/wishlist">Wishlist</a>'}
         <button type="button" data-action="logout">Logout</button></div></div>`;
   }
   function setAuthTab(tab) {
@@ -784,7 +795,7 @@ function renderHome() {
   function prepareLogin() {
     setAuthTab(params.get('tab') === 'register' ? 'register' : 'login');
     const notice = $('#authNotice'); const n = params.get('notice');
-    const msgs = { checkout: 'Please log in or sign up to complete your order. Your cart is saved.', orders: 'Please log in to view your orders.', profile: 'Please log in to view your profile.', admin: 'Please log in with an administrator account.' };
+    const msgs = { checkout: 'Please log in or sign up to complete your order. Your cart is saved.', orders: 'Please log in to view your orders.', profile: 'Please log in to view your profile.', chat: 'Please log in to chat with the shop.', admin: 'Please log in with an administrator account.' };
     notice.hidden = !msgs[n]; notice.textContent = msgs[n] || '';
     if (currentUser()) { go(params.get('next') || 'home'); }
   }
@@ -838,7 +849,7 @@ function renderHome() {
   }
   function logout() {
     state.session = null; save('session'); renderAuthArea(); toast('You have been logged out.');
-    if (['checkout', 'orders', 'profile', 'admin', 'confirmation'].includes(currentPage)) go('home'); else route();
+    if (['checkout', 'orders', 'profile', 'chat', 'admin', 'confirmation'].includes(currentPage)) go('home'); else route();
   }
 
   /* ---- Checkout ---- */
@@ -1024,7 +1035,74 @@ function renderHome() {
     const mine = state.orders.filter((o) => o.user === u.email).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
     root.innerHTML = mine.length ? mine.map(orderCard).join('') : `<div class="empty"><h3>No orders yet</h3><p class="muted">When you place an order, it will appear here.</p><a class="btn btn-primary" href="#/shop">Start shopping</a></div>`;
   }
-
+  function chatMessagesMarkup(conversation, viewer) {
+    if (!conversation || !conversation.messages.length) return '<div class="chat-empty">Start a conversation with the Bloom &amp; Bliss team.</div>';
+    return conversation.messages.map((message) => {
+      const mine = message.from === viewer;
+      const sender = message.from === 'owner' ? 'Bloom & Bliss' : esc(conversation.name || 'Customer');
+      return `<article class="chat-message ${mine ? 'is-mine' : ''}"><span class="chat-sender">${sender}</span><p>${esc(message.text)}</p><time datetime="${esc(message.at)}">${new Date(message.at).toLocaleString('en-PH', { dateStyle: 'medium', timeStyle: 'short' })}</time></article>`;
+    }).join('');
+  }
+  function renderCustomerChat() {
+    const root = $('#chatRoot'); const user = currentUser();
+    if (!root || !user) return;
+    const conversation = state.conversations.find((thread) => thread.email === user.email);
+    root.innerHTML = `<section class="chat-panel">
+      <header class="chat-panel-head"><div><p class="eyebrow">Customer support</p><h2>Chat with Bloom &amp; Bliss</h2><p class="muted">Send a message to the shop owner and check back here for a reply.</p></div></header>
+      <div class="chat-thread" id="customerChatThread" aria-live="polite">${chatMessagesMarkup(conversation, 'customer')}</div>
+      <form class="chat-compose" id="customerChatForm" novalidate><label class="sr-only" for="customerChatMessage">Your message</label><textarea id="customerChatMessage" name="message" rows="3" maxlength="1000" placeholder="Type your message…" required></textarea><span class="error" data-error-for="message" role="alert"></span><button class="btn btn-primary" type="submit">Send message</button></form>
+      <p class="chat-local-note">Messages are saved in this browser only. They are not sent to other devices or a real shop inbox.</p>
+    </section>`;
+  }
+  function sendChatMessage(email, from, text) {
+    const conversations = clone(state.conversations);
+    let conversation = conversations.find((thread) => thread.email === email);
+    if (!conversation) {
+      const customer = state.users.find((account) => account.email === email && account.role !== 'admin');
+      if (!customer) { toast('Could not find that customer conversation.', 'error'); return false; }
+      conversation = { email, name: customer.name, messages: [] };
+      conversations.push(conversation);
+    }
+    if (from === 'customer') {
+      const customer = state.users.find((account) => account.email === email);
+      if (!customer || customer.role === 'admin') { toast('Could not verify your customer account.', 'error'); return false; }
+      conversation.name = customer.name;
+    }
+    conversation.messages.push({ from, text, at: new Date().toISOString() });
+    if (!store.set('conversations', conversations)) { toast('Your message could not be saved in this browser.', 'error'); return false; }
+    state.conversations = conversations;
+    return true;
+  }
+  function handleCustomerChatForm(form) {
+    const user = currentUser();
+    if (!user || user.role === 'admin') { toast('Sign in with a customer account to send a message.', 'error'); return; }
+    const input = form.elements.message;
+    const error = form.querySelector('[data-error-for="message"]');
+    const text = input.value.trim();
+    error.textContent = text ? '' : 'Write a message before sending.';
+    input.setAttribute('aria-invalid', String(!text));
+    if (!text) { input.focus(); return; }
+    if (!sendChatMessage(user.email, 'customer', text)) return;
+    renderCustomerChat();
+    const thread = $('#customerChatThread');
+    thread.scrollTop = thread.scrollHeight;
+    $('#customerChatMessage').focus();
+  }
+  function handleOwnerChatForm(form) {
+    const user = currentUser();
+    const email = form.dataset.email;
+    const input = form.elements.message;
+    const error = form.querySelector('[data-error-for="message"]');
+    const text = input.value.trim();
+    if (!user || user.role !== 'admin' || !state.conversations.some((thread) => thread.email === email)) { toast('Could not verify this customer conversation.', 'error'); return; }
+    error.textContent = text ? '' : 'Write a reply before sending.';
+    input.setAttribute('aria-invalid', String(!text));
+    if (!text) { input.focus(); return; }
+    if (!sendChatMessage(email, 'owner', text)) return;
+    renderAdmin();
+    const thread = $('.admin-chat-conversation .chat-thread');
+    thread.scrollTop = thread.scrollHeight;
+  }
   function renderProfile() {
     const root = $('#profileRoot');
     const user = currentUser();
@@ -1149,6 +1227,7 @@ function renderHome() {
     const users = clone(state.users);
     const orders = clone(state.orders);
     const reviews = clone(state.reviews);
+    const conversations = clone(state.conversations);
     const account = users.find((item) => item.email === oldEmail);
     if (!account) { toast('Could not find your account. Please sign in again.', 'error'); return; }
     account.name = name;
@@ -1161,9 +1240,11 @@ function renderHome() {
     reviews.forEach((review) => {
       if (review.user === oldEmail) { review.user = email; review.customer = name.trim().split(/\s+/)[0]; }
     });
+    const conversation = conversations.find((thread) => thread.email === oldEmail);
+    if (conversation) { conversation.email = email; conversation.name = name; }
 
-    const previous = { users: state.users, orders: state.orders, reviews: state.reviews, session: state.session };
-    const updates = { users, orders, reviews, session: email };
+    const previous = { users: state.users, orders: state.orders, reviews: state.reviews, conversations: state.conversations, session: state.session };
+    const updates = { users, orders, reviews, conversations, session: email };
     const saved = [];
     for (const key of Object.keys(updates)) {
       if (!store.set(key, updates[key])) {
@@ -1181,6 +1262,7 @@ function renderHome() {
     state.users = users;
     state.orders = orders;
     state.reviews = reviews;
+    state.conversations = conversations;
     state.session = email;
     renderAuthArea();
     renderProfile();
@@ -1188,7 +1270,8 @@ function renderHome() {
   }
 
   /* ---- Admin ---- */
-  let adminTab = 'products';
+  let adminTab = 'overview';
+  let activeCustomerChatEmail = '';
   const ART_PRESETS = {
     'red-roses': { kinds: ['rose'], pals: ['red'], n: 7, wrap: 'blush', ribbon: '#70263D', bg: 'blush' },
     'burgundy-roses': { kinds: ['rose'], pals: ['burgundy'], n: 7, wrap: 'burgundy', ribbon: '#D4B483', bg: 'maroon' },
@@ -1206,8 +1289,26 @@ function renderHome() {
     const revenue = state.orders.filter((o) => o.status !== 'Cancelled').reduce((s, o) => s + o.totals.total, 0);
     const lowCount = state.products.filter((p) => p.stock <= 5).length;
     const pending = state.orders.filter((o) => o.status === 'Pending').length;
+    const owner = currentUser();
+    const recentOrders = state.orders.slice().sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 5);
+    const lowStock = state.products.filter((p) => p.stock <= 5).sort((a, b) => a.stock - b.stock).slice(0, 5);
     let body = '';
-    if (adminTab === 'products') {
+    if (adminTab === 'overview') {
+      body = `<div class="admin-overview-heading"><div><p class="eyebrow">Store overview</p><h2>Welcome back, ${esc(owner.name.split(/\s+/)[0])}!</h2><p class="muted">Here’s what’s happening with your shop today.</p></div><button type="button" class="btn btn-primary btn-sm" data-action="admin-add">+ Add Product</button></div>
+      <div class="admin-overview">
+        <section class="admin-overview-panel">
+          <div class="admin-bar"><div><h2 style="margin:0">Recent orders</h2><p class="muted" style="margin:.25rem 0 0">The latest customer activity in your shop.</p></div><button type="button" class="link-btn" data-action="admin-tab" data-tab="orders">View all orders →</button></div>
+          ${recentOrders.length ? `<div class="table-wrap"><table class="admin-overview-table"><thead><tr><th>Order</th><th>Customer</th><th>Date</th><th>Total</th><th>Status</th><th></th></tr></thead><tbody>
+            ${recentOrders.map((o) => `<tr><td><strong>${esc(o.id)}</strong></td><td>${esc(o.customer)}</td><td>${prettyDate(o.createdAt)}</td><td>${peso(o.totals.total)}</td><td><span class="status ${o.status.toLowerCase().replace(/\s+/g, '-')}">${esc(o.status)}</span></td><td><button type="button" class="btn btn-ghost btn-sm" data-action="admin-order" data-id="${esc(o.id)}">Details</button></td></tr>`).join('')}
+          </tbody></table></div>` : '<div class="empty admin-overview-empty"><h3>No orders yet</h3><p class="muted">New customer orders will appear here.</p></div>'}
+        </section>
+        <section class="admin-overview-panel">
+          <div class="admin-bar"><div><h2 style="margin:0">Inventory to watch</h2><p class="muted" style="margin:.25rem 0 0">Products with five or fewer items in stock.</p></div><button type="button" class="link-btn" data-action="admin-tab" data-tab="products">Manage products →</button></div>
+          ${lowStock.length ? `<ul class="admin-stock-list">${lowStock.map((p) => `<li><span><strong>${esc(p.name)}</strong><small>${esc(catLabel(p.category))}</small></span><span class="admin-stock-count ${p.stock === 0 ? 'is-out' : ''}">${p.stock === 0 ? 'Out of stock' : `${p.stock} left`}</span></li>`).join('')}</ul>` : '<div class="empty admin-overview-empty"><h3>Stock looks good</h3><p class="muted">No products are at the low-stock threshold.</p></div>'}
+          <div class="admin-quick-actions"><button type="button" class="btn btn-primary btn-sm" data-action="admin-add">+ Add Product</button><button type="button" class="btn btn-ghost btn-sm" data-action="admin-tab" data-tab="messages">Customer inbox (${state.conversations.length + state.messages.length})</button></div>
+        </section>
+      </div>`;
+    } else if (adminTab === 'products') {
       body = `<div class="admin-bar"><h2 style="margin:0">Products (${state.products.length})</h2><button class="btn btn-primary btn-sm" data-action="admin-add">+ Add Product</button></div>
         <div class="table-wrap"><table><thead><tr><th>ID</th><th>Product</th><th>Category</th><th>Price (₱)</th><th>Stock</th><th>Actions</th></tr></thead><tbody>
         ${state.products.map((p) => `<tr><td>${esc(p.id)}</td><td><strong>${esc(p.name)}</strong></td><td>${esc(catLabel(p.category))}</td>
@@ -1224,13 +1325,29 @@ function renderHome() {
         </tbody></table></div>` : '<div class="empty"><h3>No orders yet</h3><p class="muted">Orders placed by customers will appear here.</p></div>');
     } else {
       const msgs = state.messages.slice().reverse();
-      body = `<div class="admin-bar"><h2 style="margin:0">Customer Messages (${msgs.length})</h2><p class="muted" style="margin:0">Reply opens a draft in your email app.</p></div>` + (msgs.length ? msgs.map((m) => {
+      const conversations = state.conversations.slice().sort((a, b) => {
+        const aAt = a.messages.length ? a.messages[a.messages.length - 1].at : '';
+        const bAt = b.messages.length ? b.messages[b.messages.length - 1].at : '';
+        return bAt.localeCompare(aAt);
+      });
+      if (!conversations.some((thread) => thread.email === activeCustomerChatEmail)) activeCustomerChatEmail = conversations.length ? conversations[0].email : '';
+      const activeConversation = conversations.find((thread) => thread.email === activeCustomerChatEmail);
+      const chatInbox = `<section class="admin-chat-section"><div class="admin-bar"><div><h2 style="margin:0">Customer chats (${conversations.length})</h2><p class="muted" style="margin:.25rem 0 0">Reply to customers here. Replies appear in their account chat.</p></div></div>
+        ${conversations.length ? `<div class="admin-chat-layout"><nav class="chat-inbox-list" aria-label="Customer conversations">${conversations.map((thread) => {
+          const last = thread.messages[thread.messages.length - 1];
+          return `<button type="button" class="chat-inbox-item ${thread.email === activeCustomerChatEmail ? 'active' : ''}" data-action="admin-chat-select" data-email="${esc(thread.email)}" aria-pressed="${thread.email === activeCustomerChatEmail}"><strong>${esc(thread.name || thread.email)}</strong><small>${esc(thread.email)}</small><span>${esc(last ? last.text : 'No messages yet')}</span></button>`;
+        }).join('')}</nav>
+          <div class="admin-chat-conversation"><div class="chat-thread" aria-live="polite">${chatMessagesMarkup(activeConversation, 'owner')}</div>
+            <form class="chat-compose" id="ownerChatForm" data-email="${esc(activeConversation.email)}" novalidate><label class="sr-only" for="ownerChatMessage">Reply to ${esc(activeConversation.name || activeConversation.email)}</label><textarea id="ownerChatMessage" name="message" rows="3" maxlength="1000" placeholder="Write a reply…" required></textarea><span class="error" data-error-for="message" role="alert"></span><button class="btn btn-primary" type="submit">Send reply</button></form>
+          </div></div>` : '<div class="empty"><h3>No customer chats yet</h3><p class="muted">Customer conversations started from their account will appear here.</p></div>'}
+        <p class="chat-local-note">Customer chats are stored in this browser only.</p></section>`;
+      body = chatInbox + `<section class="admin-contact-messages"><div class="admin-bar"><h2 style="margin:0">Contact form messages (${msgs.length})</h2><p class="muted" style="margin:0">For unsigned visitor inquiries, reply by email.</p></div>` + (msgs.length ? msgs.map((m) => {
         const replyHref = `mailto:${encodeURIComponent(m.email || '')}?subject=${encodeURIComponent('Re: ' + (m.subject || ''))}`;
         return `<div class="msg-card"><h4>${esc(m.subject)}</h4><small>${esc(m.name)} · ${esc(m.email)} · ${prettyDate(m.at)}</small><p style="margin:.5rem 0 0">${esc(m.message)}</p><p style="margin:.75rem 0 0"><a class="btn btn-ghost btn-sm" href="${esc(replyHref)}">Reply by email</a></p></div>`;
-      }).join('') : '<div class="empty"><h3>No messages</h3></div>');
+      }).join('') : '<div class="empty"><h3>No contact form messages</h3></div>') + '</section>';
     }
     root.innerHTML = `<div class="stat-grid"><div class="stat"><b>${state.products.length}</b><span>Products</span></div><div class="stat"><b>${lowCount}</b><span>Low / out of stock</span></div><div class="stat"><b>${state.orders.length}</b><span>Orders (${pending} pending)</span></div><div class="stat"><b>${peso(revenue)}</b><span>Total sales</span></div></div>
-      <div class="tabs" style="max-width:480px" role="tablist">${['products', 'orders', 'messages'].map((t) => `<button type="button" role="tab" class="${adminTab === t ? 'active' : ''}" aria-selected="${adminTab === t}" data-action="admin-tab" data-tab="${t}">${t[0].toUpperCase() + t.slice(1)}</button>`).join('')}</div>
+      <div class="tabs" style="max-width:560px" role="tablist" aria-label="Admin dashboard sections">${['overview', 'products', 'orders', 'messages'].map((t) => `<button type="button" role="tab" class="${adminTab === t ? 'active' : ''}" aria-selected="${adminTab === t}" data-action="admin-tab" data-tab="${t}">${t[0].toUpperCase() + t.slice(1)}</button>`).join('')}</div>
       ${body}
       <p style="margin-top:2rem"><button class="link-btn" data-action="reset-demo">Reset all demo data</button></p>`;
   }
@@ -1454,6 +1571,7 @@ function renderHome() {
       case 'logout': closeMenus(); logout(); break;
       case 'auth-tab': setAuthTab(el.dataset.tab); break;
       case 'admin-tab': adminTab = el.dataset.tab; renderAdmin(); break;
+      case 'admin-chat-select': activeCustomerChatEmail = el.dataset.email; renderAdmin(); break;
       case 'admin-add': productFormModal(null); break;
       case 'admin-edit': productFormModal(getProduct(id)); break;
       case 'admin-delete': {
@@ -1495,6 +1613,8 @@ function renderHome() {
       case 'productForm': handleProductForm(f); break;
       case 'reviewForm': handleReviewForm(f); break;
       case 'profileForm': handleProfileForm(f); break;
+      case 'customerChatForm': handleCustomerChatForm(f); break;
+      case 'ownerChatForm': handleOwnerChatForm(f); break;
       case 'promoForm': applyPromo(new FormData(f).get('code')); break;
       default: break;
     }
@@ -1540,12 +1660,21 @@ function renderHome() {
     nav.classList.toggle('open', open); $('#menuBtn').setAttribute('aria-expanded', String(open));
   });
   window.addEventListener('storage', (e) => {
+    if (e.key === 'bb_conversations') {
+      state.conversations = store.get('conversations', []);
+      if (currentPage === 'chat' && currentUser() && currentUser().role !== 'admin') renderCustomerChat();
+      else if (currentPage === 'admin' && adminTab === 'messages') renderAdmin();
+      return;
+    }
     if (e.key !== 'bb_users' && e.key !== 'bb_session') return;
     state.users = store.get('users', []);
     state.session = store.get('session', null);
     renderAuthArea();
     if (currentPage === 'profile' && currentUser()) renderProfile();
-    else if (['checkout', 'orders', 'profile', 'admin', 'confirmation'].includes(currentPage) && !currentUser()) route();
+    else if (currentPage === 'chat' && currentUser() && currentUser().role === 'admin') route();
+    else if (currentPage === 'chat' && currentUser()) renderCustomerChat();
+    else if (currentPage === 'admin' && !isAdmin()) route();
+    else if (['checkout', 'orders', 'profile', 'chat', 'admin', 'confirmation'].includes(currentPage) && !currentUser()) route();
   });
   window.addEventListener('hashchange', route);
 
