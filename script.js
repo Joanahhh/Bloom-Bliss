@@ -381,7 +381,7 @@
           const previousContactIds = new Set(state.messages.map((message) => message.id).filter(Boolean));
           await loadCloudState(state.authUser);
           const newNotifications = state.ownerOrderNotifications.filter((id) => !previousNotifications.includes(id));
-          if (isAdmin() && newNotifications.length && !(currentPage === 'admin' && adminTab === 'orders')) {
+          if (isAdmin() && newNotifications.length) {
             const order = state.orders.find((item) => item.id === newNotifications[newNotifications.length - 1]);
             toast(order ? `New order from ${order.customer}.` : 'New customer order received.');
           }

@@ -35,9 +35,11 @@ orders, reviews, preferences, customer chats, contact messages, and owner
 notifications. The public project URL and publishable key are configured in
 supabase-config.js. Never put a Supabase service-role key in browser code.
 
-Database setup: supabase/schema.sql has been applied to the configured Supabase
-project, and the app tables are visible in the public schema. For a fresh
-Supabase project, open its SQL Editor and run supabase/schema.sql first.
+Database setup: supabase/schema.sql has already created the app tables in the
+configured Supabase project. For a fresh project, run supabase/schema.sql in the
+SQL Editor, then run supabase/seed-catalog.sql to add the storefront catalog.
+The catalog seed contains 32 bouquets and 11 add-ons, is safe to rerun, and
+does not overwrite existing product rows.
 
 To enable owner features:
 1. Register the owner's account through the storefront using the intended owner
@@ -45,9 +47,8 @@ To enable owner features:
 2. In the SQL Editor, promote that verified account (replace the example email):
    update public.profiles set role = 'admin'
    where lower(email) = lower('owner@example.com');
-3. Sign in to the storefront as the owner at least once. This seeds the initial
-   storefront catalog in the products table. Customers can place orders only
-   after this catalog sync has completed.
+3. Sign in to the storefront as the owner to access the admin dashboard. The
+   catalog seed is separate and does not require the owner to sign in first.
 
 The schema migration is idempotent and configures row-level security. Existing
 browser-only accounts and their password hashes are not imported; each user
