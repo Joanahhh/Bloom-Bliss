@@ -259,8 +259,10 @@ main:focus { outline: none; }
 .icon-btn:hover { background: var(--blush); text-decoration: none; transform: translateY(-1px); }
 .icon-btn svg { width: 22px; height: 22px; }
 .theme-toggle {
-  display: inline-grid; place-items: center; width: 42px; height: 42px; flex: 0 0 42px;
-  padding: 0; border: 0; border-radius: 4px; background: transparent; color: var(--maroon);
+  position: fixed; right: 1rem; bottom: 1rem; z-index: 100;
+  display: inline-grid; place-items: center; width: 46px; height: 46px;
+  padding: 0; border: 1px solid var(--line); border-radius: 50%; background: rgba(255,255,255,.96); color: var(--maroon);
+  box-shadow: var(--shadow);
   transition: background .35s var(--glide), color .35s var(--glide), transform .45s var(--glide);
 }
 .theme-toggle:hover { background: var(--blush); transform: translateY(-1px); }
@@ -715,7 +717,7 @@ td select { min-height: 36px; padding: .3rem .6rem; }
 .modal-card.small { width: min(100%, 440px); }
 .modal-card.medium { width: min(100%, 640px); }
 .website-qr-card {
-  position: fixed; right: 1rem; bottom: 1rem; z-index: 90; display: grid; justify-items: center; gap: .3rem;
+  position: fixed; right: 1rem; bottom: 4.75rem; z-index: 90; display: grid; justify-items: center; gap: .3rem;
   width: 116px; padding: .55rem; background: rgba(255,255,255,.97); border: 1px solid var(--line);
   box-shadow: var(--shadow); color: var(--maroon); text-align: center;
 }
@@ -808,7 +810,7 @@ td select { min-height: 36px; padding: .3rem .6rem; }
   .brand img { width: 28px; height: 28px; }
   .header-actions { flex: 0 0 auto; gap: 0; }
   .header-actions > a[href="#/wishlist"] { display: none; }
-  .header-actions .icon-btn, .menu-btn, .theme-toggle { width: 34px; height: 34px; flex: 0 0 34px; }
+  .header-actions .icon-btn, .menu-btn { width: 34px; height: 34px; flex: 0 0 34px; }
   .header-actions .icon-btn svg { width: 20px; height: 20px; }
   .header-actions .user-btn { width: 34px; height: 34px; }
   .header-actions #authArea { display: flex; }
@@ -841,7 +843,7 @@ td select { min-height: 36px; padding: .3rem .6rem; }
   .tile-five, .tile-eight, .tile-fifteen { display: none; }
   .auth-main { padding: 1.5rem 1.2rem; }
   #toasts { left: 1rem; right: 1rem; max-width: none; }
-  .website-qr-card { right: .6rem; bottom: .6rem; width: 96px; padding: .45rem; gap: .25rem; }
+  .website-qr-card { right: .6rem; bottom: 4.1rem; width: 96px; padding: .45rem; gap: .25rem; }
   .website-qr-card img { width: 68px; height: 68px; }
   .website-qr-label { font-size: .64rem; }
   .website-qr-url { font-size: .43rem; }
@@ -1043,6 +1045,7 @@ h1, h2, h3, h4 { letter-spacing: -.01em; }
 :root[data-theme="dark"] textarea::placeholder { color: var(--muted); }
 :root[data-theme="dark"] .theme-toggle:hover,
 :root[data-theme="dark"] .icon-btn:hover { background: #382831; }
+:root[data-theme="dark"] .theme-toggle { background: #241e23; color: var(--text); }
 :root[data-theme="dark"] .top-promo h2,
 :root[data-theme="dark"] .section.dark h2,
 :root[data-theme="dark"] .section.dark h3 { color: #fff; }
