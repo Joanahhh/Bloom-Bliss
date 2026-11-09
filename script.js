@@ -807,6 +807,20 @@
     if (location.hash === target) route(); else location.hash = target;
   }
 
+  let loaderHideTimer = null;
+  function showLoader() {
+    const loader = $('#loader');
+    if (!loader) return;
+    clearTimeout(loaderHideTimer);
+    loader.classList.remove('done');
+  }
+  function hideLoader() {
+    const loader = $('#loader');
+    if (!loader) return;
+    clearTimeout(loaderHideTimer);
+    loaderHideTimer = setTimeout(() => loader.classList.add('done'), 700);
+  }
+
   function route() {
     const parsed = parseHash();
     let page = parsed.page; params = parsed.params;
@@ -2049,6 +2063,11 @@
   }
 
   document.addEventListener('click', async (e) => {
+    const checkoutLink = e.target.closest('a[href="#/checkout"]');
+    if (checkoutLink) {
+      showLoader();
+      hideLoader();
+    }
     const inUser = e.target.closest('.user-menu');
     if (!inUser) { const dd = $('#userDropdown'); if (dd && !dd.hidden) closeMenus(); }
     const link = e.target.closest('a[href^="#/"]');
@@ -2253,8 +2272,6 @@
     window.addEventListener('resize', updatePetalFall);
     if ('ResizeObserver' in window) new ResizeObserver(updatePetalFall).observe(document.body);
   }
-  function hideLoader() { const l = $('#loader'); if (l) { l.classList.add('done'); setTimeout(() => l.remove(), 800); } }
-
   function init() {
     $('#year').textContent = new Date().getFullYear();
     initPetals();
