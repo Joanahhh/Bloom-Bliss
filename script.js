@@ -809,7 +809,6 @@
   }
 
   let loaderHideTimer = null;
-  let welcomeButtonTimer = null;
   function showLoader() {
     const loader = $('#loader');
     if (!loader) return;
@@ -826,44 +825,116 @@
     showLoader();
     hideLoader(1400);
   }
+
+  let welcomeButtonTimer = null;
+  let welcomeInertState = [];
   function initializeWelcomeScreen() {
     if (store.get('welcomeSeen', false) === true) return;
     const screen = $('#welcomeScreen');
-    const content = $('.welcome-content', screen);
-    if (!screen || !content) return;
+    if (!screen) return;
+
+    const calyx = $('.welcome-calyx', screen);
+    const roseHead = $('.welcome-rose-head', screen);
+    const stem = $('.welcome-stem', screen);
+    const leafLeft = $('.welcome-leaf-left', screen);
+    const leafRight = $('.welcome-leaf-right', screen);
+    const layers = [
+      { count: 4, width: 30, height: 55, curl: 72, delay: 0.05, depth: 3, className: 'welcome-petal-bud' },
+      { count: 6, width: 46, height: 72, curl: 42, delay: 0.28, depth: 14, className: 'welcome-petal-core' },
+      { count: 8, width: 68, height: 98, curl: 8, delay: 0.65, depth: 32, className: 'welcome-petal-mid' },
+      { count: 10, width: 92, height: 124, curl: -28, delay: 1.05, depth: 54, className: 'welcome-petal-outer' }
+    ];
+
+    layers.forEach((layer, layerIndex) => {
+      const step = 360 / layer.count;
+      for (let index = 0; index < layer.count; index += 1) {
+        const petal = document.createElement('span');
+        const delay = layer.delay + index * 0.035;
+        petal.className = 'welcome-rose-petal ' + layer.className;
+        petal.style.width = layer.width + 'px';
+        petal.style.height = layer.height + 'px';
+        petal.style.setProperty('--angle', (layerIndex * 21 + index * step) + 'deg');
+        petal.style.setProperty('--curl', (layer.curl + (Math.random() - 0.5) * 8) + 'deg');
+        petal.style.setProperty('--depth', (layer.depth + Math.random() * 5) + 'px');
+        petal.style.setProperty('--petal-scale', (0.94 + Math.random() * 0.12).toFixed(2));
+        petal.style.setProperty('--bloom-delay', delay + 's');
+        petal.style.setProperty('--bloom-duration', (1.8 + Math.random() * 0.3) + 's');
+        roseHead.appendChild(petal);
+      }
+    });
+
+    for (let index = 0; index < 5; index += 1) {
+      const sepal = document.createElement('span');
+      sepal.className = 'welcome-sepal';
+      sepal.style.setProperty('--sepal-angle', (index * 72 + (Math.random() - 0.5) * 5) + 'deg');
+      sepal.style.setProperty('--sepal-curl', (18 + Math.random() * 8) + 'deg');
+      sepal.style.setProperty('--sepal-delay', (0.25 + index * 0.06) + 's');
+      calyx.appendChild(sepal);
+    }
+
     screen.hidden = false;
     screen.setAttribute('aria-hidden', 'false');
     document.body.classList.add('no-scroll');
-    $$('body > :not(#welcomeScreen):not(#loader)').forEach((element) => { element.inert = true; });
+    welcomeInertState = Array.from(document.body.children)
+      .filter((element) => element !== screen)
+      .map((element) => ({ element, inert: element.inert }));
+    welcomeInertState.forEach(({ element }) => { element.inert = true; });
     requestAnimationFrame(() => {
       screen.classList.add('is-visible');
-      content.focus();
+      screen.focus();
     });
+
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    welcomeButtonTimer = setTimeout(() => {
-      const button = $('.welcome-button', screen);
-      if (button) {
-        button.disabled = false;
-        button.classList.add('is-ready');
-      }
-    }, reducedMotion ? 50 : 1550);
+    stem.classList.add('is-grown');
+    if (reducedMotion) {
+      leafLeft.classList.add('is-visible');
+      leafRight.classList.add('is-visible');
+      calyx.classList.add('is-open');
+      roseHead.classList.add('is-blooming');
+      $('#welcomeAmbient').classList.add('is-lit');
+      welcomeButtonTimer = setTimeout(showWelcomeButton, 100);
+      return;
+    }
+
+    setTimeout(() => leafLeft.classList.add('is-visible'), 700);
+    setTimeout(() => leafRight.classList.add('is-visible'), 950);
+    setTimeout(() => {
+      calyx.classList.add('is-open');
+      roseHead.classList.add('is-blooming');
+      $('#welcomeAmbient').classList.add('is-lit');
+    }, 1900);
+    welcomeButtonTimer = setTimeout(showWelcomeButton, 5500);
+  }
+  function showWelcomeButton() {
+    const button = $('.welcome-button');
+    const screen = $('#welcomeScreen');
+    if (!button || !screen || screen.hidden || screen.classList.contains('is-leaving')) return;
+    button.disabled = false;
+    button.classList.add('is-ready');
   }
   function dismissWelcomeScreen() {
     const screen = $('#welcomeScreen');
     if (!screen || screen.hidden || screen.classList.contains('is-leaving')) return;
-    if (!store.set('welcomeSeen', true)) toast('Your welcome preference could not be saved, so this screen may appear again.', 'error');
+    const preferenceSaved = store.set('welcomeSeen', true);
     clearTimeout(welcomeButtonTimer);
     screen.classList.add('is-leaving');
+    if (screen.contains(document.activeElement)) document.activeElement.blur();
+    screen.inert = true;
     screen.setAttribute('aria-hidden', 'true');
     document.body.classList.add('site-entering');
     hideLoader(0);
     setTimeout(() => {
       screen.hidden = true;
       screen.classList.remove('is-visible', 'is-leaving');
-      document.body.classList.remove('no-scroll', 'site-entering');
-      $$('body > :not(#welcomeScreen):not(#loader)').forEach((element) => { element.inert = false; });
+      document.body.classList.remove('no-scroll');
+      welcomeInertState.forEach(({ element, inert }) => { element.inert = inert; });
+      welcomeInertState = [];
+      document.body.classList.remove('site-entering');
       $('#main').focus();
-    }, 700);
+      if (!preferenceSaved) {
+        toast('Your welcome preference could not be saved, so this screen may appear again.', 'error');
+      }
+    }, 850);
   }
 
   function route() {
@@ -2324,8 +2395,8 @@
   }
   function init() {
     $('#year').textContent = new Date().getFullYear();
-    initializeWelcomeScreen();
     initPetals();
+    initializeWelcomeScreen();
     checkImages();
     syncCart();
     startBackgroundMusic();
