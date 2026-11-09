@@ -835,10 +835,10 @@
     showLoader();
     loader.classList.add('tab-transition');
     flower.replaceWith(flower.cloneNode(true));
-    hideLoader(1750);
+    hideLoader(750);
     tabBloomCleanupTimer = setTimeout(() => {
       loader.classList.remove('tab-transition');
-    }, 2050);
+    }, 1050);
   }
   function scheduleInitialLoaderHide() {
     clearTimeout(initialLoaderTimer);

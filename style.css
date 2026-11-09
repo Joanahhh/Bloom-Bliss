@@ -77,7 +77,7 @@ main:focus { outline: none; }
 #loader.tab-transition .loader-welcome,
 #loader.tab-transition .loader-bloom h2,
 #loader.tab-transition .loader-tagline { display: none; }
-#loader.tab-transition .loader-bloom .flower { animation-duration: 2s; }
+#loader.tab-transition .loader-bloom .flower { animation-duration: 1s; }
 .loader-flower-shapes { position: absolute; width: 0; height: 0; overflow: hidden; }
 .loader-flower-field { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 .loader-mini-flower {
