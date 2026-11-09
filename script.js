@@ -1793,7 +1793,7 @@
       body = `<div class="admin-bar"><div><h2 style="margin:0">Orders (${orders.length})</h2><p class="muted" style="margin:.25rem 0 0">Update an order to Delivered when it arrives; customer confirmation is not required.</p></div></div>` + (orders.length ? `<div class="table-wrap"><table><thead><tr><th>Order</th><th>Customer</th><th>Placed</th><th>Delivery</th><th>Total</th><th>Status</th><th></th></tr></thead><tbody>
         ${orders.map((o) => `<tr><td><strong>${esc(o.id)}</strong></td><td>${esc(o.customer)}<br><small class="muted">${esc(o.user)}</small></td><td>${prettyDate(o.createdAt)}</td><td>${prettyDate(o.delivery.date)}<br><small class="muted">${esc(o.delivery.time)}</small></td><td>${peso(o.totals.total)}</td>
           <td><select data-admin-status="${esc(o.id)}" aria-label="Status for order ${esc(o.id)}" ${o.status === 'Cancelled' ? 'disabled' : ''}>${STATUSES.map((s) => `<option ${s === o.status ? 'selected' : ''}>${s}</option>`).join('')}</select></td>
-          <td><div class="row-actions"><button class="btn btn-primary btn-sm" data-action="admin-mark-delivered" data-id="${esc(o.id)}" ${o.status === 'Delivered' || o.status === 'Cancelled' ? 'disabled' : ''}>Mark delivered</button><button class="btn btn-ghost btn-sm" data-action="admin-order" data-id="${esc(o.id)}">Details</button></div></td></tr>`).join('')}
+          <td><button class="btn btn-ghost btn-sm" data-action="admin-order" data-id="${esc(o.id)}">Details</button></td></tr>`).join('')}
         </tbody></table></div>` : '<div class="empty"><h3>No orders yet</h3><p class="muted">Orders placed by customers will appear here.</p></div>');
     } else {
       const msgs = state.messages.slice().reverse();
@@ -2098,7 +2098,6 @@
         break;
       }
       case 'admin-order': { const o = state.orders.find((x) => x.id === id); if (o) orderDetailModal(o); break; }
-      case 'admin-mark-delivered': await setAdminOrderStatus(id, 'Delivered', el); break;
       case 'cancel-order': {
         const u = currentUser();
         const o = state.orders.find((order) => order.id === id && u && order.user === u.email);
