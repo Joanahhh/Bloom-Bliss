@@ -794,6 +794,7 @@
   const NAV_MAP = { home: 'home', shop: 'shop', categories: 'categories', occasions: 'occasions', addons: 'addons', about: 'about', branches: 'branches', contact: 'contact' };
   let currentPage = 'home';
   let params = new URLSearchParams();
+  let lastRouteKey = null;
 
   function parseHash() {
     const h = location.hash.replace(/^#\/?/, '');
@@ -814,16 +815,22 @@
     clearTimeout(loaderHideTimer);
     loader.classList.remove('done');
   }
-  function hideLoader() {
+  function hideLoader(delay = 700) {
     const loader = $('#loader');
     if (!loader) return;
     clearTimeout(loaderHideTimer);
-    loaderHideTimer = setTimeout(() => loader.classList.add('done'), 700);
+    loaderHideTimer = setTimeout(() => loader.classList.add('done'), delay);
+  }
+  function startTabTransition() {
+    showLoader();
+    hideLoader(1400);
   }
 
   function route() {
     const parsed = parseHash();
     let page = parsed.page; params = parsed.params;
+    const routeKey = location.hash;
+    if (lastRouteKey !== null && routeKey !== lastRouteKey) startTabTransition();
 
     // Guards
     if (page === 'checkout' || page === 'orders' || page === 'confirmation' || page === 'profile' || page === 'chat') {
@@ -836,6 +843,7 @@
     }
 
     currentPage = page;
+    lastRouteKey = routeKey;
     $$('.page').forEach((p) => p.classList.remove('active'));
     const el = $('#page-' + page); el.classList.add('active');
     const qrCard = $('.website-qr-card'); if (qrCard) qrCard.hidden = page !== 'home';
@@ -2063,11 +2071,6 @@
   }
 
   document.addEventListener('click', async (e) => {
-    const checkoutLink = e.target.closest('a[href="#/checkout"]');
-    if (checkoutLink) {
-      showLoader();
-      hideLoader();
-    }
     const inUser = e.target.closest('.user-menu');
     if (!inUser) { const dd = $('#userDropdown'); if (dd && !dd.hidden) closeMenus(); }
     const link = e.target.closest('a[href^="#/"]');
@@ -2113,8 +2116,14 @@
       case 'confirm-ok': { const r = modalResolve; modalResolve = null; closeModal(); if (r) r(true); break; }
       case 'toggle-user': { const dd = $('#userDropdown'); const open = dd.hidden; dd.hidden = !open; el.setAttribute('aria-expanded', String(open)); break; }
       case 'logout': closeMenus(); logout(); break;
-      case 'auth-tab': setAuthTab(el.dataset.tab); break;
-      case 'admin-tab': adminTab = el.dataset.tab; renderAdmin(); break;
+      case 'auth-tab':
+        if (el.getAttribute('aria-selected') !== 'true') startTabTransition();
+        setAuthTab(el.dataset.tab);
+        break;
+      case 'admin-tab':
+        if (el.getAttribute('aria-selected') !== 'true') startTabTransition();
+        adminTab = el.dataset.tab; renderAdmin();
+        break;
       case 'admin-chat-select': activeCustomerChatEmail = el.dataset.email; renderAdmin(); break;
       case 'admin-add': productFormModal(null); break;
       case 'admin-edit': productFormModal(getProduct(id)); break;
