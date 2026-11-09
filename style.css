@@ -71,6 +71,13 @@ main:focus { outline: none; }
   background: var(--ivory); transition: opacity .6s var(--ease), visibility .6s;
 }
 #loader.done { opacity: 0; visibility: hidden; }
+#loader.tab-transition { transition-duration: .25s; }
+#loader.tab-transition .loader-flower-field,
+#loader.tab-transition .loader-butterfly,
+#loader.tab-transition .loader-welcome,
+#loader.tab-transition .loader-bloom h2,
+#loader.tab-transition .loader-tagline { display: none; }
+#loader.tab-transition .loader-bloom .flower { animation-duration: 2s; }
 .welcome-screen {
   position: fixed; inset: 0; z-index: 3000; overflow: hidden; isolation: isolate;
   background: radial-gradient(ellipse at 50% 75%,#120105 0%,#050002 55%,#000 100%);
@@ -78,21 +85,6 @@ main:focus { outline: none; }
 }
 .welcome-screen.is-visible { opacity: 1; visibility: visible; }
 .welcome-screen.is-leaving { opacity: 0; visibility: hidden; pointer-events: none; }
-.tab-bloom-loader {
-  position: fixed; inset: 0; z-index: 2500; overflow: hidden; isolation: isolate;
-  background: radial-gradient(ellipse at 50% 75%,#120105 0%,#050002 55%,#000 100%);
-  opacity: 0; visibility: hidden; pointer-events: none;
-  transition: opacity .25s ease, visibility .25s ease;
-}
-.tab-bloom-loader.is-visible { opacity: 1; visibility: visible; }
-.tab-bloom-loader .welcome-scene { padding-bottom: 0; }
-.tab-bloom-loader .welcome-stem-group, .tab-bloom-loader .welcome-calyx { visibility: hidden; }
-.tab-bloom-loader .welcome-rose-wrapper { transform: scale(.9) rotateX(-22deg) rotateY(0deg); }
-.tab-bloom-loader .welcome-rose-petal {
-  transition-duration: 1.15s, .75s;
-}
-.tab-bloom-loader .welcome-rose-glow { transition-duration: 1s; }
-.tab-bloom-loader .welcome-rose-glow-inner { transition-duration: .8s; }
 .welcome-vignette { position: fixed; inset: 0; z-index: 100; background: radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,.9) 100%); pointer-events: none; }
 .welcome-spotlight { position: fixed; top: 35%; left: 50%; width: 85vw; height: 85vh; transform: translate(-50%,-50%); background: radial-gradient(circle,rgba(255,30,80,.06),transparent 70%); filter: blur(50px); z-index: 1; pointer-events: none; }
 .welcome-ambient {
