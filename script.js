@@ -186,7 +186,7 @@
           );
           if (error) throw error;
         }
-      } else if (['cart', 'wish', 'promo'].includes(key)) {
+      } else if (['cart', 'wish'].includes(key)) {
         const value = state[key];
         const { error } = await supabaseClient.from('user_preferences').upsert(
           { user_id: state.authUser.id, key, value },
@@ -210,7 +210,6 @@
     if (authUser && previousAuthUserId !== authUser.id) {
       state.cart = [];
       state.wish = [];
-      state.promo = null;
     }
     state.authUser = authUser || null;
     state.profile = null;
@@ -270,7 +269,7 @@
         loadedPreferences.add(preference.key);
         store.set(preference.key, preference.value);
       });
-      await Promise.all(['cart', 'wish', 'promo']
+      await Promise.all(['cart', 'wish']
         .filter((key) => !loadedPreferences.has(key))
         .map((key) => persistCloudKey(key)));
 
