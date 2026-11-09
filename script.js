@@ -123,6 +123,7 @@
     session: store.get('session', null),
     orders: store.get('orders', []),
     messages: store.get('messages', []),
+    reviews: store.get('reviews', []),
     promo: store.get('promo', null)
   };
   if (!state.users) {
@@ -361,7 +362,9 @@
     if (err && err.textContent) { err.textContent = ''; t.removeAttribute('aria-invalid'); }
   });
   document.addEventListener('change', (e) => {
-    const t = e.target; if (!t || !t.name || !t.form) return;
+    const t = e.target;
+    if (t && t.id === 'profilePhotoInput') { handleProfilePhotoInput(t); return; }
+    if (!t || !t.name || !t.form) return;
     const err = t.form.querySelector(`[data-error-for="${t.name}"]`);
     if (err && err.textContent) { err.textContent = ''; t.removeAttribute('aria-invalid'); }
   });
@@ -378,10 +381,22 @@
      6. Product card + shared render helpers
      ------------------------------------------------------------------------ */
   const stars = (r) => `<span class="stars" style="--r:${f1(r / 5 * 100)}%" role="img" aria-label="Rated ${r} out of 5">★★★★★</span>`;
+  function reviewsFor(pid) {
+    return state.reviews.filter((review) => review.productId === pid).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }
+  function productRating(p) {
+    const written = reviewsFor(p.id);
+    const baseCount = Math.max(0, Number(p.reviews) || 0);
+    const baseRating = Number(p.rating) || 0;
+    const count = baseCount + written.length;
+    const total = written.reduce((sum, review) => sum + review.rating, baseRating * baseCount);
+    return { count, average: count ? total / count : 0 };
+  }
 
   function productCard(p) {
     const out = p.stock <= 0; const low = !out && p.stock <= 5;
     const wished = state.wish.includes(p.id);
+    const rating = productRating(p);
     const tag = out ? '<span class="tag out">Sold out</span>' : p.best ? '<span class="tag">Bestseller</span>' : low ? '<span class="tag">Low stock</span>' : '';
     return `<article class="card product-card reveal" data-id="${esc(p.id)}" data-category="${esc(p.category)}" data-price="${p.price}" data-stock="${p.stock}" data-rating="${p.rating}" data-reviews="${p.reviews}" data-best="${!!p.best}" ${p.message ? 'data-message="true" ' : ''}data-occasions="${esc((p.occasions || []).join(','))}" data-art="${esc(JSON.stringify(p.art))}">
       <div class="card-media">
@@ -394,7 +409,7 @@
         <h3>${esc(p.name)}</h3>
         <p class="desc">${esc(p.desc)}</p>
         ${p.message ? `<label class="sr-only" for="msg-${esc(p.id)}">Your message for ${esc(p.name)}</label><textarea id="msg-${esc(p.id)}" class="addon-msg" maxlength="300" placeholder="Write your own message for the card (optional)"></textarea>` : ''}
-        ${p.reviews ? `<div class="rating">${stars(p.rating)} <span>${p.rating.toFixed(1)} (${p.reviews})</span></div>` : ''}
+        <div class="product-rating-row">${rating.count ? `<div class="rating">${stars(rating.average)} <span>${rating.average.toFixed(1)} (${rating.count})</span></div>` : '<span class="muted" style="font-size:.8rem">No ratings yet</span>'}<button type="button" class="link-btn" data-action="quick" data-id="${esc(p.id)}">${reviewsFor(p.id).length ? `Read feedback (${reviewsFor(p.id).length})` : 'Write a review'}</button></div>
         <div class="card-foot">
           <span class="price">${peso(p.price)}</span>
           <button class="btn btn-primary btn-sm" data-action="add" data-id="${esc(p.id)}" ${out ? 'disabled' : ''}>${out ? 'Sold out' : 'Add to Cart'}</button>
@@ -509,8 +524,8 @@
   /* ------------------------------------------------------------------------
      8. Router
      ------------------------------------------------------------------------ */
-  const PAGES = ['home', 'shop', 'categories', 'occasions', 'addons', 'cart', 'login', 'checkout', 'confirmation', 'wishlist', 'orders', 'about', 'contact', 'admin'];
-  const NAV_MAP = { home: 'home', shop: 'shop', categories: 'categories', occasions: 'occasions', addons: 'addons', about: 'about', contact: 'contact' };
+  const PAGES = ['home', 'shop', 'categories', 'occasions', 'addons', 'cart', 'login', 'checkout', 'confirmation', 'wishlist', 'orders', 'profile', 'about', 'branches', 'contact', 'admin'];
+  const NAV_MAP = { home: 'home', shop: 'shop', categories: 'categories', occasions: 'occasions', addons: 'addons', about: 'about', branches: 'branches', contact: 'contact' };
   let currentPage = 'home';
   let params = new URLSearchParams();
 
@@ -531,8 +546,8 @@
     let page = parsed.page; params = parsed.params;
 
     // Guards
-    if (page === 'checkout' || page === 'orders' || page === 'confirmation') {
-      if (!currentUser()) { go('login', { next: page === 'confirmation' ? 'orders' : page, notice: page === 'checkout' ? 'checkout' : 'orders' }); return; }
+    if (page === 'checkout' || page === 'orders' || page === 'confirmation' || page === 'profile') {
+      if (!currentUser()) { go('login', { next: page === 'confirmation' ? 'orders' : page, notice: page === 'checkout' ? 'checkout' : page === 'profile' ? 'profile' : 'orders' }); return; }
     }
     if (page === 'admin' && !isAdmin()) {
       if (!currentUser()) { go('login', { next: 'admin', notice: 'admin' }); } else { toast('Admin access only.', 'error'); go('home'); }
@@ -560,6 +575,8 @@
       case 'confirmation': renderConfirmation(); break;
       case 'wishlist': renderWishlist(); break;
       case 'orders': renderOrders(); break;
+      case 'profile': renderProfile(); break;
+      case 'branches': renderBranches(); break;
       case 'admin': renderAdmin(); break;
       default: break;
     }
@@ -615,7 +632,7 @@ function renderHome() {
       (shopFilters.occ === 'all' || (p.occasions || []).includes(shopFilters.occ)));
     const sorters = {
       'price-asc': (a, b) => a.price - b.price, 'price-desc': (a, b) => b.price - a.price,
-      rating: (a, b) => b.rating - a.rating || b.reviews - a.reviews, name: (a, b) => a.name.localeCompare(b.name)
+      rating: (a, b) => productRating(b).average - productRating(a).average || productRating(b).count - productRating(a).count, name: (a, b) => a.name.localeCompare(b.name)
     };
     if (sorters[shopFilters.sort]) list = list.slice().sort(sorters[shopFilters.sort]);
     $('#resultCount').textContent = list.length + (list.length === 1 ? ' bouquet' : ' bouquets') + ' found';
@@ -745,15 +762,17 @@ function renderHome() {
   }
 
   /* ---- Auth ---- */
-  function renderAuthArea() {
+  function renderAuthArea(avatarOverride) {
     const u = currentUser(); const box = $('#authArea'); if (!box) return;
     if (!u) {
       box.innerHTML = `<a class="icon-btn" href="#/login" aria-label="Login or sign up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg></a>`;
       return;
     }
-    box.innerHTML = `<div class="user-menu"><button class="icon-btn user-btn" data-action="toggle-user" aria-haspopup="true" aria-expanded="false" aria-label="Account menu for ${esc(u.name)}">${esc(u.name.charAt(0).toUpperCase())}</button>
+    const avatarSrc = avatarOverride === undefined ? u.avatar : avatarOverride;
+    const avatar = avatarSrc ? `<img class="user-avatar-image" src="${esc(avatarSrc)}" alt="">` : esc(u.name.charAt(0).toUpperCase());
+    box.innerHTML = `<div class="user-menu"><button class="icon-btn user-btn" data-action="toggle-user" aria-haspopup="true" aria-expanded="false" aria-label="Account menu for ${esc(u.name)}">${avatar}</button>
       <div class="dropdown" id="userDropdown" hidden><p>Signed in as<br><strong>${esc(u.name)}</strong></p>
-        <a href="#/orders">My Orders</a><a href="#/wishlist">Wishlist</a>${u.role === 'admin' ? '<a href="#/admin">Admin Dashboard</a>' : ''}
+        <a href="#/profile">${u.role === 'admin' ? 'Owner Profile' : 'My Profile'}</a><a href="#/orders">My Orders</a><a href="#/wishlist">Wishlist</a>${u.role === 'admin' ? '<a href="#/admin">Admin Dashboard</a>' : ''}
         <button type="button" data-action="logout">Logout</button></div></div>`;
   }
   function setAuthTab(tab) {
@@ -765,7 +784,7 @@ function renderHome() {
   function prepareLogin() {
     setAuthTab(params.get('tab') === 'register' ? 'register' : 'login');
     const notice = $('#authNotice'); const n = params.get('notice');
-    const msgs = { checkout: 'Please log in or sign up to complete your order. Your cart is saved.', orders: 'Please log in to view your orders.', admin: 'Please log in with an administrator account.' };
+    const msgs = { checkout: 'Please log in or sign up to complete your order. Your cart is saved.', orders: 'Please log in to view your orders.', profile: 'Please log in to view your profile.', admin: 'Please log in with an administrator account.' };
     notice.hidden = !msgs[n]; notice.textContent = msgs[n] || '';
     if (currentUser()) { go(params.get('next') || 'home'); }
   }
@@ -819,7 +838,7 @@ function renderHome() {
   }
   function logout() {
     state.session = null; save('session'); renderAuthArea(); toast('You have been logged out.');
-    if (['checkout', 'orders', 'admin', 'confirmation'].includes(currentPage)) go('home'); else route();
+    if (['checkout', 'orders', 'profile', 'admin', 'confirmation'].includes(currentPage)) go('home'); else route();
   }
 
   /* ---- Checkout ---- */
@@ -948,23 +967,224 @@ function renderHome() {
     observeReveals();
   }
 
+  function showBranchMap(button) {
+    const query = button.dataset.mapQuery;
+    const encoded = encodeURIComponent(query);
+    const map = $('#branchMap');
+    const directions = $('#branchDirections');
+    if (!map || !directions) return;
+    map.src = `https://maps.google.com/maps?q=${encoded}&output=embed`;
+    map.title = `Map of sample location near ${query}`;
+    directions.href = `https://www.google.com/maps/search/?api=1&query=${encoded}`;
+    $$('#branchList [data-action="show-branch-map"]').forEach((item) => {
+      const selected = item === button;
+      item.classList.toggle('active', selected);
+      item.setAttribute('aria-pressed', String(selected));
+    });
+  }
+  function renderBranches() {
+    const first = $('#branchList [data-action="show-branch-map"]');
+    if (first) showBranchMap(first);
+  }
+
   /* ---- Orders ---- */
   const statusClass = (s) => s.toLowerCase().replace(/\s+/g, '-');
   function progressHTML(status) {
+    if (status === 'Cancelled') return '<p class="order-cancelled-note">This order was cancelled.</p>';
     const idx = STATUSES.indexOf(status);
     return `<div class="progress" aria-label="Order progress: ${esc(status)}">${STATUSES.map((s, i) => `<div class="${i <= idx ? 'done' : ''}">${s}</div>`).join('')}</div>`;
+  }
+  function canCancelOrder(o) { return o.status === 'Pending'; }
+  function cancelOrder(id) {
+    const u = currentUser();
+    const o = state.orders.find((order) => order.id === id && u && order.user === u.email);
+    if (!o || !canCancelOrder(o)) { toast('Only pending orders can be cancelled.', 'error'); return; }
+    o.items.forEach((item) => {
+      if (!item.pid) return;
+      const product = getProduct(item.pid);
+      if (product) product.stock += item.qty;
+    });
+    o.status = 'Cancelled';
+    o.cancelledAt = new Date().toISOString();
+    save('orders', 'products');
+    renderOrders();
+    updateBadges();
+    toast('Order ' + o.id + ' cancelled.');
   }
   function orderCard(o) {
     return `<article class="order-card"><div class="order-head"><div><h3>Order ${esc(o.id)}</h3><span class="muted" style="font-size:.82rem">Placed ${prettyDate(o.createdAt)}</span></div>
       <span class="status ${statusClass(o.status)}">${esc(o.status)}</span></div>
       ${progressHTML(o.status)}
       <div class="order-items">${o.items.map((i) => `<div style="display:flex;gap:.6rem;align-items:center"><div class="thumb">${prodMedia(i, i.name)}</div><div style="font-size:.84rem"><strong>${esc(i.name)}</strong><br><span class="muted">Qty ${i.qty} · ${peso(i.price * i.qty)}</span>${i.message ? `<br><span class="muted"><em>Card message: “${esc(i.message)}”</em></span>` : ''}</div></div>`).join('')}</div>
-      <div class="order-meta"><div><b>Delivery</b>${prettyDate(o.delivery.date)} · ${esc(o.delivery.time)}</div><div><b>Recipient</b>${esc(o.recipient.name)}<br>${esc(o.recipient.city)}</div><div><b>Payment</b>${esc(o.payment)}</div><div><b>Total</b><strong style="font-size:1.1rem;color:var(--burgundy)">${peso(o.totals.total)}</strong></div></div></article>`;
+      <div class="order-meta"><div><b>Delivery</b>${prettyDate(o.delivery.date)} · ${esc(o.delivery.time)}</div><div><b>Recipient</b>${esc(o.recipient.name)}<br>${esc(o.recipient.city)}</div><div><b>Payment</b>${esc(o.payment)}</div><div><b>Total</b><strong style="font-size:1.1rem;color:var(--burgundy)">${peso(o.totals.total)}</strong></div></div>
+      ${canCancelOrder(o) ? `<div class="order-actions"><button type="button" class="btn btn-danger btn-sm" data-action="cancel-order" data-id="${esc(o.id)}">Cancel Order</button></div>` : ''}</article>`;
   }
   function renderOrders() {
     const u = currentUser(); const root = $('#ordersRoot');
     const mine = state.orders.filter((o) => o.user === u.email).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
     root.innerHTML = mine.length ? mine.map(orderCard).join('') : `<div class="empty"><h3>No orders yet</h3><p class="muted">When you place an order, it will appear here.</p><a class="btn btn-primary" href="#/shop">Start shopping</a></div>`;
+  }
+
+  function renderProfile() {
+    const root = $('#profileRoot');
+    const user = currentUser();
+    if (!root || !user) return;
+    const isOwner = user.role === 'admin';
+    const orderCount = state.orders.filter((order) => order.user === user.email).length;
+    root.innerHTML = `<div class="profile-layout">
+      <aside class="profile-summary">
+        <div class="profile-avatar-wrap">
+          <div class="profile-avatar" aria-hidden="true">${user.avatar ? `<img src="${esc(user.avatar)}" alt="">` : esc(user.name.charAt(0).toUpperCase())}</div>
+          <input id="profilePhotoInput" class="profile-photo-input" type="file" accept="image/png,image/jpeg,image/webp" aria-label="Add or change profile picture">
+          <label class="profile-photo-add" for="profilePhotoInput" aria-hidden="true">+</label>
+        </div>
+        <button type="button" class="link-btn profile-photo-remove" data-action="remove-profile-photo" ${user.avatar ? '' : 'hidden'}>Remove profile picture</button>
+        <p class="eyebrow">${isOwner ? 'Owner account' : 'Customer account'}</p>
+        <h2>${esc(user.name)}</h2>
+        <p class="muted">${esc(user.email)}</p>
+        <span class="profile-role">${isOwner ? 'Shop Owner' : 'Customer'}</span>
+        <p>${isOwner ? 'Manage your owner account and storefront.' : `You have ${orderCount} ${orderCount === 1 ? 'order' : 'orders'} in this browser.`}</p>
+        ${isOwner ? '<a class="btn btn-primary btn-sm" href="#/admin">Open Admin Dashboard</a>' : '<a class="btn btn-ghost btn-sm" href="#/orders">View My Orders</a>'}
+      </aside>
+      <form class="form-card profile-form" id="profileForm" novalidate>
+        <h2>${isOwner ? 'Owner Profile' : 'My Profile'}</h2>
+        <p class="muted">Update the account details used to sign in.</p>
+        <div class="form-alert error" id="profileError" role="alert" hidden></div>
+        <div class="field"><label for="profileName">Full name</label><input id="profileName" name="name" type="text" autocomplete="name" value="${esc(user.name)}"><span class="error" data-error-for="name" role="alert"></span></div>
+        <div class="field"><label for="profileEmail">Email address</label><input id="profileEmail" name="email" type="email" autocomplete="email" value="${esc(user.email)}"><span class="error" data-error-for="email" role="alert"></span></div>
+        <div class="profile-password-section"><h3>Change password <span class="muted">(optional)</span></h3>
+          <div class="field"><label for="profileCurrentPassword">Current password</label><input id="profileCurrentPassword" name="currentPassword" type="password" autocomplete="current-password"><span class="error" data-error-for="currentPassword" role="alert"></span></div>
+          <div class="form-row">
+            <div class="field"><label for="profileNewPassword">New password</label><input id="profileNewPassword" name="newPassword" type="password" autocomplete="new-password"><span class="error" data-error-for="newPassword" role="alert"></span></div>
+            <div class="field"><label for="profileConfirmPassword">Confirm new password</label><input id="profileConfirmPassword" name="confirmPassword" type="password" autocomplete="new-password"><span class="error" data-error-for="confirmPassword" role="alert"></span></div>
+          </div>
+        </div>
+        <p class="profile-storage-note">This demo saves your profile in this browser only.</p>
+        <button class="btn btn-primary" type="submit">Save Profile</button>
+      </form>
+    </div>`;
+    $('#profileForm').dataset.avatar = user.avatar || '';
+  }
+  function resizeProfilePhoto(file) {
+    return new Promise((resolve, reject) => {
+      if (!file || !['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
+        reject(new Error('Choose a PNG, JPG, or WebP image.'));
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        reject(new Error('Profile pictures must be 5 MB or smaller.'));
+        return;
+      }
+      const source = URL.createObjectURL(file);
+      const image = new Image();
+      image.onload = () => {
+        URL.revokeObjectURL(source);
+        const scale = Math.min(1, 256 / Math.max(image.naturalWidth, image.naturalHeight));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+        canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+        const context = canvas.getContext('2d');
+        if (!context) { reject(new Error('Your browser could not process this image.')); return; }
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        try {
+          resolve(canvas.toDataURL('image/jpeg', .82));
+        } catch (error) {
+          reject(new Error('Your browser could not prepare this image.'));
+        }
+      };
+      image.onerror = () => {
+        URL.revokeObjectURL(source);
+        reject(new Error('This image could not be opened. Try another picture.'));
+      };
+      image.src = source;
+    });
+  }
+  async function handleProfilePhotoInput(input) {
+    const form = $('#profileForm');
+    const file = input.files && input.files[0];
+    if (!form || !file) return;
+    const error = $('#profileError');
+    error.hidden = true;
+    try {
+      const avatar = await resizeProfilePhoto(file);
+      form.dataset.avatar = avatar;
+      const summary = $('.profile-avatar');
+      if (summary) summary.innerHTML = `<img src="${esc(avatar)}" alt="">`;
+      renderAuthArea(avatar);
+      const remove = $('.profile-photo-remove');
+      if (remove) remove.hidden = false;
+    } catch (reason) {
+      error.hidden = false;
+      error.textContent = reason.message;
+      input.value = '';
+    }
+  }
+  function removeProfilePhoto(button) {
+    const form = $('#profileForm');
+    if (!form) return;
+    form.dataset.avatar = '';
+    const user = currentUser();
+    const summary = $('.profile-avatar');
+    if (summary && user) summary.textContent = user.name.charAt(0).toUpperCase();
+    renderAuthArea('');
+    button.hidden = true;
+    const input = $('#profilePhotoInput');
+    if (input) input.value = '';
+  }
+  function handleProfileForm(form) {
+    const user = currentUser();
+    if (!user) { go('login', { next: 'profile', notice: 'profile' }); return; }
+    const oldEmail = user.email;
+    const data = validate(form, {
+      name: (value) => value.length < 2 ? 'Please enter your name.' : '',
+      email: (value) => !value ? 'Please enter your email.' : !EMAIL_RE.test(value) ? 'Enter a valid email address.' : state.users.some((account) => account.email.toLowerCase() === value.toLowerCase() && account.email.toLowerCase() !== oldEmail.toLowerCase()) ? 'This email is already used by another account.' : '',
+      currentPassword: (value) => !value ? 'Enter your current password to save profile changes.' : hash(value) !== user.pass ? 'Your current password is incorrect.' : '',
+      newPassword: (value) => value && (value.length < 8 || !/[A-Za-z]/.test(value) || !/\d/.test(value)) ? 'Use at least 8 characters with both letters and numbers.' : '',
+      confirmPassword: (value, all) => all.newPassword && value !== all.newPassword ? 'Passwords do not match.' : all.newPassword && !value ? 'Please confirm your new password.' : ''
+    });
+    if (!data) return;
+
+    const email = data.email.toLowerCase();
+    const name = data.name.trim();
+    const users = clone(state.users);
+    const orders = clone(state.orders);
+    const reviews = clone(state.reviews);
+    const account = users.find((item) => item.email === oldEmail);
+    if (!account) { toast('Could not find your account. Please sign in again.', 'error'); return; }
+    account.name = name;
+    account.email = email;
+    account.avatar = form.dataset.avatar || '';
+    if (data.newPassword) account.pass = hash(data.newPassword);
+    orders.forEach((order) => {
+      if (order.user === oldEmail) { order.user = email; order.customer = name; }
+    });
+    reviews.forEach((review) => {
+      if (review.user === oldEmail) { review.user = email; review.customer = name.trim().split(/\s+/)[0]; }
+    });
+
+    const previous = { users: state.users, orders: state.orders, reviews: state.reviews, session: state.session };
+    const updates = { users, orders, reviews, session: email };
+    const saved = [];
+    for (const key of Object.keys(updates)) {
+      if (!store.set(key, updates[key])) {
+        saved.reverse().forEach((savedKey) => {
+          if (!store.set(savedKey, previous[savedKey])) console.error('Could not roll back profile update for browser data:', savedKey);
+        });
+        const error = $('#profileError');
+        error.hidden = false;
+        error.textContent = 'Your profile could not be saved in this browser. Check storage availability and try again.';
+        return;
+      }
+      saved.push(key);
+    }
+
+    state.users = users;
+    state.orders = orders;
+    state.reviews = reviews;
+    state.session = email;
+    renderAuthArea();
+    renderProfile();
+    toast('Your profile was updated.');
   }
 
   /* ---- Admin ---- */
@@ -1070,6 +1290,45 @@ function renderHome() {
         <div><b>Address</b>${esc(o.recipient.address)}, ${esc(o.recipient.city)} ${esc(o.recipient.zip)}</div><div><b>Delivery</b>${prettyDate(o.delivery.date)} · ${esc(o.delivery.time)}${o.delivery.note ? '<br><em>' + esc(o.delivery.note) + '</em>' : ''}</div><div><b>Payment</b>${esc(o.payment)}</div></div>`, 'medium');
   }
 
+  function reviewFormHTML(p, existing) {
+    const user = currentUser();
+    if (!user) return '<p class="muted">Please <a href="#/login" data-action="close-modal">sign in</a> to leave feedback.</p>';
+    if (user.role === 'admin') return '<p class="muted">Sign in with a customer account to leave product feedback.</p>';
+    return `<form id="reviewForm" data-product-id="${esc(p.id)}" novalidate>
+      <h3>${existing ? 'Update your feedback' : 'Share your feedback'}</h3>
+      <div class="field"><label for="reviewRating">Your rating</label><select id="reviewRating" name="rating"><option value="">Choose a rating…</option>${[5, 4, 3, 2, 1].map((rating) => `<option value="${rating}" ${existing && existing.rating === rating ? 'selected' : ''}>${rating} out of 5 stars</option>`).join('')}</select><span class="error" data-error-for="rating" role="alert"></span></div>
+      <div class="field"><label for="reviewText">Your feedback</label><textarea id="reviewText" name="review" maxlength="500" placeholder="What did you think of this product?">${esc(existing ? existing.text : '')}</textarea><span class="error" data-error-for="review" role="alert"></span></div>
+      <button class="btn btn-primary btn-sm" type="submit">${existing ? 'Update feedback' : 'Submit feedback'}</button>
+    </form>`;
+  }
+  function handleReviewForm(form) {
+    const user = currentUser();
+    if (!user || user.role === 'admin') { toast('Sign in with a customer account to leave feedback.', 'error'); return; }
+    const p = getProduct(form.dataset.productId);
+    if (!p) { toast('This product is no longer available.', 'error'); return; }
+    const data = validate(form, {
+      rating: (value) => !/^[1-5]$/.test(value) ? 'Choose a rating from 1 to 5 stars.' : '',
+      review: (value) => value.length < 10 ? 'Please write at least 10 characters.' : ''
+    });
+    if (!data) return;
+    const current = state.reviews.slice();
+    const index = current.findIndex((review) => review.productId === p.id && review.user === user.email);
+    const review = {
+      productId: p.id,
+      user: user.email,
+      customer: user.name.trim().split(/\s+/)[0],
+      rating: Number(data.rating),
+      text: data.review,
+      createdAt: new Date().toISOString()
+    };
+    if (index >= 0) current[index] = review;
+    else current.push(review);
+    if (!store.set('reviews', current)) { toast('Could not save your feedback in this browser.', 'error'); return; }
+    state.reviews = current;
+    toast(index >= 0 ? 'Your feedback was updated.' : 'Thank you for your feedback!');
+    quickView(p.id);
+  }
+
   /* ---- Contact ---- */
   function handleContact(form) {
     const data = validate(form, {
@@ -1087,16 +1346,25 @@ function renderHome() {
   function quickView(pid) {
     const p = getProduct(pid); if (!p) return;
     const out = p.stock <= 0; const wished = state.wish.includes(p.id);
+    const rating = productRating(p);
+    const reviews = reviewsFor(p.id);
+    const user = currentUser();
+    const existing = user && user.role !== 'admin' ? reviews.find((review) => review.user === user.email) : null;
     openModal(`<div class="quick"><div class="art">${prodMedia(p, p.name)}</div><div>
       <p class="eyebrow">${esc(catLabel(p.category))}</p><h2>${esc(p.name)}</h2>
-      ${p.reviews ? `<div class="rating">${stars(p.rating)} <span>${p.rating.toFixed(1)} (${p.reviews} reviews)</span></div>` : ''}
+      ${rating.count ? `<div class="rating">${stars(rating.average)} <span>${rating.average.toFixed(1)} (${rating.count} ratings)</span></div>` : '<p class="muted">No ratings yet</p>'}
       <p style="margin-top:.8rem">${esc(p.desc)}</p>
       ${(p.occasions || []).length ? `<p class="muted" style="font-size:.85rem">Great for: ${p.occasions.map((o) => esc(occLabel(o))).join(', ')}</p>` : ''}
       ${p.message ? `<label class="sr-only" for="qv-msg">Your message for the card</label><textarea id="qv-msg" class="addon-msg" maxlength="300" placeholder="Write your own message for the card (optional)"></textarea>` : ''}
       <p class="price" style="font-size:1.8rem">${peso(p.price)}</p>
       <p class="stock ${out ? 'none' : p.stock <= 5 ? 'low' : ''}">${out ? 'Currently unavailable' : p.stock <= 5 ? 'Only ' + p.stock + ' left' : 'In stock'}</p>
       <div class="row-actions"><button class="btn btn-primary" data-action="add" data-id="${esc(p.id)}" ${out ? 'disabled' : ''}>${out ? 'Sold out' : 'Add to Cart'}</button>
-      <button class="btn btn-ghost" data-action="wish" data-id="${esc(p.id)}" aria-pressed="${wished}">${wished ? '♥ In wishlist' : '♡ Add to wishlist'}</button></div></div></div>`);
+      <button class="btn btn-ghost" data-action="wish" data-id="${esc(p.id)}" aria-pressed="${wished}">${wished ? '♥ In wishlist' : '♡ Add to wishlist'}</button></div></div></div>
+      <section class="product-reviews" aria-labelledby="productReviewsTitle"><h3 id="productReviewsTitle">Customer feedback (${reviews.length})</h3>
+        <p class="review-demo-note">Feedback is saved in this browser demo and is not shared across devices.</p>
+        ${reviews.length ? `<div class="review-list">${reviews.map((review) => `<article class="review-entry"><div class="review-entry-head"><strong>${esc(review.customer)}</strong><span class="muted">${prettyDate(review.createdAt)}</span></div><div class="rating">${stars(review.rating)} <span>${review.rating} out of 5</span></div><p>${esc(review.text)}</p></article>`).join('')}</div>` : '<p class="muted">No written feedback yet. Be the first to share your thoughts.</p>'}
+        ${reviewFormHTML(p, existing)}
+      </section>`);
   }
 
   /* ------------------------------------------------------------------------
@@ -1177,6 +1445,7 @@ function renderHome() {
       case 'remove': removeLine(key); break;
       case 'save-message': saveCartMessage(key, el); break;
       case 'remove-promo': state.promo = null; save('promo'); renderCart(); toast('Promo code removed'); break;
+      case 'show-branch-map': showBranchMap(el); break;
       case 'filter-cat': shopFilters.cat = el.dataset.cat; renderShop(); break;
       case 'reset-filters': shopFilters.q = ''; shopFilters.cat = 'all'; shopFilters.occ = 'all'; shopFilters.sort = 'featured'; applyShopParams(); renderShop(); break;
       case 'close-modal': closeModal(); break;
@@ -1197,6 +1466,16 @@ function renderHome() {
         break;
       }
       case 'admin-order': { const o = state.orders.find((x) => x.id === id); if (o) orderDetailModal(o); break; }
+      case 'cancel-order': {
+        const u = currentUser();
+        const o = state.orders.find((order) => order.id === id && u && order.user === u.email);
+        if (!o || !canCancelOrder(o)) { toast('Only pending orders can be cancelled.', 'error'); break; }
+        confirmBox('Cancel this order?', 'Your pending order will be cancelled and its reserved stock returned.', 'Cancel Order').then((ok) => {
+          if (ok) cancelOrder(id);
+        });
+        break;
+      }
+      case 'remove-profile-photo': removeProfilePhoto(el); break;
       case 'reset-demo':
         confirmBox('Reset demo data?', 'This clears all products, accounts, carts, wishlists and orders in this browser and restores the sample shop.', 'Reset').then((ok) => {
           if (!ok) return; store.clearAll(); location.hash = '#/home'; location.reload();
@@ -1214,6 +1493,8 @@ function renderHome() {
       case 'checkoutForm': handleCheckout(f); break;
       case 'contactForm': handleContact(f); break;
       case 'productForm': handleProductForm(f); break;
+      case 'reviewForm': handleReviewForm(f); break;
+      case 'profileForm': handleProfileForm(f); break;
       case 'promoForm': applyPromo(new FormData(f).get('code')); break;
       default: break;
     }
@@ -1257,6 +1538,14 @@ function renderHome() {
   $('#menuBtn').addEventListener('click', () => {
     const nav = $('#nav'); const open = !nav.classList.contains('open');
     nav.classList.toggle('open', open); $('#menuBtn').setAttribute('aria-expanded', String(open));
+  });
+  window.addEventListener('storage', (e) => {
+    if (e.key !== 'bb_users' && e.key !== 'bb_session') return;
+    state.users = store.get('users', []);
+    state.session = store.get('session', null);
+    renderAuthArea();
+    if (currentPage === 'profile' && currentUser()) renderProfile();
+    else if (['checkout', 'orders', 'profile', 'admin', 'confirmation'].includes(currentPage) && !currentUser()) route();
   });
   window.addEventListener('hashchange', route);
 

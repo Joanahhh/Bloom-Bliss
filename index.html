@@ -6,7 +6,7 @@
   <title>Bloom &amp; Bliss — Every Bloom Tells a Story</title>
   <meta name="description" content="Bloom &amp; Bliss is an elegant online flower shop. Shop bouquets, add-ons and gifts, and send flowers for every occasion.">
   <meta name="theme-color" content="#70263D">
-  <link rel="icon" type="image/png" href="PICTURES/brand-mark.png">
+  <link rel="icon" type="image/png" href="PICTURES/LOGO.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&amp;family=Poppins:wght@400;500;600&amp;display=swap" rel="stylesheet">
@@ -104,6 +104,7 @@
       <a href="#/occasions" data-nav="occasions">Occasions</a>
       <a href="#/addons" data-nav="addons">Add-ons</a>
       <a href="#/about" data-nav="about">About</a>
+      <a href="#/branches" data-nav="branches">Branches</a>
       <a href="#/contact" data-nav="contact">Contact</a>
     </nav>
 
@@ -1580,6 +1581,12 @@
     <div class="container section" id="ordersRoot"></div>
   </section>
 
+  <!-- ============ ACCOUNT PROFILE ============ -->
+  <section class="page" id="page-profile" data-title="My Profile">
+    <div class="page-hero"><div class="container"><p class="eyebrow">Your account</p><h1>Profile</h1><p>Manage your customer or shop owner account details.</p></div></div>
+    <div class="container section" id="profileRoot"></div>
+  </section>
+
   <!-- ============ ABOUT ============ -->
   <section class="page" id="page-about" data-title="About Us">
     <div class="page-hero"><div class="container"><p class="eyebrow">About Us</p><h1>Our Story</h1></div></div>
@@ -1609,6 +1616,34 @@
           <div class="card reveal"><div class="ico">🌷</div><h3>Freshness first</h3><p class="muted">Flowers are sourced and arranged daily so they bloom longer in your home.</p></div>
           <div class="card reveal"><div class="ico">🤍</div><h3>Made with care</h3><p class="muted">Each bouquet is hand-tied by a florist who treats it like a gift to a friend.</p></div>
           <div class="card reveal"><div class="ico">🌿</div><h3>Kind to the planet</h3><p class="muted">Recyclable wrapping, minimal plastic, and locally grown blooms where possible.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BRANCH LOCATIONS ============ -->
+  <section class="page" id="page-branches" data-title="Branch Locations">
+    <div class="page-hero"><div class="container"><p class="eyebrow">Find us in Davao</p><h1>Branch Locations</h1><p>Explore sample locations around Davao City landmarks.</p></div></div>
+    <div class="container section">
+
+      <div class="branches-layout">
+        <div class="branch-list" id="branchList" aria-label="Sample Davao locations">
+          <article class="branch-card">
+            <h2>Central Davao</h2><p class="muted">Near People’s Park, Poblacion District</p>
+            <button type="button" class="btn btn-ghost btn-sm" data-action="show-branch-map" data-map-query="People's Park, Davao City">Show on map</button>
+          </article>
+          <article class="branch-card">
+            <h2>Davao North</h2><p class="muted">Near SM Lanang Premier, Lanang</p>
+            <button type="button" class="btn btn-ghost btn-sm" data-action="show-branch-map" data-map-query="SM Lanang Premier, Davao City">Show on map</button>
+          </article>
+          <article class="branch-card">
+            <h2>Davao South</h2><p class="muted">Near SM City Davao, Ecoland</p>
+            <button type="button" class="btn btn-ghost btn-sm" data-action="show-branch-map" data-map-query="SM City Davao, Ecoland, Davao City">Show on map</button>
+          </article>
+        </div>
+        <div class="branch-map-wrap">
+          <iframe id="branchMap" title="Map of sample Bloom &amp; Bliss location in Davao" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          <a id="branchDirections" class="btn btn-primary" href="https://www.google.com/maps/search/?api=1&amp;query=People%27s%20Park%2C%20Davao%20City" target="_blank" rel="noopener noreferrer">Open directions in Google Maps</a>
         </div>
       </div>
     </div>
@@ -1672,12 +1707,12 @@
         <p style="max-width:320px;opacity:.85">“Every Bloom Tells a Story.” Hand-tied bouquets for the moments that matter most.</p>
       </div>
       <div><h4>Shop</h4><ul><li><a href="#/shop">All Flowers</a></li><li><a href="#/categories">Categories</a></li><li><a href="#/occasions">Occasions</a></li><li><a href="#/addons">Add-ons</a></li></ul></div>
-      <div><h4>Account</h4><ul><li><a href="#/login">Login / Sign Up</a></li><li><a href="#/orders">My Orders</a></li><li><a href="#/wishlist">Wishlist</a></li><li><a href="#/cart">Cart</a></li></ul></div>
-      <div><h4>Company</h4><ul><li><a href="#/about">About Us</a></li><li><a href="#/contact">Contact Us</a></li></ul></div>
+      <div><h4>Account</h4><ul><li><a href="#/login">Login / Sign Up</a></li><li><a href="#/profile">My Profile</a></li><li><a href="#/orders">My Orders</a></li><li><a href="#/wishlist">Wishlist</a></li><li><a href="#/cart">Cart</a></li></ul></div>
+      <div><h4>Company</h4><ul><li><a href="#/about">About Us</a></li><li><a href="#/branches">Branches</a></li><li><a href="#/contact">Contact Us</a></li></ul></div>
     </div>
     <div class="footer-bottom">
       <span>© <span id="year"></span> Bloom &amp; Bliss. All rights reserved.</span>
-      <span>Frontend demo — accounts, payments and orders are simulated in your browser.</span>
+      <span>Frontend demo — accounts, payments, orders and feedback are saved in this browser only.</span>
     </div>
   </div>
 </footer>
