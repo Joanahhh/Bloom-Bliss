@@ -122,6 +122,7 @@
     users: store.get('users', null),
     session: store.get('session', null),
     orders: store.get('orders', []),
+    ownerOrderNotifications: store.get('ownerOrderNotifications', []),
     messages: store.get('messages', []),
     conversations: store.get('conversations', []),
     reviews: store.get('reviews', []),
@@ -158,6 +159,15 @@
   const getProduct = (id) => state.products.find((p) => p.id === id);
   const currentUser = () => state.users.find((u) => u.email === state.session) || null;
   const isAdmin = () => { const u = currentUser(); return !!u && u.role === 'admin'; };
+  function addOwnerOrderNotification(order) {
+    if (state.ownerOrderNotifications.includes(order.id)) return;
+    const notifications = state.ownerOrderNotifications.concat(order.id);
+    if (!store.set('ownerOrderNotifications', notifications)) {
+      toast('Your order was placed, but the owner notification could not be saved.', 'error');
+      return;
+    }
+    state.ownerOrderNotifications = notifications;
+  }
   const catLabel = (id) => (CATEGORIES.concat(ADDON_CATS).find((c) => c.id === id) || { label: id }).label;
   const occLabel = (id) => (OCCASIONS.find((o) => o.id === id) || { label: id }).label;
 
@@ -781,7 +791,10 @@ function renderHome() {
     }
     const avatarSrc = avatarOverride === undefined ? u.avatar : avatarOverride;
     const avatar = avatarSrc ? `<img class="user-avatar-image" src="${esc(avatarSrc)}" alt="">` : esc(u.name.charAt(0).toUpperCase());
-    box.innerHTML = `<div class="user-menu"><button class="icon-btn user-btn" data-action="toggle-user" aria-haspopup="true" aria-expanded="false" aria-label="Account menu for ${esc(u.name)}">${avatar}</button>
+    const notifications = u.role === 'admin' ? state.ownerOrderNotifications.length : 0;
+    const notificationLink = u.role === 'admin' ? `<a href="#/admin?tab=orders" class="icon-btn owner-order-notifications" aria-label="${notifications ? `${notifications} new customer ${notifications === 1 ? 'order' : 'orders'}` : 'Customer order notifications'}" title="${notifications ? `${notifications} new customer ${notifications === 1 ? 'order' : 'orders'}` : 'Customer order notifications'}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg><span class="badge owner-order-badge" data-count="${notifications}">${notifications || ''}</span></a>` : '';
+    box.innerHTML = `${notificationLink}<div class="user-menu"><button class="icon-btn user-btn" data-action="toggle-user" aria-haspopup="true" aria-expanded="false" aria-label="Account menu for ${esc(u.name)}">${avatar}</button>
       <div class="dropdown" id="userDropdown" hidden><p>Signed in as<br><strong>${esc(u.name)}</strong></p>
         <a href="#/profile">${u.role === 'admin' ? 'Owner Profile' : 'My Profile'}</a>${u.role === 'admin' ? '<a href="#/admin">Admin Dashboard</a>' : '<a href="#/chat">Chat with shop</a><a href="#/orders">My Orders</a><a href="#/wishlist">Wishlist</a>'}
         <button type="button" data-action="logout">Logout</button></div></div>`;
@@ -955,6 +968,7 @@ function renderHome() {
     state.cart.forEach((line) => { if (line.pid) { const p = getProduct(line.pid); if (p) p.stock = Math.max(0, p.stock - line.qty); } });
     state.orders.push(order); state.cart = []; state.promo = null;
     save('orders', 'products', 'cart', 'promo'); updateBadges();
+    if (u.role !== 'admin') addOwnerOrderNotification(order);
     toast('Order placed! Thank you 🌸'); go('confirmation', { id: order.id });
   }
   function renderConfirmation() {
@@ -1286,6 +1300,12 @@ function renderHome() {
 
   function renderAdmin() {
     const root = $('#adminRoot'); if (!root) return;
+    if (adminTab === 'orders' && state.ownerOrderNotifications.length) {
+      const unread = state.ownerOrderNotifications;
+      state.ownerOrderNotifications = [];
+      if (!store.set('ownerOrderNotifications', state.ownerOrderNotifications)) state.ownerOrderNotifications = unread;
+      else renderAuthArea();
+    }
     const revenue = state.orders.filter((o) => o.status !== 'Cancelled').reduce((s, o) => s + o.totals.total, 0);
     const lowCount = state.products.filter((p) => p.stock <= 5).length;
     const pending = state.orders.filter((o) => o.status === 'Pending').length;
@@ -1660,6 +1680,18 @@ function renderHome() {
     nav.classList.toggle('open', open); $('#menuBtn').setAttribute('aria-expanded', String(open));
   });
   window.addEventListener('storage', (e) => {
+    if (e.key === 'bb_ownerOrderNotifications') {
+      const previous = state.ownerOrderNotifications;
+      state.ownerOrderNotifications = store.get('ownerOrderNotifications', []);
+      renderAuthArea();
+      const newIds = state.ownerOrderNotifications.filter((id) => !previous.includes(id));
+      if (isAdmin() && newIds.length && !(currentPage === 'admin' && adminTab === 'orders')) {
+        const order = state.orders.find((item) => item.id === newIds[newIds.length - 1]);
+        toast(order ? `New order from ${order.customer}.` : 'New customer order received.');
+      }
+      if (currentPage === 'admin' && isAdmin() && adminTab === 'orders') renderAdmin();
+      return;
+    }
     if (e.key === 'bb_orders' || e.key === 'bb_products') {
       state.orders = store.get('orders', []);
       state.products = store.get('products', state.products);

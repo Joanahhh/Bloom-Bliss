@@ -872,6 +872,7 @@ h1, h2, h3, h4 { letter-spacing: -.01em; }
 .icon-btn, .wish-btn, .modal-close, .menu-btn { border-radius: 4px; }
 .icon-btn.user-btn { border-radius: 50%; }
 .icon-btn.user-btn .user-avatar-image { border-radius: 50%; }
+.owner-order-badge { border-radius: 999px; }
 
 /* Cards, panels, media */
 .card, .form-card, .summary, .order-card, .cart-item, .stat, .table-wrap,
