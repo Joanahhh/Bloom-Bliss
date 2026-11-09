@@ -1449,13 +1449,49 @@
     updateBadges();
     toast('Order ' + o.id + ' cancelled.');
   }
+  async function confirmOrderReceived(id, button) {
+    const user = currentUser();
+    const order = state.orders.find((item) => item.id === id && user && item.user === user.email);
+    if (!user || user.role === 'admin' || !order || order.status !== 'Delivered' || order.receivedAt) {
+      toast('This order is not awaiting your receipt confirmation.', 'error');
+      return;
+    }
+
+    button.disabled = true;
+    try {
+      const { data, error } = await supabaseClient.rpc('customer_confirm_order_received', {
+        target_order_id: order.id
+      });
+      if (error) {
+        reportCloudError('confirm order receipt', error);
+        button.disabled = false;
+        return;
+      }
+      const confirmedOrder = Array.isArray(data) ? data[0] : data;
+      if (!confirmedOrder) {
+        toast('The order could not be confirmed. Refresh your orders and try again.', 'error');
+        button.disabled = false;
+        return;
+      }
+      order.receivedAt = confirmedOrder.data && confirmedOrder.data.receivedAt
+        ? confirmedOrder.data.receivedAt
+        : new Date().toISOString();
+      renderOrders();
+      toast('Receipt confirmed. Thank you!');
+    } catch (error) {
+      reportCloudError('confirm order receipt', error);
+      button.disabled = false;
+    }
+  }
   function orderCard(o) {
+    const user = currentUser();
+    const canConfirmReceipt = user && user.role !== 'admin' && o.status === 'Delivered' && !o.receivedAt;
     return `<article class="order-card"><div class="order-head"><div><h3>Order ${esc(o.id)}</h3><span class="muted" style="font-size:.82rem">Placed ${prettyDate(o.createdAt)}</span></div>
       <span class="status ${statusClass(o.status)}">${esc(o.status)}</span></div>
       ${progressHTML(o.status)}
       <div class="order-items">${o.items.map((i) => `<div style="display:flex;gap:.6rem;align-items:center"><div class="thumb">${prodMedia(i, i.name)}</div><div style="font-size:.84rem"><strong>${esc(i.name)}</strong><br><span class="muted">Qty ${i.qty} · ${peso(i.price * i.qty)}</span>${i.message ? `<br><span class="muted"><em>Card message: “${esc(i.message)}”</em></span>` : ''}</div></div>`).join('')}</div>
       <div class="order-meta"><div><b>Delivery</b>${prettyDate(o.delivery.date)} · ${esc(o.delivery.time)}</div><div><b>Recipient</b>${esc(o.recipient.name)}<br>${esc(o.recipient.city)}</div><div><b>Payment</b>${esc(o.payment)}</div><div><b>Total</b><strong style="font-size:1.1rem;color:var(--burgundy)">${peso(o.totals.total)}</strong></div></div>
-      ${canCancelOrder(o) ? `<div class="order-actions"><button type="button" class="btn btn-danger btn-sm" data-action="cancel-order" data-id="${esc(o.id)}">Cancel Order</button></div>` : ''}</article>`;
+      ${canCancelOrder(o) || canConfirmReceipt ? `<div class="order-actions">${canCancelOrder(o) ? `<button type="button" class="btn btn-danger btn-sm" data-action="cancel-order" data-id="${esc(o.id)}">Cancel Order</button>` : ''}${canConfirmReceipt ? `<button type="button" class="btn btn-primary btn-sm" data-action="confirm-order-received" data-id="${esc(o.id)}">Order received</button>` : ''}</div>` : o.receivedAt ? '<p class="muted">Receipt confirmed. Thank you!</p>' : ''}</article>`;
   }
   function renderOrders() {
     const u = currentUser(); const root = $('#ordersRoot');
@@ -2098,6 +2134,7 @@
         break;
       }
       case 'admin-order': { const o = state.orders.find((x) => x.id === id); if (o) orderDetailModal(o); break; }
+      case 'confirm-order-received': await confirmOrderReceived(id, el); break;
       case 'cancel-order': {
         const u = currentUser();
         const o = state.orders.find((order) => order.id === id && u && order.user === u.email);

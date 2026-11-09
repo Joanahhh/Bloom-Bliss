@@ -42,6 +42,8 @@ The catalog seed contains 32 bouquets and 11 add-ons, is safe to rerun, and
 does not overwrite existing product rows.
 For an existing project, run supabase/update-order-status.sql in the SQL Editor
 to allow the owner to set an order to Delivered without customer confirmation.
+Run supabase/confirm-order-received.sql to enable customers to confirm receipt
+of their own delivered orders.
 
 To enable owner features:
 1. Register the owner's account through the storefront using the intended owner
