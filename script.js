@@ -1,11 +1,9 @@
 /* ==========================================================================
    Bloom & Bliss — Every Bloom Tells a Story
-   Vanilla JavaScript storefront (FRONTEND DEMO).
+   Vanilla JavaScript storefront backed by Supabase.
 
-   IMPORTANT: Accounts, passwords, orders and "payments" are simulated and
-   stored in this browser's localStorage. A real shop needs a secure backend
-   (authentication, hashed passwords, a database, a payment gateway, inventory
-   sync) — never store real customer or card data like this.
+   Payments remain simulated; customer accounts and shared shop data use
+   Supabase Auth and Postgres. Browser storage is only a local cache.
    ========================================================================== */
 'use strict';
 
@@ -19,6 +17,11 @@
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const clone = (o) => JSON.parse(JSON.stringify(o));
   const f1 = (n) => +n.toFixed(1);
+  const supabaseConfig = window.BLOOM_SUPABASE_CONFIG;
+  const supabaseClient = window.supabase && supabaseConfig
+    ? window.supabase.createClient(supabaseConfig.url, supabaseConfig.publishableKey)
+    : null;
+  let cloudReady = false;
 
   const PESO = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', maximumFractionDigits: 0 });
   const peso = (n) => PESO.format(Math.round(n));
@@ -39,13 +42,6 @@
     },
     clearAll() { try { Object.keys(localStorage).filter((k) => k.indexOf('bb_') === 0).forEach((k) => localStorage.removeItem(k)); } catch (e) { /* ignore */ } }
   };
-
-  // Demo-only hash. NOT secure — a real site hashes passwords on the server (bcrypt/argon2).
-  function hash(str) {
-    let h = 5381; const t = 'bb|' + str;
-    for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) >>> 0;
-    return h.toString(16);
-  }
 
   const dateStr = (offsetDays = 0) => {
     const d = new Date(); d.setDate(d.getDate() + offsetDays);
@@ -112,15 +108,17 @@
   ];
 
   /* ------------------------------------------------------------------------
-     3. State (persisted in localStorage)
+     3. State (cached locally and synchronized with Supabase)
      ------------------------------------------------------------------------ */
   const state = {
     products: [],
-    customProducts: store.get('products', null) !== null, // true once an admin edit or an order has changed the catalog
+    customProducts: store.get('products', null) !== null,
     cart: store.get('cart', []),
     wish: store.get('wish', []),
-    users: store.get('users', null),
-    session: store.get('session', null),
+    users: [],
+    session: null,
+    authUser: null,
+    profile: null,
     orders: store.get('orders', []),
     ownerOrderNotifications: store.get('ownerOrderNotifications', []),
     messages: store.get('messages', []),
@@ -128,13 +126,8 @@
     reviews: store.get('reviews', []),
     promo: store.get('promo', null)
   };
-  if (!state.users) {
-    state.users = [{ name: 'Shop Admin', email: 'admin@bloombliss.demo', pass: hash('Admin@123'), role: 'admin' }];
-    store.set('users', state.users);
-  }
 
-  /* The product catalog is written in index.html (#shopGrid > .product-card, data-* attributes).
-     On a fresh load we read it from there; after admin edits / orders the saved copy in localStorage wins. */
+  /* The product catalog starts from index.html, then Supabase is authoritative. */
   function readProductsFromDOM() {
     return $$('#shopGrid > .product-card, #addonGrid > .product-card').map((el) => {
       const d = el.dataset; const text = (sel) => ($(sel, el) ? $(sel, el).textContent.trim() : '');
@@ -150,23 +143,233 @@
   }
   const domProducts = readProductsFromDOM();
   state.products = state.customProducts ? store.get('products', []) : domProducts;
-  // The image written in index.html always wins, even after orders/admin edits were saved in localStorage.
+  // Use the packaged product image paths even if the cached catalog is older.
   state.products.forEach((p) => { const d = domProducts.find((x) => x.id === p.id); if (d && d.image) p.image = d.image; if (d && isAddon(d)) p.message = d.message; });
   // Add-ons written in index.html that are missing from an older saved catalog are added automatically.
   domProducts.forEach((d) => { if (isAddon(d) && !state.products.some((p) => p.id === d.id)) state.products.push(d); });
 
-  const save = (...keys) => keys.forEach((k) => { if (k === 'products') state.customProducts = true; store.set(k, state[k]); });
+  const save = (...keys) => keys.forEach((k) => {
+    if (k === 'products') state.customProducts = true;
+    store.set(k, state[k]);
+    if (cloudReady) persistCloudKey(k);
+  });
   const getProduct = (id) => state.products.find((p) => p.id === id);
-  const currentUser = () => state.users.find((u) => u.email === state.session) || null;
+  const currentUser = () => state.profile;
   const isAdmin = () => { const u = currentUser(); return !!u && u.role === 'admin'; };
-  function addOwnerOrderNotification(order) {
-    if (state.ownerOrderNotifications.includes(order.id)) return;
-    const notifications = state.ownerOrderNotifications.concat(order.id);
-    if (!store.set('ownerOrderNotifications', notifications)) {
-      toast('Your order was placed, but the owner notification could not be saved.', 'error');
-      return;
+  function reportCloudError(action, error) {
+    console.error(`Supabase ${action} failed.`, error);
+    if (error && (error.code === 'PGRST205' || error.code === '42P01')) {
+      toast('The Supabase database schema is not installed. Apply supabase/schema.sql, then reload.', 'error');
+    } else {
+      toast(`Could not ${action}. Please try again.`, 'error');
     }
-    state.ownerOrderNotifications = notifications;
+  }
+  async function persistCloudKey(key) {
+    if (!supabaseClient || !state.authUser) return;
+    try {
+      if (key === 'products' && isAdmin()) {
+        const { error } = await supabaseClient.from('products').upsert(
+          state.products.map((product) => ({ id: product.id, data: product }))
+        );
+        if (error) throw error;
+      } else if (['cart', 'wish', 'promo'].includes(key)) {
+        const value = state[key];
+        const { error } = await supabaseClient.from('user_preferences').upsert(
+          { user_id: state.authUser.id, key, value },
+          { onConflict: 'user_id,key' }
+        );
+        if (error) throw error;
+      } else if (key === 'orders' && isAdmin()) {
+        for (const order of state.orders) {
+          const { error } = await supabaseClient.from('orders')
+            .update({ status: order.status, data: order })
+            .eq('id', order.id);
+          if (error) throw error;
+        }
+      } else if (key === 'ownerOrderNotifications' && isAdmin() && !state.ownerOrderNotifications.length) {
+        const { error } = await supabaseClient.from('owner_notifications')
+          .update({ read_at: new Date().toISOString() }).is('read_at', null);
+        if (error) throw error;
+      }
+    } catch (error) {
+      reportCloudError(`save ${key}`, error);
+    }
+  }
+
+  async function loadCloudState(authUser) {
+    const previousAuthUserId = state.authUser && state.authUser.id;
+    if (authUser && previousAuthUserId && previousAuthUserId !== authUser.id) {
+      state.cart = [];
+      state.wish = [];
+      state.promo = null;
+    }
+    state.authUser = authUser || null;
+    state.profile = null;
+    state.session = null;
+    state.users = [];
+    state.ownerOrderNotifications = [];
+    state.messages = [];
+    state.conversations = [];
+
+    if (authUser) {
+      const { data: profile, error } = await supabaseClient.from('profiles')
+        .select('id,email,name,avatar,role').eq('id', authUser.id).maybeSingle();
+      if (error) throw error;
+      if (!profile) throw new Error('Your account profile is not ready. Contact the store owner.');
+      state.profile = profile;
+      state.session = profile.email;
+      const { data: profiles, error: profilesError } = await supabaseClient.from('profiles')
+        .select('id,email,name,avatar,role');
+      if (profilesError) throw profilesError;
+      state.users = profiles || [];
+    } else {
+      state.cart = store.get('cart', []);
+      state.wish = store.get('wish', []);
+      state.promo = store.get('promo', null);
+      state.orders = [];
+      state.ownerOrderNotifications = [];
+      state.conversations = [];
+      state.messages = [];
+    }
+
+    const [productResult, reviewResult] = await Promise.all([
+      supabaseClient.from('products').select('id,data'),
+      supabaseClient.from('reviews').select('id,product_id,user_id,customer_name,rating,text,created_at')
+    ]);
+    if (productResult.error) throw productResult.error;
+    if (reviewResult.error) throw reviewResult.error;
+    const cloudProducts = (productResult.data || []).map((row) => row.data);
+    state.customProducts = cloudProducts.length > 0;
+    state.products = cloudProducts.length ? cloudProducts : domProducts;
+    state.products.forEach((product) => {
+      const original = domProducts.find((item) => item.id === product.id);
+      if (original && original.image) product.image = original.image;
+    });
+    state.reviews = (reviewResult.data || []).map((review) => ({
+      id: review.id, productId: review.product_id, userId: review.user_id,
+      customer: review.customer_name, rating: review.rating, text: review.text,
+      createdAt: review.created_at
+    }));
+
+    if (authUser) {
+      const preferenceResult = await supabaseClient.from('user_preferences')
+        .select('key,value').eq('user_id', authUser.id);
+      if (preferenceResult.error) throw preferenceResult.error;
+      const loadedPreferences = new Set();
+      (preferenceResult.data || []).forEach((preference) => {
+        state[preference.key] = preference.value;
+        loadedPreferences.add(preference.key);
+        store.set(preference.key, preference.value);
+      });
+      await Promise.all(['cart', 'wish', 'promo']
+        .filter((key) => !loadedPreferences.has(key))
+        .map((key) => persistCloudKey(key)));
+
+      const orderResult = await supabaseClient.from('orders').select('id,status,data').order('created_at', { ascending: false });
+      if (orderResult.error) throw orderResult.error;
+      state.orders = (orderResult.data || []).map((row) => Object.assign({}, row.data, { id: row.id, status: row.status }));
+
+      const conversationResult = await supabaseClient.from('conversations')
+        .select('id,customer_id,updated_at,conversation_messages(id,sender_id,text,created_at)')
+        .order('updated_at', { ascending: false });
+      if (conversationResult.error) throw conversationResult.error;
+      const profilesById = new Map(state.users.map((profile) => [profile.id, profile]));
+      state.conversations = (conversationResult.data || []).map((conversation) => {
+        const customer = profilesById.get(conversation.customer_id) || state.profile;
+        return {
+          id: conversation.id, customerId: conversation.customer_id,
+          email: customer.email, name: customer.name,
+          messages: (conversation.conversation_messages || []).slice()
+            .sort((a, b) => a.created_at.localeCompare(b.created_at))
+            .map((message) => ({
+              from: message.sender_id === conversation.customer_id ? 'customer' : 'owner',
+              text: message.text, at: message.created_at
+            }))
+        };
+      });
+
+      if (isAdmin()) {
+        const [messageResult, notificationResult] = await Promise.all([
+          supabaseClient.from('contact_messages').select('name,email,subject,message,created_at').order('created_at', { ascending: false }),
+          supabaseClient.from('owner_notifications').select('order_id').is('read_at', null)
+        ]);
+        if (messageResult.error) throw messageResult.error;
+        if (notificationResult.error) throw notificationResult.error;
+        state.messages = (messageResult.data || []).map((message) => ({
+          name: message.name, email: message.email, subject: message.subject,
+          message: message.message, at: message.created_at
+        }));
+        state.ownerOrderNotifications = (notificationResult.data || []).map((notification) => notification.order_id);
+        if (!cloudProducts.length) {
+          const { error } = await supabaseClient.from('products').upsert(
+            domProducts.map((product) => ({ id: product.id, data: product }))
+          );
+          if (error) throw error;
+          state.products = domProducts;
+          state.customProducts = true;
+        }
+      }
+    }
+    cloudReady = true;
+    renderAuthArea();
+    updateBadges();
+  }
+
+  async function initializeSupabase() {
+    if (!supabaseClient) {
+      throw new Error('Supabase client library or public project configuration is unavailable.');
+    }
+    const { data, error } = await supabaseClient.auth.getSession();
+    if (error) throw error;
+    await loadCloudState(data.session ? data.session.user : null);
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+      setTimeout(async () => {
+        try {
+          await loadCloudState(session ? session.user : null);
+          if (event !== 'INITIAL_SESSION') route();
+        } catch (reason) {
+          reportCloudError('load your account data', reason);
+        }
+      }, 0);
+    });
+    subscribeToCloudChanges();
+  }
+
+  function renderAfterCloudRefresh() {
+    renderAuthArea();
+    if (currentPage === 'admin' && isAdmin()) renderAdmin();
+    else if (currentPage === 'orders' && currentUser() && !isAdmin()) renderOrders();
+    else if (currentPage === 'chat' && currentUser() && !isAdmin()) renderCustomerChat();
+    else if (currentPage === 'confirmation' && currentUser()) renderConfirmation();
+    else if (currentPage === 'home') renderHomeStats();
+    else if (currentPage === 'shop') renderShop();
+    else if (currentPage === 'addons') renderAddons();
+    else if (currentPage === 'profile' && currentUser()) renderProfile();
+  }
+
+  function subscribeToCloudChanges() {
+    let refreshQueue = Promise.resolve();
+    const tables = ['products', 'orders', 'reviews', 'conversations', 'conversation_messages', 'contact_messages', 'owner_notifications'];
+    let channel = supabaseClient.channel('bloom-bliss-store-data');
+    tables.forEach((table) => {
+      channel = channel.on('postgres_changes', { event: '*', schema: 'public', table }, () => {
+        refreshQueue = refreshQueue.then(async () => {
+          const previousNotifications = state.ownerOrderNotifications.slice();
+          await loadCloudState(state.authUser);
+          const newNotifications = state.ownerOrderNotifications.filter((id) => !previousNotifications.includes(id));
+          if (isAdmin() && newNotifications.length && !(currentPage === 'admin' && adminTab === 'orders')) {
+            const order = state.orders.find((item) => item.id === newNotifications[newNotifications.length - 1]);
+            toast(order ? `New order from ${order.customer}.` : 'New customer order received.');
+          }
+          renderAfterCloudRefresh();
+        }).catch((error) => reportCloudError('refresh shared store data', error));
+      });
+    });
+    channel.subscribe((status, error) => {
+      if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+        console.error('Supabase live updates are unavailable.', error || status);
+      }
+    });
   }
   const catLabel = (id) => (CATEGORIES.concat(ADDON_CATS).find((c) => c.id === id) || { label: id }).label;
   const occLabel = (id) => (OCCASIONS.find((o) => o.id === id) || { label: id }).label;
@@ -933,53 +1136,82 @@
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   function afterAuth() { const next = params.get('next'); go(PAGES.includes(next) ? next : 'home'); }
 
-  function handleLogin(form) {
+  async function handleLogin(form) {
     const data = validate(form, {
       email: (v) => !v ? 'Please enter your email.' : !EMAIL_RE.test(v) ? 'Enter a valid email address.' : '',
       password: (v) => !v ? 'Please enter your password.' : ''
     });
     const alert = $('#loginAlert'); alert.hidden = true;
     if (!data) return;
-    const u = state.users.find((x) => x.email === data.email.toLowerCase());
-    if (!u || u.pass !== hash(data.password)) { alert.hidden = false; alert.textContent = 'Incorrect email or password. Please try again.'; return; }
-    state.session = u.email; save('session'); form.reset();
-    toast('Welcome back, ' + u.name.split(' ')[0] + '!'); renderAuthArea(); afterAuth();
+    if (!supabaseClient) {
+      alert.hidden = false;
+      alert.textContent = 'Sign-in is unavailable because the Supabase client is not configured.';
+      return;
+    }
+    const { data: result, error } = await supabaseClient.auth.signInWithPassword({
+      email: data.email.toLowerCase(), password: data.password
+    });
+    if (error) {
+      alert.hidden = false;
+      alert.textContent = 'Incorrect email or password. Please try again.';
+      return;
+    }
+    await loadCloudState(result.user);
+    form.reset();
+    toast('Welcome back, ' + currentUser().name.split(' ')[0] + '!');
+    renderAuthArea();
+    afterAuth();
   }
-  function handleRegister(form) {
+  async function handleRegister(form) {
     const data = validate(form, {
       name: (v) => v.length < 2 ? 'Please enter your full name.' : '',
-      email: (v) => !v ? 'Please enter your email.' : !EMAIL_RE.test(v) ? 'Enter a valid email address.' : state.users.some((u) => u.email === v.toLowerCase()) ? 'An account with this email already exists.' : '',
+      email: (v) => !v ? 'Please enter your email.' : !EMAIL_RE.test(v) ? 'Enter a valid email address.' : '',
       password: (v) => v.length < 8 ? 'Password must be at least 8 characters.' : !/[A-Za-z]/.test(v) || !/\d/.test(v) ? 'Include both letters and numbers.' : '',
       confirm: (v, d) => v !== d.password ? 'Passwords do not match.' : ''
     });
     if (!data) return;
-    const u = { name: data.name, email: data.email.toLowerCase(), pass: hash(data.password), role: 'customer' };
-    const users = state.users.concat(u);
-    if (!store.set('users', users)) {
+    if (!supabaseClient) {
       const notice = $('#authNotice');
       notice.hidden = false;
       notice.className = 'form-alert error';
-      notice.textContent = 'Your account could not be saved in this browser. Check your browser storage settings and try again.';
+      notice.textContent = 'Registration is unavailable because the Supabase client is not configured.';
       return;
     }
-    state.users = users;
-    state.session = u.email;
-    if (!store.set('session', state.session)) {
-      state.session = null;
+    const { data: result, error } = await supabaseClient.auth.signUp({
+      email: data.email.toLowerCase(),
+      password: data.password,
+      options: { data: { name: data.name.trim() } }
+    });
+    if (error) {
       const notice = $('#authNotice');
       notice.hidden = false;
-      notice.className = 'form-alert info';
-      notice.textContent = 'Your account was saved. Please log in with your email and password.';
-      form.reset();
-      setAuthTab('login');
-      $('#loginEmail').value = u.email;
+      notice.className = 'form-alert error';
+      notice.textContent = error.message || 'Your account could not be created. Please try again.';
       return;
     }
     form.reset();
-    toast('Account created. Welcome to Bloom & Bliss, ' + u.name.split(' ')[0] + '!'); renderAuthArea(); afterAuth();
+    if (!result.session) {
+      const notice = $('#authNotice');
+      notice.hidden = false;
+      notice.className = 'form-alert info';
+      notice.textContent = 'Account created. Check your email to confirm it, then sign in.';
+      setAuthTab('login');
+      $('#loginEmail').value = data.email.toLowerCase();
+      return;
+    }
+    await loadCloudState(result.user);
+    form.reset();
+    toast('Account created. Welcome to Bloom & Bliss, ' + currentUser().name.split(' ')[0] + '!');
+    renderAuthArea();
+    afterAuth();
   }
-  function logout() {
-    state.session = null; save('session'); renderAuthArea(); toast('You have been logged out.');
+  async function logout() {
+    if (!supabaseClient) { reportCloudError('sign out', new Error('Supabase client is not configured.')); return; }
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) { reportCloudError('sign out', error); return; }
+    await loadCloudState(null);
+    renderAuthArea();
+    toast('You have been logged out.');
     if (['checkout', 'orders', 'profile', 'chat', 'admin', 'confirmation'].includes(currentPage)) go('home'); else route();
   }
 
@@ -1043,7 +1275,7 @@
     }[method];
     box.innerHTML = html; box.hidden = false;
   }
-  function handleCheckout(form) {
+  async function handleCheckout(form) {
     const method = ($('input[name="payment"]:checked', form) || {}).value;
     const rules = {
       rname: (v) => v.length < 2 ? 'Please enter the recipient’s name.' : '',
@@ -1074,6 +1306,10 @@
       if (line.pid) { const p = getProduct(line.pid); if (!p || p.stock < line.qty) { toast('Stock changed for ' + line.name + '. Please review your cart.', 'error'); go('cart'); return; } }
     }
     const t = totals(); const u = currentUser();
+    if (!supabaseClient || !cloudReady || !state.authUser) {
+      toast('The store database is not ready. Your order was not placed; please try again shortly.', 'error');
+      return;
+    }
     const order = {
       id: 'BB-' + dateStr(0).replace(/-/g, '').slice(2) + '-' + Math.random().toString(36).slice(2, 6).toUpperCase(),
       user: u.email, customer: u.name, createdAt: new Date().toISOString(), status: 'Pending',
@@ -1083,10 +1319,17 @@
       payment: { cod: 'Cash on Delivery', gcash: 'GCash', card: 'Credit / Debit Card', bank: 'Bank Transfer' }[method],
       promo: state.promo, totals: { subtotal: t.subtotal, discount: t.discount, delivery: t.delivery, total: t.total }
     };
-    state.cart.forEach((line) => { if (line.pid) { const p = getProduct(line.pid); if (p) p.stock = Math.max(0, p.stock - line.qty); } });
-    state.orders.push(order); state.cart = []; state.promo = null;
-    save('orders', 'products', 'cart', 'promo'); updateBadges();
-    if (u.role !== 'admin') addOwnerOrderNotification(order);
+    const { data: savedOrder, error } = await supabaseClient.rpc('create_order', { order_data: order });
+    if (error) {
+      reportCloudError('place the order', error);
+      return;
+    }
+    state.orders.unshift(Object.assign({}, savedOrder.data, { id: savedOrder.id, status: savedOrder.status }));
+    state.cart = [];
+    state.promo = null;
+    await Promise.all([persistCloudKey('cart'), persistCloudKey('promo')]);
+    await loadCloudState(state.authUser);
+    updateBadges();
     toast('Order placed! Thank you 🌸'); go('confirmation', { id: order.id });
   }
   function renderConfirmation() {
@@ -1138,18 +1381,14 @@
     return `<div class="progress" aria-label="Order progress: ${esc(status)}">${STATUSES.map((s, i) => `<div class="${i <= idx ? 'done' : ''}">${s}</div>`).join('')}</div>`;
   }
   function canCancelOrder(o) { return o.status === 'Pending'; }
-  function cancelOrder(id) {
+  async function cancelOrder(id) {
     const u = currentUser();
     const o = state.orders.find((order) => order.id === id && u && order.user === u.email);
     if (!o || !canCancelOrder(o)) { toast('Only pending orders can be cancelled.', 'error'); return; }
-    o.items.forEach((item) => {
-      if (!item.pid) return;
-      const product = getProduct(item.pid);
-      if (product) product.stock += item.qty;
-    });
-    o.status = 'Cancelled';
-    o.cancelledAt = new Date().toISOString();
-    save('orders', 'products');
+    const { data: cancelledOrder, error } = await supabaseClient.rpc('cancel_order', { target_order_id: id });
+    if (error) { reportCloudError('cancel the order', error); return; }
+    Object.assign(o, cancelledOrder.data, { id: cancelledOrder.id, status: cancelledOrder.status });
+    await loadCloudState(state.authUser);
     renderOrders();
     updateBadges();
     toast('Order ' + o.id + ' cancelled.');
@@ -1183,29 +1422,37 @@
       <header class="chat-panel-head"><div><p class="eyebrow">Customer support</p><h2>Chat with Bloom &amp; Bliss</h2><p class="muted">Send a message to the shop owner and check back here for a reply.</p></div></header>
       <div class="chat-thread" id="customerChatThread" aria-live="polite">${chatMessagesMarkup(conversation, 'customer')}</div>
       <form class="chat-compose" id="customerChatForm" novalidate><label class="sr-only" for="customerChatMessage">Your message</label><textarea id="customerChatMessage" name="message" rows="3" maxlength="1000" placeholder="Type your message…" required></textarea><span class="error" data-error-for="message" role="alert"></span><button class="btn btn-primary" type="submit">Send message</button></form>
-      <p class="chat-local-note">Messages are saved in this browser only. They are not sent to other devices or a real shop inbox.</p>
+      <p class="chat-local-note">Messages are saved to your account and shared with the shop owner.</p>
     </section>`;
   }
-  function sendChatMessage(email, from, text) {
-    const conversations = clone(state.conversations);
-    let conversation = conversations.find((thread) => thread.email === email);
-    if (!conversation) {
-      const customer = state.users.find((account) => account.email === email && account.role !== 'admin');
-      if (!customer) { toast('Could not find that customer conversation.', 'error'); return false; }
-      conversation = { email, name: customer.name, messages: [] };
-      conversations.push(conversation);
-    }
+  async function sendChatMessage(email, from, text) {
+    let conversation = state.conversations.find((thread) => thread.email === email);
     if (from === 'customer') {
-      const customer = state.users.find((account) => account.email === email);
-      if (!customer || customer.role === 'admin') { toast('Could not verify your customer account.', 'error'); return false; }
-      conversation.name = customer.name;
+      if (!state.authUser || state.profile.role === 'admin') {
+        toast('Could not verify your customer account.', 'error');
+        return false;
+      }
+      if (!conversation) {
+        const { data, error } = await supabaseClient.from('conversations')
+          .insert({ customer_id: state.authUser.id }).select('id,customer_id').single();
+        if (error) { reportCloudError('start a conversation', error); return false; }
+        conversation = {
+          id: data.id, customerId: data.customer_id, email, name: state.profile.name, messages: []
+        };
+        state.conversations.push(conversation);
+      }
+    } else if (!conversation || !conversation.id || !state.authUser || !isAdmin()) {
+      toast('Could not verify this customer conversation.', 'error');
+      return false;
     }
-    conversation.messages.push({ from, text, at: new Date().toISOString() });
-    if (!store.set('conversations', conversations)) { toast('Your message could not be saved in this browser.', 'error'); return false; }
-    state.conversations = conversations;
+    const { error } = await supabaseClient.rpc('record_conversation_message', {
+      target_conversation: conversation.id, message_text: text
+    });
+    if (error) { reportCloudError('send the message', error); return false; }
+    await loadCloudState(state.authUser);
     return true;
   }
-  function handleCustomerChatForm(form) {
+  async function handleCustomerChatForm(form) {
     const user = currentUser();
     if (!user || user.role === 'admin') { toast('Sign in with a customer account to send a message.', 'error'); return; }
     const input = form.elements.message;
@@ -1214,13 +1461,13 @@
     error.textContent = text ? '' : 'Write a message before sending.';
     input.setAttribute('aria-invalid', String(!text));
     if (!text) { input.focus(); return; }
-    if (!sendChatMessage(user.email, 'customer', text)) return;
+    if (!await sendChatMessage(user.email, 'customer', text)) return;
     renderCustomerChat();
     const thread = $('#customerChatThread');
     thread.scrollTop = thread.scrollHeight;
     $('#customerChatMessage').focus();
   }
-  function handleOwnerChatForm(form) {
+  async function handleOwnerChatForm(form) {
     const user = currentUser();
     const email = form.dataset.email;
     const input = form.elements.message;
@@ -1230,7 +1477,7 @@
     error.textContent = text ? '' : 'Write a reply before sending.';
     input.setAttribute('aria-invalid', String(!text));
     if (!text) { input.focus(); return; }
-    if (!sendChatMessage(email, 'owner', text)) return;
+    if (!await sendChatMessage(email, 'owner', text)) return;
     renderAdmin();
     const thread = $('.admin-chat-conversation .chat-thread');
     thread.scrollTop = thread.scrollHeight;
@@ -1253,7 +1500,7 @@
         <h2>${esc(user.name)}</h2>
         <p class="muted">${esc(user.email)}</p>
         <span class="profile-role">${isOwner ? 'Shop Owner' : 'Customer'}</span>
-        <p>${isOwner ? 'Manage your owner account and storefront.' : `You have ${orderCount} ${orderCount === 1 ? 'order' : 'orders'} in this browser.`}</p>
+        <p>${isOwner ? 'Manage your owner account and storefront.' : `You have ${orderCount} ${orderCount === 1 ? 'order' : 'orders'} linked to your account.`}</p>
         ${isOwner ? '<a class="btn btn-primary btn-sm" href="#/admin">Open Admin Dashboard</a>' : '<a class="btn btn-ghost btn-sm" href="#/orders">View My Orders</a>'}
       </aside>
       <form class="form-card profile-form" id="profileForm" novalidate>
@@ -1269,7 +1516,7 @@
             <div class="field"><label for="profileConfirmPassword">Confirm new password</label><input id="profileConfirmPassword" name="confirmPassword" type="password" autocomplete="new-password"><span class="error" data-error-for="confirmPassword" role="alert"></span></div>
           </div>
         </div>
-        <p class="profile-storage-note">This demo saves your profile in this browser only.</p>
+        <p class="profile-storage-note">Your profile is securely saved to your Bloom &amp; Bliss account.</p>
         <button class="btn btn-primary" type="submit">Save Profile</button>
       </form>
     </div>`;
@@ -1341,14 +1588,14 @@
     const input = $('#profilePhotoInput');
     if (input) input.value = '';
   }
-  function handleProfileForm(form) {
+  async function handleProfileForm(form) {
     const user = currentUser();
     if (!user) { go('login', { next: 'profile', notice: 'profile' }); return; }
     const oldEmail = user.email;
     const data = validate(form, {
       name: (value) => value.length < 2 ? 'Please enter your name.' : '',
-      email: (value) => !value ? 'Please enter your email.' : !EMAIL_RE.test(value) ? 'Enter a valid email address.' : state.users.some((account) => account.email.toLowerCase() === value.toLowerCase() && account.email.toLowerCase() !== oldEmail.toLowerCase()) ? 'This email is already used by another account.' : '',
-      currentPassword: (value) => !value ? 'Enter your current password to save profile changes.' : hash(value) !== user.pass ? 'Your current password is incorrect.' : '',
+      email: (value) => !value ? 'Please enter your email.' : !EMAIL_RE.test(value) ? 'Enter a valid email address.' : '',
+      currentPassword: (value, all) => (all.newPassword || all.email.toLowerCase() !== oldEmail.toLowerCase()) && !value ? 'Enter your current password to change your email or password.' : '',
       newPassword: (value) => value && (value.length < 8 || !/[A-Za-z]/.test(value) || !/\d/.test(value)) ? 'Use at least 8 characters with both letters and numbers.' : '',
       confirmPassword: (value, all) => all.newPassword && value !== all.newPassword ? 'Passwords do not match.' : all.newPassword && !value ? 'Please confirm your new password.' : ''
     });
@@ -1356,49 +1603,44 @@
 
     const email = data.email.toLowerCase();
     const name = data.name.trim();
-    const users = clone(state.users);
-    const orders = clone(state.orders);
-    const reviews = clone(state.reviews);
-    const conversations = clone(state.conversations);
-    const account = users.find((item) => item.email === oldEmail);
-    if (!account) { toast('Could not find your account. Please sign in again.', 'error'); return; }
-    account.name = name;
-    account.email = email;
-    account.avatar = form.dataset.avatar || '';
-    if (data.newPassword) account.pass = hash(data.newPassword);
-    orders.forEach((order) => {
-      if (order.user === oldEmail) { order.user = email; order.customer = name; }
-    });
-    reviews.forEach((review) => {
-      if (review.user === oldEmail) { review.user = email; review.customer = name.trim().split(/\s+/)[0]; }
-    });
-    const conversation = conversations.find((thread) => thread.email === oldEmail);
-    if (conversation) { conversation.email = email; conversation.name = name; }
-
-    const previous = { users: state.users, orders: state.orders, reviews: state.reviews, conversations: state.conversations, session: state.session };
-    const updates = { users, orders, reviews, conversations, session: email };
-    const saved = [];
-    for (const key of Object.keys(updates)) {
-      if (!store.set(key, updates[key])) {
-        saved.reverse().forEach((savedKey) => {
-          if (!store.set(savedKey, previous[savedKey])) console.error('Could not roll back profile update for browser data:', savedKey);
-        });
-        const error = $('#profileError');
-        error.hidden = false;
-        error.textContent = 'Your profile could not be saved in this browser. Check storage availability and try again.';
+    const sensitiveChange = !!data.newPassword || email !== oldEmail.toLowerCase();
+    const errorBox = $('#profileError');
+    errorBox.hidden = true;
+    if (sensitiveChange) {
+      const { error: signInError } = await supabaseClient.auth.signInWithPassword({
+        email: oldEmail, password: data.currentPassword
+      });
+      if (signInError) {
+        errorBox.hidden = false;
+        errorBox.textContent = 'Your current password is incorrect.';
         return;
       }
-      saved.push(key);
+      const authUpdate = {};
+      if (data.newPassword) authUpdate.password = data.newPassword;
+      if (email !== oldEmail.toLowerCase()) authUpdate.email = email;
+      const { error } = await supabaseClient.auth.updateUser(authUpdate);
+      if (error) {
+        errorBox.hidden = false;
+        errorBox.textContent = error.message || 'Your sign-in details could not be updated.';
+        return;
+      }
     }
 
-    state.users = users;
-    state.orders = orders;
-    state.reviews = reviews;
-    state.conversations = conversations;
-    state.session = email;
+    const avatar = form.dataset.avatar || '';
+    const { error } = await supabaseClient.from('profiles')
+      .update({ name, avatar }).eq('id', user.id);
+    if (error) {
+      errorBox.hidden = false;
+      errorBox.textContent = error.message || 'Your profile could not be saved.';
+      return;
+    }
+    state.profile = Object.assign({}, user, { name, avatar });
+    state.users = state.users.map((profile) => profile.id === user.id ? state.profile : profile);
     renderAuthArea();
     renderProfile();
-    toast('Your profile was updated.');
+    toast(email !== oldEmail.toLowerCase()
+      ? 'Profile updated. Confirm the new email address from your inbox.'
+      : 'Your profile was updated.');
   }
 
   /* ---- Admin ---- */
@@ -1419,10 +1661,9 @@
   function renderAdmin() {
     const root = $('#adminRoot'); if (!root) return;
     if (adminTab === 'orders' && state.ownerOrderNotifications.length) {
-      const unread = state.ownerOrderNotifications;
       state.ownerOrderNotifications = [];
-      if (!store.set('ownerOrderNotifications', state.ownerOrderNotifications)) state.ownerOrderNotifications = unread;
-      else renderAuthArea();
+      save('ownerOrderNotifications');
+      renderAuthArea();
     }
     const revenue = state.orders.filter((o) => o.status !== 'Cancelled').reduce((s, o) => s + o.totals.total, 0);
     const lowCount = state.products.filter((p) => p.stock <= 5).length;
@@ -1478,7 +1719,7 @@
           <div class="admin-chat-conversation"><div class="chat-thread" aria-live="polite">${chatMessagesMarkup(activeConversation, 'owner')}</div>
             <form class="chat-compose" id="ownerChatForm" data-email="${esc(activeConversation.email)}" novalidate><label class="sr-only" for="ownerChatMessage">Reply to ${esc(activeConversation.name || activeConversation.email)}</label><textarea id="ownerChatMessage" name="message" rows="3" maxlength="1000" placeholder="Write a reply…" required></textarea><span class="error" data-error-for="message" role="alert"></span><button class="btn btn-primary" type="submit">Send reply</button></form>
           </div></div>` : '<div class="empty"><h3>No customer chats yet</h3><p class="muted">Customer conversations started from their account will appear here.</p></div>'}
-        <p class="chat-local-note">Customer chats are stored in this browser only.</p></section>`;
+        <p class="chat-local-note">Customer chats are shared between the owner and each customer account.</p></section>`;
       body = chatInbox + `<section class="admin-contact-messages"><div class="admin-bar"><h2 style="margin:0">Contact form messages (${msgs.length})</h2><p class="muted" style="margin:0">For unsigned visitor inquiries, reply by email.</p></div>` + (msgs.length ? msgs.map((m) => {
         const replyHref = `mailto:${encodeURIComponent(m.email || '')}?subject=${encodeURIComponent('Re: ' + (m.subject || ''))}`;
         return `<div class="msg-card"><h4>${esc(m.subject)}</h4><small>${esc(m.name)} · ${esc(m.email)} · ${prettyDate(m.at)}</small><p style="margin:.5rem 0 0">${esc(m.message)}</p><p style="margin:.75rem 0 0"><a class="btn btn-ghost btn-sm" href="${esc(replyHref)}">Reply by email</a></p></div>`;
@@ -1487,7 +1728,7 @@
     root.innerHTML = `<div class="stat-grid"><div class="stat"><b>${state.products.length}</b><span>Products</span></div><div class="stat"><b>${lowCount}</b><span>Low / out of stock</span></div><div class="stat"><b>${state.orders.length}</b><span>Orders (${pending} pending)</span></div><div class="stat"><b>${peso(revenue)}</b><span>Total sales</span></div></div>
       <div class="tabs" style="max-width:560px" role="tablist" aria-label="Admin dashboard sections">${['overview', 'products', 'orders', 'messages'].map((t) => `<button type="button" role="tab" class="${adminTab === t ? 'active' : ''}" aria-selected="${adminTab === t}" data-action="admin-tab" data-tab="${t}">${t[0].toUpperCase() + t.slice(1)}</button>`).join('')}</div>
       ${body}
-      <p style="margin-top:2rem"><button class="link-btn" data-action="reset-demo">Reset all demo data</button></p>`;
+      <p style="margin-top:2rem"><button class="link-btn" data-action="clear-local-cache">Clear this device's cached preferences</button></p>`;
   }
   function productFormModal(p) {
     const isNew = !p;
@@ -1556,7 +1797,7 @@
       <button class="btn btn-primary btn-sm" type="submit">${existing ? 'Update feedback' : 'Submit feedback'}</button>
     </form>`;
   }
-  function handleReviewForm(form) {
+  async function handleReviewForm(form) {
     const user = currentUser();
     if (!user || user.role === 'admin') { toast('Sign in with a customer account to leave feedback.', 'error'); return; }
     const p = getProduct(form.dataset.productId);
@@ -1567,25 +1808,38 @@
     });
     if (!data) return;
     const current = state.reviews.slice();
-    const index = current.findIndex((review) => review.productId === p.id && review.user === user.email);
+    const index = current.findIndex((review) => review.productId === p.id && review.userId === user.id);
     const review = {
       productId: p.id,
+      userId: user.id,
       user: user.email,
       customer: user.name.trim().split(/\s+/)[0],
       rating: Number(data.rating),
       text: data.review,
       createdAt: new Date().toISOString()
     };
-    if (index >= 0) current[index] = review;
-    else current.push(review);
-    if (!store.set('reviews', current)) { toast('Could not save your feedback in this browser.', 'error'); return; }
+    const { data: savedReview, error } = await supabaseClient.from('reviews').upsert({
+      product_id: p.id,
+      user_id: user.id,
+      customer_name: review.customer,
+      rating: review.rating,
+      text: review.text
+    }, { onConflict: 'product_id,user_id' }).select('id,product_id,user_id,customer_name,rating,text,created_at').single();
+    if (error) { reportCloudError('save your feedback', error); return; }
+    const mappedReview = {
+      id: savedReview.id, productId: savedReview.product_id, userId: savedReview.user_id,
+      user: user.email, customer: savedReview.customer_name, rating: savedReview.rating,
+      text: savedReview.text, createdAt: savedReview.created_at
+    };
+    if (index >= 0) current[index] = mappedReview;
+    else current.push(mappedReview);
     state.reviews = current;
     toast(index >= 0 ? 'Your feedback was updated.' : 'Thank you for your feedback!');
     quickView(p.id);
   }
 
   /* ---- Contact ---- */
-  function handleContact(form) {
+  async function handleContact(form) {
     const data = validate(form, {
       name: (v) => v.length < 2 ? 'Please enter your name.' : '',
       email: (v) => !v ? 'Please enter your email.' : !EMAIL_RE.test(v) ? 'Enter a valid email address.' : '',
@@ -1593,8 +1847,14 @@
       message: (v) => v.length < 10 ? 'Please write at least 10 characters.' : ''
     });
     if (!data) return;
-    state.messages.push({ name: data.name, email: data.email, subject: data.subject, message: data.message, at: new Date().toISOString() });
-    save('messages'); form.reset(); $('#contactSuccess').hidden = false; toast('Message sent. Thank you!');
+    const { error } = await supabaseClient.from('contact_messages').insert({
+      name: data.name, email: data.email.toLowerCase(), subject: data.subject, message: data.message
+    });
+    if (error) { reportCloudError('send your message', error); return; }
+    if (isAdmin()) {
+      state.messages.unshift({ name: data.name, email: data.email, subject: data.subject, message: data.message, at: new Date().toISOString() });
+    }
+    form.reset(); $('#contactSuccess').hidden = false; toast('Message sent. Thank you!');
   }
 
   /* ---- Quick view ---- */
@@ -1604,7 +1864,7 @@
     const rating = productRating(p);
     const reviews = reviewsFor(p.id);
     const user = currentUser();
-    const existing = user && user.role !== 'admin' ? reviews.find((review) => review.user === user.email) : null;
+    const existing = user && user.role !== 'admin' ? reviews.find((review) => review.userId === user.id) : null;
     openModal(`<div class="quick"><div class="art">${prodMedia(p, p.name)}</div><div>
       <p class="eyebrow">${esc(catLabel(p.category))}</p><h2>${esc(p.name)}</h2>
       ${rating.count ? `<div class="rating">${stars(rating.average)} <span>${rating.average.toFixed(1)} (${rating.count} ratings)</span></div>` : '<p class="muted">No ratings yet</p>'}
@@ -1616,7 +1876,7 @@
       <div class="row-actions"><button class="btn btn-primary" data-action="add" data-id="${esc(p.id)}" ${out ? 'disabled' : ''}>${out ? 'Sold out' : 'Add to Cart'}</button>
       <button class="btn btn-ghost" data-action="wish" data-id="${esc(p.id)}" aria-pressed="${wished}">${wished ? '♥ In wishlist' : '♡ Add to wishlist'}</button></div></div></div>
       <section class="product-reviews" aria-labelledby="productReviewsTitle"><h3 id="productReviewsTitle">Customer feedback (${reviews.length})</h3>
-        <p class="review-demo-note">Feedback is saved in this browser demo and is not shared across devices.</p>
+        <p class="review-demo-note">Feedback is shared with the Bloom &amp; Bliss community.</p>
         ${reviews.length ? `<div class="review-list">${reviews.map((review) => `<article class="review-entry"><div class="review-entry-head"><strong>${esc(review.customer)}</strong><span class="muted">${prettyDate(review.createdAt)}</span></div><div class="rating">${stars(review.rating)} <span>${review.rating} out of 5</span></div><p>${esc(review.text)}</p></article>`).join('')}</div>` : '<p class="muted">No written feedback yet. Be the first to share your thoughts.</p>'}
         ${reviewFormHTML(p, existing)}
       </section>`);
@@ -1732,8 +1992,8 @@
         break;
       }
       case 'remove-profile-photo': removeProfilePhoto(el); break;
-      case 'reset-demo':
-        confirmBox('Reset demo data?', 'This clears all products, accounts, carts, wishlists and orders in this browser and restores the sample shop.', 'Reset').then((ok) => {
+      case 'clear-local-cache':
+        confirmBox('Clear local cache?', 'This clears cached cart, wishlist, and visitor data on this device only. Supabase accounts, products, orders, and reviews are not deleted.', 'Clear Cache').then((ok) => {
           if (!ok) return; store.clearAll(); location.hash = '#/home'; location.reload();
         });
         break;
@@ -1741,20 +2001,20 @@
     }
   });
 
-  document.addEventListener('submit', (e) => {
+  document.addEventListener('submit', async (e) => {
     const f = e.target; e.preventDefault();
-    switch (f.getAttribute('id')) {
-      case 'loginForm': handleLogin(f); break;
-      case 'registerForm': handleRegister(f); break;
-      case 'checkoutForm': handleCheckout(f); break;
-      case 'contactForm': handleContact(f); break;
-      case 'productForm': handleProductForm(f); break;
-      case 'reviewForm': handleReviewForm(f); break;
-      case 'profileForm': handleProfileForm(f); break;
-      case 'customerChatForm': handleCustomerChatForm(f); break;
-      case 'ownerChatForm': handleOwnerChatForm(f); break;
-      case 'promoForm': applyPromo(new FormData(f).get('code')); break;
-      default: break;
+    const handlers = {
+      loginForm: handleLogin, registerForm: handleRegister, checkoutForm: handleCheckout,
+      contactForm: handleContact, productForm: handleProductForm, reviewForm: handleReviewForm,
+      profileForm: handleProfileForm, customerChatForm: handleCustomerChatForm,
+      ownerChatForm: handleOwnerChatForm
+    };
+    const handler = handlers[f.getAttribute('id')];
+    if (handler) {
+      try { await handler(f); }
+      catch (error) { reportCloudError('complete this request', error); }
+    } else if (f.getAttribute('id') === 'promoForm') {
+      applyPromo(new FormData(f).get('code'));
     }
   });
 
@@ -1821,12 +2081,12 @@
       if (currentPage === 'home') renderHomeStats();
       return;
     }
-    if (e.key === 'bb_reviews') {
+    if (!cloudReady && e.key === 'bb_reviews') {
       state.reviews = store.get('reviews', []);
       if (currentPage === 'home') renderHomeStats();
       return;
     }
-    if (e.key === 'bb_ownerOrderNotifications') {
+    if (!cloudReady && e.key === 'bb_ownerOrderNotifications') {
       const previous = state.ownerOrderNotifications;
       state.ownerOrderNotifications = store.get('ownerOrderNotifications', []);
       renderAuthArea();
@@ -1838,7 +2098,7 @@
       if (currentPage === 'admin' && isAdmin() && adminTab === 'orders') renderAdmin();
       return;
     }
-    if (e.key === 'bb_orders' || e.key === 'bb_products') {
+    if (!cloudReady && (e.key === 'bb_orders' || e.key === 'bb_products')) {
       state.orders = store.get('orders', []);
       state.products = store.get('products', state.products);
       if (currentPage === 'home') renderHomeStats();
@@ -1847,21 +2107,13 @@
       else if (currentPage === 'confirmation' && currentUser()) renderConfirmation();
       return;
     }
-    if (e.key === 'bb_conversations') {
+    if (!cloudReady && e.key === 'bb_conversations') {
       state.conversations = store.get('conversations', []);
       if (currentPage === 'chat' && currentUser() && currentUser().role !== 'admin') renderCustomerChat();
       else if (currentPage === 'admin' && adminTab === 'messages') renderAdmin();
       return;
     }
-    if (e.key !== 'bb_users' && e.key !== 'bb_session') return;
-    state.users = store.get('users', []);
-    state.session = store.get('session', null);
-    renderAuthArea();
-    if (currentPage === 'profile' && currentUser()) renderProfile();
-    else if (currentPage === 'chat' && currentUser() && currentUser().role === 'admin') route();
-    else if (currentPage === 'chat' && currentUser()) renderCustomerChat();
-    else if (currentPage === 'admin' && !isAdmin()) route();
-    else if (['checkout', 'orders', 'profile', 'chat', 'admin', 'confirmation'].includes(currentPage) && !currentUser()) route();
+    if (e.key === 'bb_users' || e.key === 'bb_session') return;
   });
   window.addEventListener('hashchange', route);
 
@@ -1904,6 +2156,7 @@
     syncCart();
     startBackgroundMusic();
     startVisitorPresence();
+    initializeSupabase().catch((error) => reportCloudError('connect to the store database', error));
     if (!location.hash) location.hash = '#/home'; else route();
     if (!location.hash || location.hash === '#/home') route();
     

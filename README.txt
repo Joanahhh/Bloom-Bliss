@@ -28,3 +28,25 @@ To use other names or web links, edit the  image:  lines in script.js (inside CU
 ----- BACKGROUND MUSIC -----
 The site plays audio/palagi-sax-serenade-cover.mp3 from the music button.
 Browsers may block autoplay; visitors can use the Play music button to start it.
+
+----- SUPABASE SETUP -----
+The storefront uses Supabase Auth and Postgres for accounts, profiles, products,
+orders, reviews, preferences, customer chats, contact messages, and owner
+notifications. The public project URL and publishable key are configured in
+supabase-config.js. Never put a Supabase service-role key in browser code.
+
+Before using the cloud-backed features:
+1. Open the project's Supabase SQL Editor and run supabase/schema.sql.
+2. Register the owner's account through the storefront using the intended owner
+   email address, then confirm that email if Supabase requires confirmation.
+3. In the SQL Editor, promote that verified account (replace the example email):
+   update public.profiles set role = 'admin'
+   where lower(email) = lower('owner@example.com');
+4. Sign in as the owner. The initial storefront catalog is then seeded in the
+   products table. Customers can register and place orders after that.
+
+The schema migration is idempotent and configures row-level security. Existing
+browser-only accounts and their password hashes are not imported; each user
+must register a Supabase Auth account again. Payments remain demo-only. The
+dashboard must report a healthy project and the schema must be applied before
+cloud-backed pages can load successfully.
