@@ -809,9 +809,12 @@
   }
 
   let loaderHideTimer = null;
+  let initialLoaderTimer = null;
   function showLoader() {
     const loader = $('#loader');
     if (!loader) return;
+    clearTimeout(initialLoaderTimer);
+    initialLoaderTimer = null;
     clearTimeout(loaderHideTimer);
     loader.classList.remove('done');
   }
@@ -825,40 +828,54 @@
     showLoader();
     hideLoader(1400);
   }
+  function scheduleInitialLoaderHide() {
+    clearTimeout(initialLoaderTimer);
+    initialLoaderTimer = setTimeout(() => {
+      initialLoaderTimer = null;
+      hideLoader();
+    }, 5000);
+  }
 
   let welcomeButtonTimer = null;
   let welcomeInertState = [];
-  function initializeWelcomeScreen() {
-    if (store.get('welcomeSeen', false) === true) return;
+  let welcomeActive = false;
+  let welcomeSessionCompleted = false;
+  function showWelcomeScreen(routeKey) {
+    if (welcomeActive || welcomeSessionCompleted || store.get('welcomeSeen', false) === true) return;
     const screen = $('#welcomeScreen');
     if (!screen) return;
 
     const calyx = $('.welcome-calyx', screen);
     const roseHead = $('.welcome-rose-head', screen);
+    const roseWrapper = $('.welcome-rose-wrapper', screen);
     const stem = $('.welcome-stem', screen);
     const leafLeft = $('.welcome-leaf-left', screen);
     const leafRight = $('.welcome-leaf-right', screen);
     const layers = [
-      { count: 4, width: 30, height: 55, curl: 72, delay: 0.05, depth: 3, className: 'welcome-petal-bud' },
-      { count: 6, width: 46, height: 72, curl: 42, delay: 0.28, depth: 14, className: 'welcome-petal-core' },
-      { count: 8, width: 68, height: 98, curl: 8, delay: 0.65, depth: 32, className: 'welcome-petal-mid' },
-      { count: 10, width: 92, height: 124, curl: -28, delay: 1.05, depth: 54, className: 'welcome-petal-outer' }
+      { count: 4, width: 24, height: 46, curl: 78, delay: 0, depth: 2, className: 'welcome-petal-bud' },
+      { count: 5, width: 34, height: 58, curl: 65, delay: 0.25, depth: 9, className: 'welcome-petal-core' },
+      { count: 6, width: 46, height: 72, curl: 48, delay: 0.55, depth: 18, className: 'welcome-petal-inner' },
+      { count: 7, width: 58, height: 88, curl: 22, delay: 0.9, depth: 30, className: 'welcome-petal-mid-inner' },
+      { count: 8, width: 72, height: 104, curl: -5, delay: 1.3, depth: 44, className: 'welcome-petal-mid' },
+      { count: 9, width: 86, height: 118, curl: -25, delay: 1.75, depth: 60, className: 'welcome-petal-outer' },
+      { count: 10, width: 98, height: 130, curl: -48, delay: 2.25, depth: 76, className: 'welcome-petal-blush' }
     ];
 
     layers.forEach((layer, layerIndex) => {
       const step = 360 / layer.count;
+      const layerOffset = layerIndex * 24 + (Math.random() - 0.5) * 8;
       for (let index = 0; index < layer.count; index += 1) {
         const petal = document.createElement('span');
-        const delay = layer.delay + index * 0.035;
+        const delay = layer.delay + index * 0.05;
         petal.className = 'welcome-rose-petal ' + layer.className;
         petal.style.width = layer.width + 'px';
         petal.style.height = layer.height + 'px';
-        petal.style.setProperty('--angle', (layerIndex * 21 + index * step) + 'deg');
-        petal.style.setProperty('--curl', (layer.curl + (Math.random() - 0.5) * 8) + 'deg');
-        petal.style.setProperty('--depth', (layer.depth + Math.random() * 5) + 'px');
-        petal.style.setProperty('--petal-scale', (0.94 + Math.random() * 0.12).toFixed(2));
+        petal.style.setProperty('--angle', (layerOffset + index * step + (Math.random() - 0.5) * 5) + 'deg');
+        petal.style.setProperty('--curl', (layer.curl + (Math.random() - 0.5) * 6) + 'deg');
+        petal.style.setProperty('--depth', layer.depth + 'px');
+        petal.style.setProperty('--petal-scale', (0.94 + Math.random() * 0.12));
         petal.style.setProperty('--bloom-delay', delay + 's');
-        petal.style.setProperty('--bloom-duration', (1.8 + Math.random() * 0.3) + 's');
+        petal.style.setProperty('--bloom-duration', (2.1 + Math.random() * 0.4) + 's');
         roseHead.appendChild(petal);
       }
     });
@@ -868,12 +885,16 @@
       sepal.className = 'welcome-sepal';
       sepal.style.setProperty('--sepal-angle', (index * 72 + (Math.random() - 0.5) * 5) + 'deg');
       sepal.style.setProperty('--sepal-curl', (18 + Math.random() * 8) + 'deg');
-      sepal.style.setProperty('--sepal-delay', (0.25 + index * 0.06) + 's');
+      sepal.style.setProperty('--sepal-delay', (0.3 + index * 0.06) + 's');
       calyx.appendChild(sepal);
     }
 
+    welcomeActive = true;
+    lastRouteKey = routeKey;
+    hideLoader(0);
     screen.hidden = false;
     screen.setAttribute('aria-hidden', 'false');
+    screen.inert = false;
     document.body.classList.add('no-scroll');
     welcomeInertState = Array.from(document.body.children)
       .filter((element) => element !== screen)
@@ -889,21 +910,23 @@
     if (reducedMotion) {
       leafLeft.classList.add('is-visible');
       leafRight.classList.add('is-visible');
-      calyx.classList.add('is-open');
+      calyx.classList.add('is-visible');
       roseHead.classList.add('is-blooming');
       $('#welcomeAmbient').classList.add('is-lit');
+      roseWrapper.classList.add('is-rotating');
       welcomeButtonTimer = setTimeout(showWelcomeButton, 100);
       return;
     }
 
-    setTimeout(() => leafLeft.classList.add('is-visible'), 700);
-    setTimeout(() => leafRight.classList.add('is-visible'), 950);
+    setTimeout(() => leafLeft.classList.add('is-visible'), 800);
+    setTimeout(() => leafRight.classList.add('is-visible'), 1100);
     setTimeout(() => {
-      calyx.classList.add('is-open');
+      calyx.classList.add('is-visible');
       roseHead.classList.add('is-blooming');
       $('#welcomeAmbient').classList.add('is-lit');
-    }, 1900);
-    welcomeButtonTimer = setTimeout(showWelcomeButton, 5500);
+    }, 2300);
+    setTimeout(() => roseWrapper.classList.add('is-rotating'), 4900);
+    welcomeButtonTimer = setTimeout(showWelcomeButton, 8200);
   }
   function showWelcomeButton() {
     const button = $('.welcome-button');
@@ -916,6 +939,7 @@
     const screen = $('#welcomeScreen');
     if (!screen || screen.hidden || screen.classList.contains('is-leaving')) return;
     const preferenceSaved = store.set('welcomeSeen', true);
+    welcomeSessionCompleted = true;
     clearTimeout(welcomeButtonTimer);
     screen.classList.add('is-leaving');
     if (screen.contains(document.activeElement)) document.activeElement.blur();
@@ -926,11 +950,13 @@
     setTimeout(() => {
       screen.hidden = true;
       screen.classList.remove('is-visible', 'is-leaving');
+      welcomeActive = false;
       document.body.classList.remove('no-scroll');
       welcomeInertState.forEach(({ element, inert }) => { element.inert = inert; });
       welcomeInertState = [];
       document.body.classList.remove('site-entering');
-      $('#main').focus();
+      route();
+      if (currentPage === 'home') $('#main').focus();
       if (!preferenceSaved) {
         toast('Your welcome preference could not be saved, so this screen may appear again.', 'error');
       }
@@ -950,6 +976,10 @@
     if (page === 'chat' && currentUser().role === 'admin') { go('admin'); return; }
     if (page === 'admin' && !isAdmin()) {
       if (!currentUser()) { go('login', { next: 'admin', notice: 'admin' }); } else { toast('Admin access only.', 'error'); go('home'); }
+      return;
+    }
+    if (page === 'home' && !welcomeSessionCompleted && store.get('welcomeSeen', false) !== true) {
+      showWelcomeScreen(routeKey);
       return;
     }
 
@@ -2396,7 +2426,6 @@
   function init() {
     $('#year').textContent = new Date().getFullYear();
     initPetals();
-    initializeWelcomeScreen();
     checkImages();
     syncCart();
     startBackgroundMusic();
@@ -2408,9 +2437,8 @@
     if (!location.hash) location.hash = '#/home'; else route();
     if (!location.hash || location.hash === '#/home') route();
     
-    window.addEventListener('load', () => setTimeout(hideLoader, 5000));
-    setTimeout(hideLoader, 5000);
-    if (document.readyState === 'complete') setTimeout(hideLoader, 5000);
+    window.addEventListener('load', scheduleInitialLoaderHide, { once: true });
+    scheduleInitialLoaderHide();
   }
   init();
 
