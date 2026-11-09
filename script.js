@@ -809,6 +809,7 @@
   }
 
   let loaderHideTimer = null;
+  let welcomeButtonTimer = null;
   function showLoader() {
     const loader = $('#loader');
     if (!loader) return;
@@ -824,6 +825,45 @@
   function startTabTransition() {
     showLoader();
     hideLoader(1400);
+  }
+  function initializeWelcomeScreen() {
+    if (store.get('welcomeSeen', false) === true) return;
+    const screen = $('#welcomeScreen');
+    const content = $('.welcome-content', screen);
+    if (!screen || !content) return;
+    screen.hidden = false;
+    screen.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('no-scroll');
+    $$('body > :not(#welcomeScreen):not(#loader)').forEach((element) => { element.inert = true; });
+    requestAnimationFrame(() => {
+      screen.classList.add('is-visible');
+      content.focus();
+    });
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    welcomeButtonTimer = setTimeout(() => {
+      const button = $('.welcome-button', screen);
+      if (button) {
+        button.disabled = false;
+        button.classList.add('is-ready');
+      }
+    }, reducedMotion ? 50 : 1550);
+  }
+  function dismissWelcomeScreen() {
+    const screen = $('#welcomeScreen');
+    if (!screen || screen.hidden || screen.classList.contains('is-leaving')) return;
+    if (!store.set('welcomeSeen', true)) toast('Your welcome preference could not be saved, so this screen may appear again.', 'error');
+    clearTimeout(welcomeButtonTimer);
+    screen.classList.add('is-leaving');
+    screen.setAttribute('aria-hidden', 'true');
+    document.body.classList.add('site-entering');
+    hideLoader(0);
+    setTimeout(() => {
+      screen.hidden = true;
+      screen.classList.remove('is-visible', 'is-leaving');
+      document.body.classList.remove('no-scroll', 'site-entering');
+      $$('body > :not(#welcomeScreen):not(#loader)').forEach((element) => { element.inert = false; });
+      $('#main').focus();
+    }, 700);
   }
 
   function route() {
@@ -2116,6 +2156,7 @@
       case 'confirm-ok': { const r = modalResolve; modalResolve = null; closeModal(); if (r) r(true); break; }
       case 'toggle-user': { const dd = $('#userDropdown'); const open = dd.hidden; dd.hidden = !open; el.setAttribute('aria-expanded', String(open)); break; }
       case 'logout': closeMenus(); logout(); break;
+      case 'enter-website': dismissWelcomeScreen(); break;
       case 'auth-tab':
         if (el.getAttribute('aria-selected') !== 'true') startTabTransition();
         setAuthTab(el.dataset.tab);
@@ -2283,6 +2324,7 @@
   }
   function init() {
     $('#year').textContent = new Date().getFullYear();
+    initializeWelcomeScreen();
     initPetals();
     checkImages();
     syncCart();
