@@ -595,6 +595,7 @@ fieldset { border: 0; padding: 0; margin: 0 0 1.2rem; min-width: 0; }
 .info-list { list-style: none; margin: 0 0 1.2rem; padding: 0; }
 .info-list li { display: flex; gap: .8rem; padding: .7rem 0; border-bottom: 1px dashed var(--line); font-size: .92rem; }
 .info-list b { min-width: 74px; color: var(--maroon); }
+.info-list li > span { min-width: 0; overflow-wrap: anywhere; }
 .socials { display: flex; gap: .6rem; flex-wrap: wrap; }
 .socials a { padding: .45rem 1rem; border-radius: 999px; border: 1.5px solid var(--line); font-size: .85rem; font-weight: 500; color: var(--maroon); }
 .socials a:hover { background: var(--burgundy); color: #fff; text-decoration: none; }
@@ -737,15 +738,8 @@ td select { min-height: 36px; padding: .3rem .6rem; }
 .branch-map-wrap iframe { width: 100%; min-height: 440px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--blush); }
 .branch-map-wrap .btn { justify-self: start; }
 @media (max-width: 900px) {
-  .menu-btn { display: block; }
-  .nav {
-    position: absolute; left: 0; right: 0; top: 100%; flex-direction: column; align-items: stretch; background: var(--ivory);
-    border-bottom: 1px solid var(--line); padding: .6rem 1.25rem 1.2rem; box-shadow: var(--shadow);
-    transform: translateY(-12px); opacity: 0; visibility: hidden; transition: all .3s var(--ease);
-  }
-  .nav.open { transform: none; opacity: 1; visibility: visible; }
-  .nav a { padding: .8rem 1rem; border-radius: 12px; }
-  .hero-inner, .cart-layout, .split, .contact-layout, .promo-banner, .auth-wrap { grid-template-columns: 1fr; }
+  .hero-inner, .cart-layout, .split, .contact-layout, .promo-banner, .auth-wrap { grid-template-columns: minmax(0, 1fr); }
+  .contact-layout > * { min-width: 0; }
   .hero-inner { min-height: 0; text-align: center; padding: 2.5rem 0 3rem; }
   .hero p.lead { margin-inline: auto; } .hero-cta { justify-content: center; }
   .hero-art { width: min(80%, 380px); order: -1; }
@@ -760,6 +754,19 @@ td select { min-height: 36px; padding: .3rem .6rem; }
 }
 @media (max-width: 600px) {
   :root { --header-h: 68px; }
+  .header-inner { width: calc(100% - 1rem); gap: .35rem; }
+  .brand { gap: .2rem; font-size: 1.05rem; }
+  .brand img { width: 28px; height: 28px; }
+  .header-actions { flex: 0 0 auto; gap: 0; }
+  .header-actions > a[href="#/wishlist"] { display: none; }
+  .header-actions .icon-btn, .menu-btn { width: 34px; height: 34px; flex: 0 0 34px; }
+  .header-actions .icon-btn svg { width: 20px; height: 20px; }
+  .header-actions .user-btn { width: 34px; height: 34px; }
+  .header-actions #authArea { display: flex; }
+  .menu-btn span { left: 8px; right: 8px; }
+  .menu-btn span:nth-child(1) { top: 11px; }
+  .menu-btn span:nth-child(2) { top: 16px; }
+  .menu-btn span:nth-child(3) { top: 21px; }
   .top-promo { min-height: 340px; align-items: flex-end; }
   .top-promo-image { object-position: 58% center; }
   .top-promo-shade { background: linear-gradient(0deg, rgba(48,14,27,.93) 0%, rgba(74,23,40,.72) 58%, rgba(74,23,40,.12) 100%); }
@@ -775,8 +782,6 @@ td select { min-height: 36px; padding: .3rem .6rem; }
   .cart-item { grid-template-columns: 76px 1fr; }
   .cart-thumb { width: 76px; height: 76px; }
   .cart-price { grid-column: 1 / -1; flex-direction: row; align-items: center; justify-content: space-between; text-align: left; }
-  .brand { font-size: 1.35rem; }
-  .brand img { width: 36px; height: 36px; }
   .branch-map-wrap iframe { min-height: 340px; }
   .card-body { padding: .8rem; } .card-body .desc { display: none; }
   .card-foot { flex-direction: column; align-items: stretch; } .card-foot .btn { width: 100%; }
@@ -791,6 +796,22 @@ td select { min-height: 36px; padding: .3rem .6rem; }
   .website-qr-card img { width: 68px; height: 68px; }
   .website-qr-label { font-size: .64rem; }
   .website-qr-url { font-size: .43rem; }
+}
+
+@media (max-width: 360px) {
+  .brand { font-size: .88rem; }
+  .brand img { width: 24px; height: 24px; }
+}
+
+@media (max-width: 1100px) {
+  .menu-btn { display: block; }
+  .nav {
+    position: absolute; left: 0; right: 0; top: 100%; flex-direction: column; align-items: stretch; background: var(--ivory);
+    border-bottom: 1px solid var(--line); padding: .6rem 1.25rem 1.2rem; box-shadow: var(--shadow);
+    transform: translateY(-12px); opacity: 0; visibility: hidden; transition: all .3s var(--ease);
+  }
+  .nav.open { transform: none; opacity: 1; visibility: visible; }
+  .nav a { padding: .8rem 1rem; border-radius: 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
