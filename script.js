@@ -848,133 +848,6 @@
     }, 5000);
   }
 
-  let welcomeButtonTimer = null;
-  let welcomeInertState = [];
-  let welcomeActive = false;
-  let welcomeSessionCompleted = false;
-  function showWelcomeScreen(routeKey) {
-    if (welcomeActive || welcomeSessionCompleted || store.get('welcomeSeen', false) === true) return;
-    const screen = $('#welcomeScreen');
-    if (!screen) return;
-
-    const calyx = $('.welcome-calyx', screen);
-    const roseHead = $('.welcome-rose-head', screen);
-    const roseWrapper = $('.welcome-rose-wrapper', screen);
-    const stem = $('.welcome-stem', screen);
-    const leafLeft = $('.welcome-leaf-left', screen);
-    const leafRight = $('.welcome-leaf-right', screen);
-    const layers = [
-      { count: 4, width: 24, height: 46, curl: 78, delay: 0, depth: 2, className: 'welcome-petal-bud' },
-      { count: 5, width: 34, height: 58, curl: 65, delay: 0.25, depth: 9, className: 'welcome-petal-core' },
-      { count: 6, width: 46, height: 72, curl: 48, delay: 0.55, depth: 18, className: 'welcome-petal-inner' },
-      { count: 7, width: 58, height: 88, curl: 22, delay: 0.9, depth: 30, className: 'welcome-petal-mid-inner' },
-      { count: 8, width: 72, height: 104, curl: -5, delay: 1.3, depth: 44, className: 'welcome-petal-mid' },
-      { count: 9, width: 86, height: 118, curl: -25, delay: 1.75, depth: 60, className: 'welcome-petal-outer' },
-      { count: 10, width: 98, height: 130, curl: -48, delay: 2.25, depth: 76, className: 'welcome-petal-blush' }
-    ];
-
-    layers.forEach((layer, layerIndex) => {
-      const step = 360 / layer.count;
-      const layerOffset = layerIndex * 24 + (Math.random() - 0.5) * 8;
-      for (let index = 0; index < layer.count; index += 1) {
-        const petal = document.createElement('span');
-        const delay = layer.delay + index * 0.05;
-        petal.className = 'welcome-rose-petal ' + layer.className;
-        petal.style.width = layer.width + 'px';
-        petal.style.height = layer.height + 'px';
-        petal.style.setProperty('--angle', (layerOffset + index * step + (Math.random() - 0.5) * 5) + 'deg');
-        petal.style.setProperty('--curl', (layer.curl + (Math.random() - 0.5) * 6) + 'deg');
-        petal.style.setProperty('--depth', layer.depth + 'px');
-        petal.style.setProperty('--petal-scale', (0.94 + Math.random() * 0.12));
-        petal.style.setProperty('--bloom-delay', delay + 's');
-        petal.style.setProperty('--bloom-duration', (2.1 + Math.random() * 0.4) + 's');
-        roseHead.appendChild(petal);
-      }
-    });
-
-    for (let index = 0; index < 5; index += 1) {
-      const sepal = document.createElement('span');
-      sepal.className = 'welcome-sepal';
-      sepal.style.setProperty('--sepal-angle', (index * 72 + (Math.random() - 0.5) * 5) + 'deg');
-      sepal.style.setProperty('--sepal-curl', (18 + Math.random() * 8) + 'deg');
-      sepal.style.setProperty('--sepal-delay', (0.3 + index * 0.06) + 's');
-      calyx.appendChild(sepal);
-    }
-
-    welcomeActive = true;
-    lastRouteKey = routeKey;
-    hideLoader(0);
-    screen.hidden = false;
-    screen.setAttribute('aria-hidden', 'false');
-    screen.inert = false;
-    document.body.classList.add('no-scroll');
-    welcomeInertState = Array.from(document.body.children)
-      .filter((element) => element !== screen)
-      .map((element) => ({ element, inert: element.inert }));
-    welcomeInertState.forEach(({ element }) => { element.inert = true; });
-    requestAnimationFrame(() => {
-      screen.classList.add('is-visible');
-      screen.focus();
-    });
-
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    stem.classList.add('is-grown');
-    if (reducedMotion) {
-      leafLeft.classList.add('is-visible');
-      leafRight.classList.add('is-visible');
-      calyx.classList.add('is-visible');
-      roseHead.classList.add('is-blooming');
-      $('#welcomeAmbient').classList.add('is-lit');
-      roseWrapper.classList.add('is-rotating');
-      welcomeButtonTimer = setTimeout(showWelcomeButton, 100);
-      return;
-    }
-
-    setTimeout(() => leafLeft.classList.add('is-visible'), 800);
-    setTimeout(() => leafRight.classList.add('is-visible'), 1100);
-    setTimeout(() => {
-      calyx.classList.add('is-visible');
-      roseHead.classList.add('is-blooming');
-      $('#welcomeAmbient').classList.add('is-lit');
-    }, 2300);
-    setTimeout(() => roseWrapper.classList.add('is-rotating'), 4900);
-    welcomeButtonTimer = setTimeout(showWelcomeButton, 8200);
-  }
-  function showWelcomeButton() {
-    const button = $('.welcome-button');
-    const screen = $('#welcomeScreen');
-    if (!button || !screen || screen.hidden || screen.classList.contains('is-leaving')) return;
-    button.disabled = false;
-    button.classList.add('is-ready');
-  }
-  function dismissWelcomeScreen() {
-    const screen = $('#welcomeScreen');
-    if (!screen || screen.hidden || screen.classList.contains('is-leaving')) return;
-    const preferenceSaved = store.set('welcomeSeen', true);
-    welcomeSessionCompleted = true;
-    clearTimeout(welcomeButtonTimer);
-    screen.classList.add('is-leaving');
-    if (screen.contains(document.activeElement)) document.activeElement.blur();
-    screen.inert = true;
-    screen.setAttribute('aria-hidden', 'true');
-    document.body.classList.add('site-entering');
-    hideLoader(0);
-    setTimeout(() => {
-      screen.hidden = true;
-      screen.classList.remove('is-visible', 'is-leaving');
-      welcomeActive = false;
-      document.body.classList.remove('no-scroll');
-      welcomeInertState.forEach(({ element, inert }) => { element.inert = inert; });
-      welcomeInertState = [];
-      document.body.classList.remove('site-entering');
-      route();
-      if (currentPage === 'home') $('#main').focus();
-      if (!preferenceSaved) {
-        toast('Your welcome preference could not be saved, so this screen may appear again.', 'error');
-      }
-    }, 850);
-  }
-
   function route() {
     const parsed = parseHash();
     let page = parsed.page; params = parsed.params;
@@ -990,11 +863,6 @@
       if (!currentUser()) { go('login', { next: 'admin', notice: 'admin' }); } else { toast('Admin access only.', 'error'); go('home'); }
       return;
     }
-    if (page === 'home' && !welcomeSessionCompleted && store.get('welcomeSeen', false) !== true) {
-      showWelcomeScreen(routeKey);
-      return;
-    }
-
     currentPage = page;
     lastRouteKey = routeKey;
     $$('.page').forEach((p) => p.classList.remove('active'));
@@ -2269,7 +2137,6 @@
       case 'confirm-ok': { const r = modalResolve; modalResolve = null; closeModal(); if (r) r(true); break; }
       case 'toggle-user': { const dd = $('#userDropdown'); const open = dd.hidden; dd.hidden = !open; el.setAttribute('aria-expanded', String(open)); break; }
       case 'logout': closeMenus(); logout(); break;
-      case 'enter-website': dismissWelcomeScreen(); break;
       case 'auth-tab':
         if (el.getAttribute('aria-selected') !== 'true') startTabTransition();
         setAuthTab(el.dataset.tab);
