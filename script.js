@@ -1029,6 +1029,22 @@
     $('#searchInput').addEventListener('input', (e) => { shopFilters.q = e.target.value; renderShop(); });
     $('#occasionFilter').addEventListener('change', (e) => { shopFilters.occ = e.target.value; renderShop(); });
     $('#sortSelect').addEventListener('change', (e) => { shopFilters.sort = e.target.value; renderShop(); });
+    window.addEventListener('resize', positionCategoryIndicator);
+  }
+  function positionCategoryIndicator() {
+    const chips = $('#catChips');
+    const indicator = chips && $('.chip-indicator', chips);
+    const activeChip = chips && $('.chip-btn.active', chips);
+    if (!chips || !indicator || !activeChip) return;
+
+    const containerRect = chips.getBoundingClientRect();
+    const chipRect = activeChip.getBoundingClientRect();
+    if (!chipRect.width || !chipRect.height) return;
+
+    indicator.style.width = chipRect.width + 'px';
+    indicator.style.height = chipRect.height + 'px';
+    indicator.style.transform = `translate3d(${chipRect.left - containerRect.left}px, ${chipRect.top - containerRect.top}px, 0)`;
+    indicator.classList.add('is-positioned');
   }
   function applyShopParams() {
     initShopControls();
@@ -1044,8 +1060,18 @@
   }
   function renderShop(animateFilter = false) {
     initShopControls();
-    $('#catChips').innerHTML = [{ id: 'all', label: 'All' }].concat(CATEGORIES).map((c) =>
-      `<button type="button" class="chip-btn ${shopFilters.cat === c.id ? 'active' : ''}${animateFilter && shopFilters.cat === c.id ? ' filter-glide' : ''}" data-action="filter-cat" data-cat="${c.id}" aria-pressed="${shopFilters.cat === c.id}">${esc(c.label)}</button>`).join('');
+    const chips = $('#catChips');
+    let indicator = $('.chip-indicator', chips);
+    if (!indicator) {
+      indicator = document.createElement('span');
+      indicator.className = 'chip-indicator';
+      indicator.setAttribute('aria-hidden', 'true');
+      chips.appendChild(indicator);
+    }
+    chips.querySelectorAll('.chip-btn').forEach((button) => button.remove());
+    chips.insertAdjacentHTML('beforeend', [{ id: 'all', label: 'All' }].concat(CATEGORIES).map((c) =>
+      `<button type="button" class="chip-btn ${shopFilters.cat === c.id ? 'active' : ''}" data-action="filter-cat" data-cat="${c.id}" aria-pressed="${shopFilters.cat === c.id}">${esc(c.label)}</button>`).join(''));
+    positionCategoryIndicator();
     const q = shopFilters.q.trim().toLowerCase();
     let list = state.products.filter((p) => !isAddon(p) &&
       (!q || p.name.toLowerCase().includes(q)) &&

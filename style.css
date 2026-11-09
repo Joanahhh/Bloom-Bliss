@@ -462,20 +462,17 @@ main:focus { outline: none; }
 
 /* ---------- Shop toolbar ---------- */
 .toolbar { display: grid; grid-template-columns: 1.4fr 1fr 1fr auto; gap: .8rem; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem; box-shadow: var(--shadow-sm); margin: -1.5rem 0 1.2rem; position: relative; z-index: 3; }
-.chips { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.2rem; }
-.chip-btn { border: 1.5px solid var(--line); background: #fff; padding: .4rem 1rem; border-radius: 999px; font-size: .85rem; font-weight: 500; transition: background .4s var(--glide), color .4s var(--glide), border-color .4s var(--glide), box-shadow .4s var(--glide), transform .45s var(--glide); }
-.chip-btn:hover { border-color: var(--burgundy); transform: translateY(-2px); }
+.chips { position: relative; display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.2rem; isolation: isolate; }
+.chip-indicator { position: absolute; z-index: 0; top: 0; left: 0; width: 0; height: 0; border-radius: 2px; background: var(--burgundy); opacity: 0; pointer-events: none; transition: transform .55s var(--glide), width .4s var(--glide), height .4s var(--glide), opacity .2s ease; }
+.chip-indicator.is-positioned { opacity: 1; }
+.chip-btn { position: relative; z-index: 1; border: 1.5px solid var(--line); background: #fff; padding: .4rem 1rem; border-radius: 999px; font-size: .85rem; font-weight: 500; transition: background .4s var(--glide), color .4s var(--glide), border-color .4s var(--glide), box-shadow .4s var(--glide), transform .45s var(--glide); }
+.chip-btn:not(.active):hover { border-color: var(--burgundy); transform: translateY(-2px); }
 .chip-btn:active { transform: translateY(0) scale(.97); }
-.chip-btn.active { background: var(--burgundy); color: #fff; border-color: var(--burgundy); }
-.chip-btn.filter-glide { animation: filterChipGlide .45s var(--glide) both; }
+.chip-btn.active { background: transparent; color: #fff; border-color: transparent; }
 #shopGrid.filter-glide .product-card { animation: filterProductGlide .5s var(--glide) both; }
 #shopGrid.filter-glide .product-card:nth-child(2) { animation-delay: .04s; }
 #shopGrid.filter-glide .product-card:nth-child(3) { animation-delay: .08s; }
 #shopGrid.filter-glide .product-card:nth-child(4) { animation-delay: .12s; }
-@keyframes filterChipGlide {
-  from { opacity: .7; transform: translateY(6px) scale(.97); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
 @keyframes filterProductGlide {
   from { opacity: 0; transform: translateX(14px); }
   to { opacity: 1; transform: translateX(0); }
