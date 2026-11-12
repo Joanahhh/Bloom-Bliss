@@ -946,6 +946,7 @@
     currentPage = page;
     lastRouteKey = routeKey;
     document.body.classList.toggle('home-page', page === 'home');
+    document.body.classList.toggle('categories-page', page === 'categories');
     $$('.page').forEach((p) => p.classList.remove('active'));
     const el = $('#page-' + page); el.classList.add('active');
     const qrCard = $('.website-qr-card'); if (qrCard) qrCard.hidden = page !== 'home';
