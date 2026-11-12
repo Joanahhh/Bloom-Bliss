@@ -433,7 +433,9 @@
             incomingMessagesForUser.forEach(({ conversation, message }) => {
               notifyAdmin(
                 `New message from ${conversation.name}.`,
-                message.text
+                message.text,
+                'messages',
+                currentPage !== 'admin' || adminTab !== 'messages'
               );
             });
           } else if (incomingMessagesForUser.length && currentPage !== 'chat') {
@@ -627,8 +629,8 @@
     setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 400); }, 3200);
     while (wrap.children.length > 4) wrap.firstChild.remove();
   }
-  function notifyAdmin(title, message, tab) {
-    toast(title);
+  function notifyAdmin(title, message, tab, showToast) {
+    if (showToast !== false) toast(title);
     if (!isAdmin() || !document.hidden || typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
 
     try {
