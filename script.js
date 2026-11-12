@@ -394,6 +394,7 @@
             conversation.messages.map((message) => message.id).filter(Boolean)
           ));
           const previousContactIds = new Set(state.messages.map((message) => message.id).filter(Boolean));
+          const previousReviewIds = new Set(state.reviews.map((review) => review.id).filter(Boolean));
           await loadCloudState(state.authUser);
           const newNotifications = state.ownerOrderNotifications.filter((notification) =>
             !previousNotifications.some((previous) => previous.id === notification.id)
@@ -416,19 +417,41 @@
               .filter((message) => message.id && !previousMessageIds.has(message.id))
               .map((message) => ({ conversation, message }))
           );
-          const incomingMessage = incomingMessages.find(({ message }) =>
+          const incomingMessagesForUser = incomingMessages.filter(({ message }) =>
             message.from === (isAdmin() ? 'customer' : 'owner')
           );
-          if (incomingMessage) {
-            const activeThread = currentPage === 'chat' || (currentPage === 'admin' && adminTab === 'messages');
-            if (!activeThread) {
-              toast(isAdmin()
-                ? `New message from ${incomingMessage.conversation.name}.`
-                : 'Bloom & Bliss sent you a chat message.');
-            }
+          if (isAdmin()) {
+            incomingMessagesForUser.forEach(({ conversation, message }) => {
+              notifyAdmin(
+                `New message from ${conversation.name}.`,
+                message.text
+              );
+            });
+          } else if (incomingMessagesForUser.length && currentPage !== 'chat') {
+            toast('Bloom & Bliss sent you a chat message.');
           }
-          const newContactMessage = state.messages.find((message) => message.id && !previousContactIds.has(message.id));
-          if (isAdmin() && newContactMessage) toast(`New contact message from ${newContactMessage.name}.`);
+          const newContactMessages = state.messages.filter((message) => message.id && !previousContactIds.has(message.id));
+          if (isAdmin()) {
+            newContactMessages.forEach((message) => {
+              notifyAdmin(
+                `New contact message from ${message.name}.`,
+                `${message.subject}: ${message.message}`
+              );
+            });
+          }
+          const newReviews = state.reviews.filter((review) =>
+            review.id && !previousReviewIds.has(review.id)
+          );
+          if (isAdmin()) {
+            newReviews.forEach((review) => {
+              const product = state.products.find((item) => item.id === review.productId);
+              notifyAdmin(
+                `New review from ${review.customer} for ${product ? product.name : 'a product'} (${review.rating}/5).`,
+                review.text,
+                'overview'
+              );
+            });
+          }
           renderAfterCloudRefresh();
         }).catch((error) => reportCloudError('refresh shared store data', error));
         }, 120);
@@ -594,6 +617,21 @@
     wrap.appendChild(t);
     setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 400); }, 3200);
     while (wrap.children.length > 4) wrap.firstChild.remove();
+  }
+  function notifyAdmin(title, message, tab) {
+    toast(title);
+    if (!isAdmin() || !document.hidden || typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+
+    try {
+      const notification = new Notification(title, { body: message });
+      notification.onclick = () => {
+        window.focus();
+        go('admin', { tab: tab || 'messages' });
+        notification.close();
+      };
+    } catch (error) {
+      console.error('Could not show a desktop notification for customer activity.', error);
+    }
   }
 
   let lastFocus = null;
