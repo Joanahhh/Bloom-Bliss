@@ -77,6 +77,11 @@
   const DELIVERY_FEE = 150;
   const FREE_SHIP_MIN = 3000;
   const STATUSES = ['Pending', 'Preparing', 'Out for Delivery', 'Delivered'];
+  const CUSTOMER_ORDER_STATUS_UPDATES = {
+    Preparing: 'is being prepared.',
+    'Out for Delivery': 'is out for delivery.',
+    Delivered: 'has been delivered.'
+  };
   const TIME_SLOTS = ['9:00 AM – 12:00 NN', '12:00 NN – 3:00 PM', '3:00 PM – 6:00 PM', '6:00 PM – 8:00 PM'];
 
   const PAL = {
@@ -408,10 +413,14 @@
               toast(order ? `New order from ${order.customer}.` : 'New customer order received.');
             }
           }
-          const changedOrder = state.orders.find((order) =>
-            previousOrderStatuses.has(order.id) && previousOrderStatuses.get(order.id) !== order.status
+          const changedOrders = state.orders.filter((order) =>
+            previousOrderStatuses.has(order.id) &&
+            previousOrderStatuses.get(order.id) !== order.status &&
+            CUSTOMER_ORDER_STATUS_UPDATES[order.status]
           );
-          if (!isAdmin() && changedOrder) toast(`Order ${changedOrder.id} is now ${changedOrder.status}.`);
+          if (!isAdmin()) {
+            changedOrders.forEach((order) => notifyCustomerOfOrderStatus(order));
+          }
           const incomingMessages = state.conversations.flatMap((conversation) =>
             conversation.messages
               .filter((message) => message.id && !previousMessageIds.has(message.id))
@@ -631,6 +640,22 @@
       };
     } catch (error) {
       console.error('Could not show a desktop notification for customer activity.', error);
+    }
+  }
+  function notifyCustomerOfOrderStatus(order) {
+    const message = `Your order ${order.id} ${CUSTOMER_ORDER_STATUS_UPDATES[order.status]}`;
+    toast(message);
+    if (isAdmin() || !document.hidden || typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+
+    try {
+      const notification = new Notification('Order status update', { body: message });
+      notification.onclick = () => {
+        window.focus();
+        go('orders');
+        notification.close();
+      };
+    } catch (error) {
+      console.error('Could not show a desktop notification for the order status update.', error);
     }
   }
 
@@ -1503,7 +1528,12 @@
       <div class="order-meta" style="text-align:left"><div><b>Deliver to</b>${esc(o.recipient.name)}<br>${esc(o.recipient.address)}, ${esc(o.recipient.city)}</div>
         <div><b>Delivery</b>${prettyDate(o.delivery.date)}<br>${esc(o.delivery.time)}</div>
         <div><b>Payment</b>${esc(o.payment)}<br><strong>${peso(o.totals.total)}</strong></div></div>
-      <p style="margin-top:1.5rem"><a class="btn btn-primary" href="#/orders">Track My Order</a> <a class="btn btn-ghost" href="#/shop">Keep Shopping</a></p></div>`;
+      <p class="receipt-actions" style="margin-top:1.5rem">
+        <button type="button" class="btn btn-primary" data-action="print-receipt" data-id="${esc(o.id)}">Print / Save as PDF</button>
+        <button type="button" class="btn btn-ghost" data-action="download-receipt" data-id="${esc(o.id)}">Download receipt (HTML)</button>
+        <a class="btn btn-ghost" href="#/orders">Track My Order</a>
+        <a class="btn btn-ghost" href="#/shop">Keep Shopping</a>
+      </p></div>`;
   }
 
   /* ---- Wishlist ---- */
@@ -1542,6 +1572,103 @@
     return `<div class="progress" aria-label="Order progress: ${esc(status)}">${STATUSES.map((s, i) => `<div class="${i <= idx ? 'done' : ''}">${s}</div>`).join('')}</div>`;
   }
   function canCancelOrder(o) { return o.status === 'Pending'; }
+  function receiptDocumentHTML(order) {
+    const itemRows = order.items.map((item) => `<tr>
+      <td>${esc(item.name)}</td><td>${item.qty}</td><td>${peso(item.price)}</td><td>${peso(item.price * item.qty)}</td>
+    </tr>`).join('');
+    const discountRow = Number(order.totals.discount) > 0
+      ? `<tr><th colspan="3">Discount</th><td>-${peso(order.totals.discount)}</td></tr>`
+      : '';
+    const deliveryNote = order.delivery.note
+      ? `<p><strong>Delivery note:</strong> ${esc(order.delivery.note)}</p>`
+      : '';
+    return `<!doctype html>
+      <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>Bloom &amp; Bliss receipt - ${esc(order.id)}</title>
+      <style>
+        *{box-sizing:border-box}body{margin:0;padding:24px;background:#f7f3f0;color:#30242a;font:15px/1.5 Arial,sans-serif}
+        .receipt{max-width:760px;margin:20px auto;padding:40px;background:#fff;border:1px solid #e6dcd7}
+        header{display:flex;justify-content:space-between;gap:24px;border-bottom:2px solid #70263d;padding-bottom:20px}
+        h1{margin:0;color:#70263d;font-size:26px}h2{margin:28px 0 10px;font-size:16px}
+        p{margin:4px 0}.muted{color:#71676c}.details{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:22px}
+        table{width:100%;margin-top:20px;border-collapse:collapse}th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #eadfdb}
+        th:last-child,td:not(:first-child){text-align:right}tfoot th{border:0}tfoot tr:last-child{font-size:18px;font-weight:bold;color:#70263d}
+        .thanks{margin-top:28px;padding-top:16px;border-top:1px solid #eadfdb;text-align:center;color:#71676c}
+        @media(max-width:560px){body{padding:0}.receipt{margin:0;padding:22px;border:0}.details{grid-template-columns:1fr}}
+        @media print{body{padding:0;background:#fff}.receipt{max-width:none;margin:0;padding:0;border:0}}
+      </style></head><body><main class="receipt">
+        <header><div><h1>Bloom &amp; Bliss</h1><p class="muted">Order receipt</p></div>
+          <div><strong>Order ${esc(order.id)}</strong><p>Placed ${esc(prettyDate(order.createdAt))}</p><p>Status: ${esc(order.status)}</p></div>
+        </header>
+        <section class="details"><div><h2>Customer</h2><p>${esc(order.customer)}</p><p>${esc(order.user)}</p></div>
+          <div><h2>Deliver to</h2><p>${esc(order.recipient.name)}</p><p>${esc(order.recipient.phone)}</p>
+            <p>${esc(order.recipient.address)}, ${esc(order.recipient.city)} ${esc(order.recipient.zip)}</p></div>
+          <div><h2>Delivery</h2><p>${esc(prettyDate(order.delivery.date))}</p><p>${esc(order.delivery.time)}</p>${deliveryNote}</div>
+          <div><h2>Payment</h2><p>${esc(order.payment)}</p></div>
+        </section>
+        <table><thead><tr><th>Item</th><th>Qty</th><th>Unit price</th><th>Amount</th></tr></thead>
+          <tbody>${itemRows}</tbody><tfoot>
+            <tr><th colspan="3">Subtotal</th><td>${peso(order.totals.subtotal)}</td></tr>
+            ${discountRow}
+            <tr><th colspan="3">Delivery</th><td>${peso(order.totals.delivery)}</td></tr>
+            <tr><th colspan="3">Total</th><td>${peso(order.totals.total)}</td></tr>
+          </tfoot>
+        </table><p class="thanks">Thank you for choosing Bloom &amp; Bliss.</p>
+      </main></body></html>`;
+  }
+  function getReceiptOrder(id) {
+    const user = currentUser();
+    const order = state.orders.find((item) => item.id === id);
+    if (!user || !order || (user.role !== 'admin' && order.user !== user.email)) {
+      toast('This order receipt is not available for your account.', 'error');
+      return null;
+    }
+    return order;
+  }
+  function printOrderReceipt(id) {
+    const order = getReceiptOrder(id);
+    if (!order) return;
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      toast('Allow pop-ups to print your receipt.', 'error');
+      return;
+    }
+    try {
+      printWindow.document.open();
+      printWindow.document.write(receiptDocumentHTML(order));
+      printWindow.document.close();
+      setTimeout(() => {
+        if (!printWindow.closed) {
+          printWindow.focus();
+          printWindow.print();
+        }
+      }, 250);
+    } catch (error) {
+      console.error('Could not open the order receipt for printing.', error);
+      toast('Could not open the receipt for printing. Please try downloading it instead.', 'error');
+    }
+  }
+  function downloadOrderReceipt(id) {
+    const order = getReceiptOrder(id);
+    if (!order) return;
+    let downloadUrl;
+    const link = document.createElement('a');
+    try {
+      const file = new Blob([receiptDocumentHTML(order)], { type: 'text/html;charset=utf-8' });
+      downloadUrl = URL.createObjectURL(file);
+      link.href = downloadUrl;
+      link.download = `Bloom-Bliss-${order.id.replace(/[^a-zA-Z0-9-]/g, '')}-receipt.html`;
+      document.body.appendChild(link);
+      link.click();
+      toast('Your receipt was downloaded.');
+    } catch (error) {
+      console.error('Could not download the order receipt.', error);
+      toast('Could not download the receipt. Please try printing it instead.', 'error');
+    } finally {
+      link.remove();
+      if (downloadUrl) setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+    }
+  }
   async function cancelOrder(id) {
     const u = currentUser();
     const o = state.orders.find((order) => order.id === id && u && order.user === u.email);
@@ -1596,7 +1723,13 @@
       ${progressHTML(o.status)}
       <div class="order-items">${o.items.map((i) => `<div style="display:flex;gap:.6rem;align-items:center"><div class="thumb">${prodMedia(i, i.name)}</div><div style="font-size:.84rem"><strong>${esc(i.name)}</strong><br><span class="muted">Qty ${i.qty} · ${peso(i.price * i.qty)}</span>${i.message ? `<br><span class="muted"><em>Card message: “${esc(i.message)}”</em></span>` : ''}</div></div>`).join('')}</div>
       <div class="order-meta"><div><b>Delivery</b>${prettyDate(o.delivery.date)} · ${esc(o.delivery.time)}</div><div><b>Recipient</b>${esc(o.recipient.name)}<br>${esc(o.recipient.city)}</div><div><b>Payment</b>${esc(o.payment)}</div><div><b>Total</b><strong style="font-size:1.1rem;color:var(--burgundy)">${peso(o.totals.total)}</strong></div></div>
-      ${canCancelOrder(o) || canConfirmReceipt ? `<div class="order-actions">${canCancelOrder(o) ? `<button type="button" class="btn btn-danger btn-sm" data-action="cancel-order" data-id="${esc(o.id)}">Cancel Order</button>` : ''}${canConfirmReceipt ? `<button type="button" class="btn btn-primary btn-sm" data-action="confirm-order-received" data-id="${esc(o.id)}">Order received</button>` : ''}</div>` : o.receivedAt ? '<p class="muted">Receipt confirmed. Thank you!</p>' : ''}</article>`;
+      <div class="order-actions">
+        <button type="button" class="btn btn-ghost btn-sm" data-action="print-receipt" data-id="${esc(o.id)}">Print / Save as PDF</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-action="download-receipt" data-id="${esc(o.id)}">Download receipt (HTML)</button>
+        ${canCancelOrder(o) ? `<button type="button" class="btn btn-danger btn-sm" data-action="cancel-order" data-id="${esc(o.id)}">Cancel Order</button>` : ''}
+        ${canConfirmReceipt ? `<button type="button" class="btn btn-primary btn-sm" data-action="confirm-order-received" data-id="${esc(o.id)}">Order received</button>` : ''}
+        ${o.receivedAt ? '<span class="muted">Receipt confirmed. Thank you!</span>' : ''}
+      </div></article>`;
   }
   function renderOrders() {
     const u = currentUser(); const root = $('#ordersRoot');
@@ -2255,6 +2388,8 @@
       }
       case 'admin-order': { const o = state.orders.find((x) => x.id === id); if (o) orderDetailModal(o); break; }
       case 'confirm-order-received': await confirmOrderReceived(id, el); break;
+      case 'print-receipt': printOrderReceipt(id); break;
+      case 'download-receipt': downloadOrderReceipt(id); break;
       case 'cancel-order': {
         const u = currentUser();
         const o = state.orders.find((order) => order.id === id && u && order.user === u.email);

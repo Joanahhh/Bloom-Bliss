@@ -615,7 +615,8 @@ fieldset { border: 0; padding: 0; margin: 0 0 1.2rem; min-width: 0; }
 .status.delivered { background: #e3f1e6; color: var(--success); }
 .status.cancelled { background: #f7e5e5; color: var(--danger); }
 .order-cancelled-note { margin: 1rem 0; color: var(--danger); font-size: .9rem; font-weight: 600; }
-.order-actions { display: flex; justify-content: flex-end; margin-top: 1rem; }
+.order-actions, .receipt-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: .5rem; }
+.order-actions { margin-top: 1rem; }
 .progress { display: grid; grid-template-columns: repeat(4, 1fr); gap: .4rem; margin: 1rem 0; }
 .progress div { text-align: center; font-size: .72rem; color: var(--muted); position: relative; padding-top: 1.2rem; }
 .progress div::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 6px; border-radius: 6px; background: #eadfdb; }
