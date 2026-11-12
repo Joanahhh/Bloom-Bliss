@@ -380,7 +380,7 @@
   function renderAfterCloudRefresh() {
     const scrollY = window.scrollY;
     route();
-    window.scrollTo({ top: scrollY, behavior: 'auto' });
+    window.scrollTo({ top: scrollY, behavior: 'instant' });
   }
 
   function subscribeToCloudChanges() {
@@ -976,7 +976,7 @@
       default: break;
     }
     renderAuthArea(); updateBadges(); syncWishButtons();
-    window.scrollTo({ top: 0, behavior: 'auto' });
+    window.scrollTo({ top: 0, behavior: 'instant' });
     observeReveals();
   }
 
